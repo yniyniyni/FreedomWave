@@ -1,7 +1,6 @@
 package art.yniyniyni.freedomwave.ui.theme
 
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -15,20 +14,13 @@ actual fun AppTheme(
     darkTheme: Boolean,
     content: @Composable () -> Unit
 ) {
-    val systemDark = isSystemInDarkTheme()
-    val useDark = darkTheme || systemDark
-
     val colorScheme = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val ctx = LocalContext.current
-            if (useDark) dynamicDarkColorScheme(ctx) else dynamicLightColorScheme(ctx)
+            if (darkTheme) dynamicDarkColorScheme(ctx) else dynamicLightColorScheme(ctx)
         }
-        useDark -> darkColorScheme()
-        else    -> lightColorScheme()
+        darkTheme -> darkColorScheme()
+        else      -> lightColorScheme()
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content
-    )
+    MaterialTheme(colorScheme = colorScheme, content = content)
 }

@@ -17,6 +17,7 @@ import art.yniyniyni.freedomwave.ui.feature.dashboard.DashboardViewModel
 import art.yniyniyni.freedomwave.ui.feature.hosts.HostsViewModel
 import art.yniyniyni.freedomwave.ui.feature.login.LoginViewModel
 import art.yniyniyni.freedomwave.ui.feature.nodes.NodesViewModel
+import art.yniyniyni.freedomwave.ui.feature.settings.SettingsViewModel
 import art.yniyniyni.freedomwave.ui.feature.users.UsersViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -48,6 +49,7 @@ val viewModelModule = module {
     viewModel { UsersViewModel(get()) }
     viewModel { NodesViewModel(get()) }
     viewModel { HostsViewModel(get()) }
+    viewModel { SettingsViewModel(get(), get()) }
 }
 
 fun allModules() = listOf(prefsModule, networkModule, repositoryModule, viewModelModule)
