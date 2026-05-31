@@ -7,11 +7,12 @@ class AuthRepository(
     private val authService: AuthService,
     private val prefs: AppPreferences
 ) {
-    suspend fun login(serverUrl: String, username: String, password: String): Result<Unit> =
-        runCatching {
-            val response = authService.login(serverUrl, username, password)
-            prefs.saveCredentials(serverUrl, response.response.accessToken)
-        }
+    suspend fun saveApiKey(serverUrl: String, apiKey: String): Result<Unit> = runCatching {
+        prefs.saveApiKey(serverUrl, apiKey)
+        authService.verifyConnection(serverUrl)
+    }.onFailure {
+        prefs.clearCredentials()
+    }
 
     suspend fun logout() {
         prefs.clearCredentials()

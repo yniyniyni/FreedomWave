@@ -76,31 +76,25 @@ fun LoginScreen(vm: LoginViewModel = koinViewModel()) {
             )
 
             OutlinedTextField(
-                value = state.username,
-                onValueChange = vm::onUsernameChange,
-                label = { Text("Username") },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isLoading
-            )
-
-            OutlinedTextField(
-                value = state.password,
-                onValueChange = vm::onPasswordChange,
-                label = { Text("Password") },
+                value = state.apiKey,
+                onValueChange = vm::onApiKeyChange,
+                label = { Text("API Key") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
                 ),
-                keyboardActions = KeyboardActions(onDone = { vm.login() }),
+                keyboardActions = KeyboardActions(onDone = { vm.save() }),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !state.isLoading
+            )
+
+            Text(
+                text = "Generate an API key in your Remnawave panel under API Tokens",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth()
             )
 
             state.error?.let { error ->
@@ -115,7 +109,7 @@ fun LoginScreen(vm: LoginViewModel = koinViewModel()) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = vm::login,
+                onClick = vm::save,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !state.isLoading
             ) {
@@ -126,7 +120,7 @@ fun LoginScreen(vm: LoginViewModel = koinViewModel()) {
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Text("Sign In")
+                    Text("Connect")
                 }
             }
         }

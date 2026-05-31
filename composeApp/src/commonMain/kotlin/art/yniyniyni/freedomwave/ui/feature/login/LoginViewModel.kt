@@ -11,8 +11,7 @@ import kotlinx.coroutines.launch
 
 data class LoginUiState(
     val serverUrl: String  = "",
-    val username: String   = "",
-    val password: String   = "",
+    val apiKey: String     = "",
     val isLoading: Boolean = false,
     val error: String?     = null
 )
@@ -25,21 +24,20 @@ class LoginViewModel(
     val state: StateFlow<LoginUiState> = _state.asStateFlow()
 
     fun onServerUrlChange(value: String) = _state.update { it.copy(serverUrl = value, error = null) }
-    fun onUsernameChange(value: String)  = _state.update { it.copy(username = value, error = null) }
-    fun onPasswordChange(value: String)  = _state.update { it.copy(password = value, error = null) }
+    fun onApiKeyChange(value: String)    = _state.update { it.copy(apiKey = value, error = null) }
 
-    fun login() {
+    fun save() {
         val s = _state.value
-        if (s.serverUrl.isBlank() || s.username.isBlank() || s.password.isBlank()) {
+        if (s.serverUrl.isBlank() || s.apiKey.isBlank()) {
             _state.update { it.copy(error = "Please fill in all fields") }
             return
         }
 
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            authRepository.login(s.serverUrl.trim(), s.username.trim(), s.password)
+            authRepository.saveApiKey(s.serverUrl.trim(), s.apiKey.trim())
                 .onFailure { e ->
-                    _state.update { it.copy(isLoading = false, error = e.message ?: "Login failed") }
+                    _state.update { it.copy(isLoading = false, error = e.message ?: "Connection failed") }
                 }
                 .onSuccess {
                     _state.update { it.copy(isLoading = false) }
