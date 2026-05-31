@@ -28,9 +28,8 @@ fun buildHttpClient(prefs: AppPreferences): HttpClient = HttpClient {
     install(Auth) {
         bearer {
             loadTokens {
-                prefs.getToken()?.let { BearerTokens(it, "") }
+                prefs.getApiKey()?.let { BearerTokens(it, "") }
             }
-            // No silent refresh — 401 clears token and re-login is required
             refreshTokens { null }
         }
     }
@@ -42,7 +41,7 @@ fun buildHttpClient(prefs: AppPreferences): HttpClient = HttpClient {
     }
 
     defaultRequest {
-        headers.append("x-remnawave-client-type", "browser")
+        headers.append("x-remnawave-client-type", "android")
         contentType(ContentType.Application.Json)
     }
 
