@@ -13,7 +13,7 @@ data class SystemStatsResponse(
 data class SystemStatsData(
     @SerialName("cpu")         val cpu: CpuData,
     @SerialName("memory")      val memory: MemoryData,
-    @SerialName("uptime")      val uptime: Long,
+    @SerialName("uptime")      val uptime: Double,
     @SerialName("timestamp")   val timestamp: Long,
     @SerialName("users")       val users: UsersData,
     @SerialName("onlineStats") val onlineStats: OnlineStatsData,

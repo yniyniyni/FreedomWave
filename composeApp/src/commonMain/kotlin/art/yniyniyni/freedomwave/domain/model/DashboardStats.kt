@@ -26,7 +26,7 @@ data class DashboardStats(
             cpuCores          = stats.cpu.cores,
             memoryUsedBytes   = stats.memory.used,
             memoryTotalBytes  = stats.memory.total,
-            uptimeSeconds     = stats.uptime,
+            uptimeSeconds     = stats.uptime.toLong(),
             totalUsers        = stats.users.totalUsers,
             activeUsers       = stats.users.statusCounts["ACTIVE"] ?: 0,
             onlineNow         = stats.onlineStats.onlineNow,
