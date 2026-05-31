@@ -57,6 +57,6 @@ data class NodeSystemInfoDto(
 data class NodeSystemStatsDto(
     @SerialName("memoryFree") val memoryFree: Long,
     @SerialName("memoryUsed") val memoryUsed: Long,
-    @SerialName("uptime")     val uptime: Long,
+    @SerialName("uptime")     val uptime: Double,
     @SerialName("loadAvg")    val loadAvg: List<Double> = emptyList()
 )

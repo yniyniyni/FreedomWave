@@ -45,7 +45,7 @@ data class Node(
             cpus              = dto.system?.info?.cpus,
             memoryUsedBytes   = dto.system?.stats?.memoryUsed,
             memoryTotalBytes  = dto.system?.info?.memoryTotal,
-            uptimeSeconds     = dto.system?.stats?.uptime,
+            uptimeSeconds     = dto.system?.stats?.uptime?.toLong(),
             loadAvg           = dto.system?.stats?.loadAvg?.firstOrNull()?.toFloat(),
             hostname          = dto.system?.info?.hostname,
             lastStatusMessage = dto.lastStatusMessage,

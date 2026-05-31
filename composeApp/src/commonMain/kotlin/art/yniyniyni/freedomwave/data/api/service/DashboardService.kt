@@ -8,7 +8,7 @@ import io.ktor.client.request.get
 
 class DashboardService(private val client: HttpClient) {
     suspend fun getSystemStats(serverUrl: String): SystemStatsResponse =
-        client.get("$serverUrl/api/system/stats/system-stats").body()
+        client.get("$serverUrl/api/system/stats").body()
 
     suspend fun getRecap(serverUrl: String): RecapResponse =
         client.get("$serverUrl/api/system/stats/recap").body()
