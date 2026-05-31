@@ -5,11 +5,13 @@ import art.yniyniyni.freedomwave.data.api.service.AuthService
 import art.yniyniyni.freedomwave.data.api.service.DashboardService
 import art.yniyniyni.freedomwave.data.api.service.HostService
 import art.yniyniyni.freedomwave.data.api.service.NodeService
+import art.yniyniyni.freedomwave.data.api.service.SquadService
 import art.yniyniyni.freedomwave.data.api.service.UserService
 import art.yniyniyni.freedomwave.data.repository.AuthRepository
 import art.yniyniyni.freedomwave.data.repository.DashboardRepository
 import art.yniyniyni.freedomwave.data.repository.HostRepository
 import art.yniyniyni.freedomwave.data.repository.NodeRepository
+import art.yniyniyni.freedomwave.data.repository.SquadRepository
 import art.yniyniyni.freedomwave.data.repository.UserRepository
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.data.store.createDataStore
@@ -18,6 +20,7 @@ import art.yniyniyni.freedomwave.ui.feature.hosts.HostsViewModel
 import art.yniyniyni.freedomwave.ui.feature.login.LoginViewModel
 import art.yniyniyni.freedomwave.ui.feature.nodes.NodesViewModel
 import art.yniyniyni.freedomwave.ui.feature.settings.SettingsViewModel
+import art.yniyniyni.freedomwave.ui.feature.squads.SquadsViewModel
 import art.yniyniyni.freedomwave.ui.feature.users.UsersViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -33,6 +36,7 @@ val networkModule = module {
     single { UserService(get()) }
     single { NodeService(get()) }
     single { HostService(get()) }
+    single { SquadService(get()) }
 }
 
 val repositoryModule = module {
@@ -41,6 +45,7 @@ val repositoryModule = module {
     single { UserRepository(get(), get()) }
     single { NodeRepository(get(), get()) }
     single { HostRepository(get(), get()) }
+    single { SquadRepository(get(), get()) }
 }
 
 val viewModelModule = module {
@@ -50,6 +55,7 @@ val viewModelModule = module {
     viewModel { NodesViewModel(get()) }
     viewModel { HostsViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }
+    viewModel { SquadsViewModel(get()) }
 }
 
 fun allModules() = listOf(prefsModule, networkModule, repositoryModule, viewModelModule)

@@ -17,6 +17,7 @@ import art.yniyniyni.freedomwave.ui.feature.dashboard.DashboardScreen
 import art.yniyniyni.freedomwave.ui.feature.hosts.HostsScreen
 import art.yniyniyni.freedomwave.ui.feature.nodes.NodesScreen
 import art.yniyniyni.freedomwave.ui.feature.settings.SettingsScreen
+import art.yniyniyni.freedomwave.ui.feature.squads.SquadsScreen
 import art.yniyniyni.freedomwave.ui.feature.users.UsersScreen
 
 private enum class MainTab(val label: String, val icon: String) {
@@ -24,6 +25,7 @@ private enum class MainTab(val label: String, val icon: String) {
     USERS("Users",         "👥"),
     NODES("Nodes",         "🖥"),
     HOSTS("Hosts",         "🌐"),
+    SQUADS("Squads",       "🗂"),
     SETTINGS("Settings",   "⚙️"),
 }
 
@@ -51,6 +53,7 @@ fun MainScreen() {
                 MainTab.USERS     -> UsersScreen()
                 MainTab.NODES     -> NodesScreen()
                 MainTab.HOSTS     -> HostsScreen()
+                MainTab.SQUADS    -> SquadsScreen()
                 MainTab.SETTINGS  -> SettingsScreen()
             }
         }
