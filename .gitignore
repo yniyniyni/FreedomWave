@@ -1,16 +1,39 @@
+# Android / Gradle
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
+local.properties
 /build
+**/build/
 /captures
 .externalNativeBuild
 .cxx
-local.properties
-/.idea
+*.apk
+*.aab
+
+# IDE — IntelliJ / Android Studio
+/.idea/
+.idea/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Kotlin / KMP
+*.klib
+kotlin-js-store/
+.kotlin/
+composeApp/.kotlin/
+
+# iOS
+/iosApp/
+*.framework/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+DerivedData/
+*.ipa
+
+# Project-specific (gitignored intentionally)
+/temporary/
+/plan.md
+/CLAUDE.md
