@@ -1,0 +1,36 @@
+package art.yniyniyni.freedomwave.ui.feature.dashboard
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import art.yniyniyni.freedomwave.data.repository.DashboardRepository
+import art.yniyniyni.freedomwave.domain.model.DashboardStats
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+data class DashboardUiState(
+    val isLoading: Boolean      = false,
+    val stats: DashboardStats?  = null,
+    val error: String?          = null
+)
+
+class DashboardViewModel(
+    private val dashboardRepository: DashboardRepository
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(DashboardUiState())
+    val state: StateFlow<DashboardUiState> = _state.asStateFlow()
+
+    init { refresh() }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, error = null) }
+            dashboardRepository.getStats()
+                .onSuccess { stats -> _state.update { it.copy(isLoading = false, stats = stats) } }
+                .onFailure { e   -> _state.update { it.copy(isLoading = false, error = e.message) } }
+        }
+    }
+}

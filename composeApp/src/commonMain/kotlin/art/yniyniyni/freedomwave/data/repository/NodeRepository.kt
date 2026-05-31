@@ -1,0 +1,25 @@
+package art.yniyniyni.freedomwave.data.repository
+
+import art.yniyniyni.freedomwave.data.api.ApiError
+import art.yniyniyni.freedomwave.data.api.service.NodeService
+import art.yniyniyni.freedomwave.data.store.AppPreferences
+import art.yniyniyni.freedomwave.domain.model.Node
+
+class NodeRepository(
+    private val service: NodeService,
+    private val prefs: AppPreferences
+) {
+    suspend fun getNodes(): Result<List<Node>> = api {
+        service.getNodes(prefs.getServerUrl()).response.map { Node.from(it) }
+    }
+
+    suspend fun enableNode(uuid: String): Result<Node>   = api { Node.from(service.enableNode(prefs.getServerUrl(), uuid).response) }
+    suspend fun disableNode(uuid: String): Result<Node>  = api { Node.from(service.disableNode(prefs.getServerUrl(), uuid).response) }
+    suspend fun restartNode(uuid: String): Result<Node>  = api { Node.from(service.restartNode(prefs.getServerUrl(), uuid).response) }
+    suspend fun resetTraffic(uuid: String): Result<Node> = api { Node.from(service.resetTraffic(prefs.getServerUrl(), uuid).response) }
+
+    private suspend fun <T> api(block: suspend () -> T): Result<T> =
+        runCatching { block() }.also { result ->
+            if (result.exceptionOrNull() is ApiError.Unauthorized) prefs.clearCredentials()
+        }
+}

@@ -1,0 +1,50 @@
+package art.yniyniyni.freedomwave.ui.feature.nodes
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import art.yniyniyni.freedomwave.data.repository.NodeRepository
+import art.yniyniyni.freedomwave.domain.model.Node
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+data class NodesUiState(
+    val isLoading: Boolean   = false,
+    val nodes: List<Node>    = emptyList(),
+    val error: String?       = null,
+    val actionError: String? = null
+)
+
+class NodesViewModel(private val nodeRepository: NodeRepository) : ViewModel() {
+
+    private val _state = MutableStateFlow(NodesUiState())
+    val state: StateFlow<NodesUiState> = _state.asStateFlow()
+
+    init { load() }
+
+    fun load() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, error = null) }
+            nodeRepository.getNodes()
+                .onSuccess { nodes -> _state.update { it.copy(isLoading = false, nodes = nodes) } }
+                .onFailure { e    -> _state.update { it.copy(isLoading = false, error = e.message) } }
+        }
+    }
+
+    fun enableNode(uuid: String)   = action(uuid) { nodeRepository.enableNode(uuid) }
+    fun disableNode(uuid: String)  = action(uuid) { nodeRepository.disableNode(uuid) }
+    fun restartNode(uuid: String)  = action(uuid) { nodeRepository.restartNode(uuid) }
+    fun resetTraffic(uuid: String) = action(uuid) { nodeRepository.resetTraffic(uuid) }
+
+    fun clearActionError() = _state.update { it.copy(actionError = null) }
+
+    private fun action(uuid: String, block: suspend () -> Result<Node>) {
+        viewModelScope.launch {
+            block()
+                .onSuccess { updated -> _state.update { it.copy(nodes = it.nodes.map { n -> if (n.uuid == uuid) updated else n }) } }
+                .onFailure { e -> _state.update { it.copy(actionError = e.message) } }
+        }
+    }
+}
