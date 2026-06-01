@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,8 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,10 +53,11 @@ fun DashboardScreen(
     val bandwidthState by bandwidthVm.state.collectAsState()
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0),
         topBar = {
-            TopAppBar(
-                title = { Text("Dashboard") },
-                actions = { TextButton(onClick = vm::refresh) { Text("Refresh") } }
+            FwTopBar(
+                title = "Dashboard",
+                actions = { TextButton(onClick = vm::refresh) { Text("Refresh") } },
             )
         }
     ) { padding ->

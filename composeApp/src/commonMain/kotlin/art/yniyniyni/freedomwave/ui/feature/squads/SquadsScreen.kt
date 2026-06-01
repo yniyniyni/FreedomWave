@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,8 +36,9 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
+import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -126,16 +128,17 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
     val currentList = if (state.activeTab == 0) state.internalSquads else state.externalSquads
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0),
         topBar = {
-            TopAppBar(
-                title = { Text("Squads") },
-                actions = { TextButton(onClick = vm::load) { Text("Refresh") } }
+            FwTopBar(
+                title = "Squads",
+                actions = { TextButton(onClick = vm::load) { Text("Refresh") } },
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = vm::openCreateDialog,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50),
+                shape = MaterialTheme.shapes.large,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor   = MaterialTheme.colorScheme.onPrimary,
             ) {
@@ -258,12 +261,8 @@ private fun SquadDetailScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(squad.name) },
-                navigationIcon = { TextButton(onClick = onBack) { Text("← Back") } }
-            )
-        }
+        contentWindowInsets = WindowInsets(0),
+        topBar = { FwDetailTopBar(title = squad.name, onBack = onBack) }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),

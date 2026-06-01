@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,8 +34,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
+import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -82,11 +84,12 @@ fun NodesScreen(
     when (val current = nav) {
         is NodesNav.List ->
             Scaffold(
+                contentWindowInsets = WindowInsets(0),
                 snackbarHost = { SnackbarHost(snackbar) },
                 topBar = {
-                    TopAppBar(
-                        title = { Text("Nodes (${state.nodes.size})") },
-                        actions = { TextButton(onClick = vm::load) { Text("Refresh") } }
+                    FwTopBar(
+                        title = "Nodes (${state.nodes.size})",
+                        actions = { TextButton(onClick = vm::load) { Text("Refresh") } },
                     )
                 }
             ) { padding ->
@@ -225,12 +228,8 @@ private fun NodeDetailScreen(
         ?: emptyList()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(node.name) },
-                navigationIcon = { TextButton(onClick = onBack) { Text("← Back") } }
-            )
-        }
+        contentWindowInsets = WindowInsets(0),
+        topBar = { FwDetailTopBar(title = node.name, onBack = onBack) }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.padding(padding),

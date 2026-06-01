@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,7 +23,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,10 +46,11 @@ internal fun UserCreateEditScreen(
     val isCreate = state.editingUser == null
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0),
         topBar = {
-            TopAppBar(
-                title = { Text(if (isCreate) "New User" else "Edit ${state.editingUser!!.username}") },
-                navigationIcon = { TextButton(onClick = vm::closeForm) { Text("← Back") } }
+            FwDetailTopBar(
+                title = if (isCreate) "New User" else "Edit ${state.editingUser!!.username}",
+                onBack = vm::closeForm,
             )
         }
     ) { padding ->
