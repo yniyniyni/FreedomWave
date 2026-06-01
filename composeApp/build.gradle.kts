@@ -61,6 +61,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.datastore.preferences)
             implementation(libs.koin.androidx.compose)
+            implementation("androidx.biometric:biometric:1.1.0")
         }
 
         iosMain.dependencies {
