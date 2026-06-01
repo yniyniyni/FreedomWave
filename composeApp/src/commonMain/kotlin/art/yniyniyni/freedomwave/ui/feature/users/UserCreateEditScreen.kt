@@ -58,7 +58,11 @@ internal fun UserCreateEditScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape    = MaterialTheme.shapes.large,
+                    colors   = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text("Identity", style = MaterialTheme.typography.titleSmall)
 
@@ -103,7 +107,11 @@ internal fun UserCreateEditScreen(
             }
 
             item {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape    = MaterialTheme.shapes.large,
+                    colors   = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text("Traffic", style = MaterialTheme.typography.titleSmall)
 
@@ -139,7 +147,11 @@ internal fun UserCreateEditScreen(
             }
 
             item {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape    = MaterialTheme.shapes.large,
+                    colors   = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text("Expiry", style = MaterialTheme.typography.titleSmall)
 
@@ -172,7 +184,8 @@ internal fun UserCreateEditScreen(
                 Button(
                     onClick = vm::saveForm,
                     enabled = !state.formIsLoading,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50),
                 ) {
                     if (state.formIsLoading) {
                         CircularProgressIndicator(modifier = Modifier.height(18.dp), strokeWidth = 2.dp)

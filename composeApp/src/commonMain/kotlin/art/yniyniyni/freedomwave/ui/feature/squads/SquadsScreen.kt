@@ -1,6 +1,9 @@
 package art.yniyniyni.freedomwave.ui.feature.squads
 
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -130,7 +133,17 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = vm::openCreateDialog) { Text("+") }
+            FloatingActionButton(
+                onClick = vm::openCreateDialog,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor   = MaterialTheme.colorScheme.onPrimary,
+            ) {
+                Icon(
+                    Icons.Rounded.Add,
+                    contentDescription = "New squad",
+                )
+            }
         },
         snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->
@@ -187,7 +200,11 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
 
 @Composable
 private fun SquadItem(squad: Squad, onClick: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape    = MaterialTheme.shapes.large,
+        colors   = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -254,7 +271,11 @@ private fun SquadDetailScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape    = MaterialTheme.shapes.large,
+                        colors   = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                    ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("Info", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                         InfoRow("Name", squad.name)
@@ -271,14 +292,16 @@ private fun SquadDetailScreen(
                     OutlinedButton(
                         onClick = onEdit,
                         enabled = !actionInProgress,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50),
                     ) { Text("Rename") }
 
                     Button(
                         onClick = { showDeleteDialog = true },
                         enabled = !actionInProgress,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50),
                     ) { Text("Delete") }
                 }
             }
