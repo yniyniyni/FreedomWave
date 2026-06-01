@@ -1,5 +1,16 @@
+@file:OptIn(ExperimentalTransitionApi::class)
+
 package art.yniyniyni.freedomwave.ui.feature.users
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.ExperimentalTransitionApi
+import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -94,8 +106,54 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
         return
     }
 
-    when (val current = nav) {
-        is UsersNav.List ->
+    val isDetail = nav is UsersNav.Detail
+
+    // SeekableTransitionState drives the slide animation and responds to predictive back.
+    val transitionState = remember { SeekableTransitionState(false) }
+    val transition = rememberTransition(transitionState, label = "users_nav")
+
+    // Sync transition with nav state (forward navigation or "← Back" button press).
+    LaunchedEffect(isDetail) { transitionState.animateTo(isDetail) }
+
+    // Snapshot the last non-null user so the detail content stays available during the
+    // exit animation even after nav has been reset to List.
+    var lastDetailUser by remember { mutableStateOf<User?>(null) }
+    val currentDetailUser = (nav as? UsersNav.Detail)?.user
+    if (currentDetailUser != null) lastDetailUser = currentDetailUser
+
+    // Predictive back: seek the transition during the drag, complete or reverse on release.
+    BackGestureEffect(
+        enabled = isDetail,
+        onProgress = { fraction -> transitionState.seekTo(fraction, false) },
+        onCommit   = { transitionState.animateTo(false); nav = UsersNav.List },
+        onCancel   = { transitionState.animateTo(true) },
+    )
+
+    transition.AnimatedContent(
+        contentKey = { it },
+        transitionSpec = {
+            if (targetState) {
+                // Forward — detail slides in from the right.
+                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
+            } else {
+                // Back — list fades in, detail slides out to the right.
+                fadeIn(initialAlpha = 0.7f) togetherWith slideOutHorizontally { it }
+            }.using(SizeTransform(clip = true))
+        },
+    ) { showDetail ->
+        if (showDetail) {
+            lastDetailUser?.let { user ->
+                UserDetailScreen(
+                    user          = user,
+                    onBack        = { nav = UsersNav.List },
+                    onEdit        = { vm.openEditForm(user) },
+                    onEnable      = { vm.enableUser(user.uuid) },
+                    onDisable     = { vm.disableUser(user.uuid) },
+                    onResetTraffic= { vm.resetTraffic(user.uuid) },
+                    onDelete      = { vm.deleteUser(user.uuid); nav = UsersNav.List },
+                )
+            }
+        } else {
             Scaffold(
                 contentWindowInsets = WindowInsets(0),
                 snackbarHost = { SnackbarHost(snackbar) },
@@ -107,27 +165,25 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = vm::openCreateForm,
-                        shape   = MaterialTheme.shapes.large,
+                        onClick        = vm::openCreateForm,
+                        shape          = MaterialTheme.shapes.large,
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor   = MaterialTheme.colorScheme.onPrimary,
-                        elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                        elevation      = FloatingActionButtonDefaults.elevation(0.dp),
                     ) {
                         Icon(Icons.Rounded.Add, contentDescription = "New user", modifier = Modifier.size(28.dp))
                     }
-                }
+                },
             ) { padding ->
                 Column(modifier = Modifier.fillMaxSize().padding(padding)) {
                     OutlinedTextField(
-                        value = state.query,
+                        value         = state.query,
                         onValueChange = vm::onQueryChange,
-                        placeholder = { Text("Search by username or tag") },
-                        leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.medium,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                        placeholder   = { Text("Search by username or tag") },
+                        leadingIcon   = { Icon(Icons.Rounded.Search, contentDescription = null) },
+                        singleLine    = true,
+                        shape         = MaterialTheme.shapes.medium,
+                        modifier      = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                     )
                     when {
                         state.isLoading && state.users.isEmpty() ->
@@ -144,24 +200,24 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                         else ->
                             PullToRefreshBox(
                                 isRefreshing = state.isLoading && state.users.isNotEmpty(),
-                                onRefresh = vm::load
+                                onRefresh    = vm::load,
                             ) {
                                 if (state.filtered.isEmpty()) {
                                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                         Text(
                                             if (state.query.isBlank()) "No users" else "No results for \"${state.query}\"",
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         )
                                     }
                                 } else {
                                     LazyColumn(
                                         contentPadding = PaddingValues(16.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
                                     ) {
                                         items(state.filtered, key = { it.uuid }) { user ->
                                             UserListItem(
-                                                user = user,
-                                                onClick = { nav = UsersNav.Detail(user) }
+                                                user    = user,
+                                                onClick = { nav = UsersNav.Detail(user) },
                                             )
                                         }
                                     }
@@ -170,17 +226,7 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                     }
                 }
             }
-
-        is UsersNav.Detail ->
-            UserDetailScreen(
-                user = current.user,
-                onBack = { nav = UsersNav.List },
-                onEdit = { vm.openEditForm(current.user) },
-                onEnable = { vm.enableUser(current.user.uuid) },
-                onDisable = { vm.disableUser(current.user.uuid) },
-                onResetTraffic = { vm.resetTraffic(current.user.uuid) },
-                onDelete = { vm.deleteUser(current.user.uuid); nav = UsersNav.List }
-            )
+        }
     }
 }
 

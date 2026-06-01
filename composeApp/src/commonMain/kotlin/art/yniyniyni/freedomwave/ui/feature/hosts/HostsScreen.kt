@@ -1,5 +1,16 @@
+@file:OptIn(ExperimentalTransitionApi::class)
+
 package art.yniyniyni.freedomwave.ui.feature.hosts
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.ExperimentalTransitionApi
+import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -64,65 +76,95 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
         }
     }
 
-    if (state.selected != null) {
-        HostDetailScreen(
-            host = state.selected!!,
-            actionInProgress = state.actionInProgress,
-            onBack = vm::clearSelection,
-            onToggleEnabled = { vm.toggleEnabled(state.selected!!) },
-            onDelete = { vm.delete(state.selected!!) }
-        )
-    } else {
-        Scaffold(
-            contentWindowInsets = WindowInsets(0),
-            topBar = {
-                FwTopBar(
-                    title = "Hosts (${state.hosts.size})",
-                    actions = { TextButton(onClick = vm::load) { Text("Refresh") } },
-                )
-            },
-            snackbarHost = { SnackbarHost(snackbar) }
-        ) { padding ->
-            when {
-                state.isLoading && state.hosts.isEmpty() ->
-                    ShimmerList(modifier = Modifier.padding(padding))
+    val isDetail = state.selected != null
 
-                state.error != null && state.hosts.isEmpty() ->
-                    Box(Modifier.fillMaxSize().padding(padding)) {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center).padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(state.error!!, color = MaterialTheme.colorScheme.error)
-                            Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) {
-                                Text("Retry")
+    val transitionState = remember { SeekableTransitionState(false) }
+    val transition = rememberTransition(transitionState, label = "hosts_nav")
+
+    LaunchedEffect(isDetail) { transitionState.animateTo(isDetail) }
+
+    // Snapshot the last selected host so the detail content stays alive during the exit animation.
+    var lastSelectedHost by remember { mutableStateOf<Host?>(null) }
+    val currentSelected = state.selected
+    if (currentSelected != null) lastSelectedHost = currentSelected
+
+    BackGestureEffect(
+        enabled    = isDetail,
+        onProgress = { fraction -> transitionState.seekTo(fraction, false) },
+        onCommit   = { transitionState.animateTo(false); vm.clearSelection() },
+        onCancel   = { transitionState.animateTo(true) },
+    )
+
+    transition.AnimatedContent(
+        contentKey = { it },
+        transitionSpec = {
+            if (targetState) {
+                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
+            } else {
+                fadeIn(initialAlpha = 0.7f) togetherWith slideOutHorizontally { it }
+            }.using(SizeTransform(clip = true))
+        },
+    ) { showDetail ->
+        if (showDetail) {
+            lastSelectedHost?.let { host ->
+                HostDetailScreen(
+                    host             = host,
+                    actionInProgress = state.actionInProgress,
+                    onBack           = vm::clearSelection,
+                    onToggleEnabled  = { vm.toggleEnabled(host) },
+                    onDelete         = { vm.delete(host) },
+                )
+            }
+        } else {
+            Scaffold(
+                contentWindowInsets = WindowInsets(0),
+                topBar = {
+                    FwTopBar(
+                        title   = "Hosts (${state.hosts.size})",
+                        actions = { TextButton(onClick = vm::load) { Text("Refresh") } },
+                    )
+                },
+                snackbarHost = { SnackbarHost(snackbar) },
+            ) { padding ->
+                when {
+                    state.isLoading && state.hosts.isEmpty() ->
+                        ShimmerList(modifier = Modifier.padding(padding))
+
+                    state.error != null && state.hosts.isEmpty() ->
+                        Box(Modifier.fillMaxSize().padding(padding)) {
+                            Column(
+                                modifier = Modifier.align(Alignment.Center).padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(state.error!!, color = MaterialTheme.colorScheme.error)
+                                Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
                             }
                         }
-                    }
 
-                else ->
-                    PullToRefreshBox(
-                        isRefreshing = state.isLoading && state.hosts.isNotEmpty(),
-                        onRefresh = vm::load,
-                        modifier = Modifier.fillMaxSize().padding(padding)
-                    ) {
-                        if (state.hosts.isEmpty()) {
-                            Text(
-                                "No hosts",
-                                modifier = Modifier.align(Alignment.Center),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        } else {
-                            LazyColumn(
-                                contentPadding = PaddingValues(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                items(state.hosts, key = { it.uuid }) { host ->
-                                    HostItem(host = host, onClick = { vm.select(host) })
+                    else ->
+                        PullToRefreshBox(
+                            isRefreshing = state.isLoading && state.hosts.isNotEmpty(),
+                            onRefresh    = vm::load,
+                            modifier     = Modifier.fillMaxSize().padding(padding),
+                        ) {
+                            if (state.hosts.isEmpty()) {
+                                Text(
+                                    "No hosts",
+                                    modifier = Modifier.align(Alignment.Center),
+                                    color    = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            } else {
+                                LazyColumn(
+                                    contentPadding      = PaddingValues(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    items(state.hosts, key = { it.uuid }) { host ->
+                                        HostItem(host = host, onClick = { vm.select(host) })
+                                    }
                                 }
                             }
                         }
-                    }
+                }
             }
         }
     }

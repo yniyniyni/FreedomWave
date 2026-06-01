@@ -1,5 +1,16 @@
+@file:OptIn(ExperimentalTransitionApi::class)
+
 package art.yniyniyni.freedomwave.ui.feature.nodes
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.ExperimentalTransitionApi
+import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.size
+import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -81,17 +93,57 @@ fun NodesScreen(
         state.actionError?.let { snackbar.showSnackbar(it); vm.clearActionError() }
     }
 
-    when (val current = nav) {
-        is NodesNav.List ->
+    val isDetail = nav is NodesNav.Detail
+
+    val transitionState = remember { SeekableTransitionState(false) }
+    val transition = rememberTransition(transitionState, label = "nodes_nav")
+
+    LaunchedEffect(isDetail) { transitionState.animateTo(isDetail) }
+
+    var lastDetailNode by remember { mutableStateOf<Node?>(null) }
+    val currentDetailNode = (nav as? NodesNav.Detail)?.node
+    if (currentDetailNode != null) lastDetailNode = currentDetailNode
+
+    BackGestureEffect(
+        enabled    = isDetail,
+        onProgress = { fraction -> transitionState.seekTo(fraction, false) },
+        onCommit   = { transitionState.animateTo(false); nav = NodesNav.List },
+        onCancel   = { transitionState.animateTo(true) },
+    )
+
+    transition.AnimatedContent(
+        contentKey = { it },
+        transitionSpec = {
+            if (targetState) {
+                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
+            } else {
+                fadeIn(initialAlpha = 0.7f) togetherWith slideOutHorizontally { it }
+            }.using(SizeTransform(clip = true))
+        },
+    ) { showDetail ->
+        if (showDetail) {
+            lastDetailNode?.let { node ->
+                NodeDetailScreen(
+                    node           = node,
+                    bandwidthState = bandwidthState,
+                    onRangeChange  = bandwidthVm::setRange,
+                    onBack         = { nav = NodesNav.List },
+                    onEnable       = { vm.enableNode(node.uuid) },
+                    onDisable      = { vm.disableNode(node.uuid) },
+                    onRestart      = { vm.restartNode(node.uuid) },
+                    onReset        = { vm.resetTraffic(node.uuid) },
+                )
+            }
+        } else {
             Scaffold(
                 contentWindowInsets = WindowInsets(0),
                 snackbarHost = { SnackbarHost(snackbar) },
                 topBar = {
                     FwTopBar(
-                        title = "Nodes (${state.nodes.size})",
+                        title   = "Nodes (${state.nodes.size})",
                         actions = { TextButton(onClick = vm::load) { Text("Refresh") } },
                     )
-                }
+                },
             ) { padding ->
                 when {
                     state.isLoading && state.nodes.isEmpty() ->
@@ -101,7 +153,7 @@ fun NodesScreen(
                         Column(
                             Modifier.fillMaxSize().padding(padding).padding(32.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                            verticalArrangement = Arrangement.Center,
                         ) {
                             Text(state.error!!, color = MaterialTheme.colorScheme.error)
                             Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
@@ -110,23 +162,23 @@ fun NodesScreen(
                     else ->
                         PullToRefreshBox(
                             isRefreshing = state.isLoading && state.nodes.isNotEmpty(),
-                            onRefresh = vm::load,
-                            modifier = Modifier.fillMaxSize().padding(padding)
+                            onRefresh    = vm::load,
+                            modifier     = Modifier.fillMaxSize().padding(padding),
                         ) {
                             if (state.nodes.isEmpty()) {
                                 Text(
                                     "No nodes found",
                                     modifier = Modifier.align(Alignment.Center),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color    = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             } else {
                                 LazyColumn(
-                                    contentPadding = PaddingValues(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    contentPadding      = PaddingValues(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
                                     items(state.nodes, key = { it.uuid }) { node ->
                                         NodeListItem(
-                                            node = node,
+                                            node    = node,
                                             onClick = { nav = NodesNav.Detail(node) },
                                         )
                                     }
@@ -135,18 +187,7 @@ fun NodesScreen(
                         }
                 }
             }
-
-        is NodesNav.Detail ->
-            NodeDetailScreen(
-                node = current.node,
-                bandwidthState = bandwidthState,
-                onRangeChange = bandwidthVm::setRange,
-                onBack     = { nav = NodesNav.List },
-                onEnable   = { vm.enableNode(current.node.uuid) },
-                onDisable  = { vm.disableNode(current.node.uuid) },
-                onRestart  = { vm.restartNode(current.node.uuid) },
-                onReset    = { vm.resetTraffic(current.node.uuid) }
-            )
+        }
     }
 }
 
