@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,22 +28,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.DashboardStats
+import art.yniyniyni.freedomwave.ui.components.SparklineChart
+import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.util.formatBytesStr
 import art.yniyniyni.freedomwave.util.formatUptime
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(vm: DashboardViewModel = koinViewModel()) {
+fun DashboardScreen(
+    vm: DashboardViewModel = koinViewModel(),
+    bandwidthVm: BandwidthViewModel = koinViewModel()
+) {
     val state by vm.state.collectAsState()
+    val bandwidthState by bandwidthVm.state.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Dashboard") },
-                actions = {
-                    TextButton(onClick = vm::refresh) { Text("Refresh") }
-                }
+                actions = { TextButton(onClick = vm::refresh) { Text("Refresh") } }
             )
         }
     ) { padding ->
@@ -54,19 +59,56 @@ fun DashboardScreen(vm: DashboardViewModel = koinViewModel()) {
                 state.error != null && state.stats == null ->
                     ErrorState(error = state.error!!, onRetry = vm::refresh)
 
-                state.stats != null ->
-                    StatsList(stats = state.stats!!)
+                state.stats != null -> {
+                    val isRefreshing = state.isLoading
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = vm::refresh,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        StatsList(
+                            stats = state.stats!!,
+                            sparklineData = bandwidthState.data?.sparklineData ?: emptyList(),
+                            sparklineCategories = bandwidthState.data?.categories ?: emptyList()
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun StatsList(stats: DashboardStats) {
+private fun StatsList(
+    stats: DashboardStats,
+    sparklineData: List<Double>,
+    sparklineCategories: List<String>
+) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Traffic sparkline card
+        if (sparklineData.isNotEmpty()) {
+            item {
+                Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(1.dp)) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Traffic (${sparklineCategories.size}d)", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                            if (sparklineCategories.isNotEmpty()) {
+                                Text(
+                                    "${sparklineCategories.first().takeLast(5)} – ${sparklineCategories.last().takeLast(5)}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        SparklineChart(data = sparklineData)
+                    }
+                }
+            }
+        }
+
         item {
             StatCard(title = "Panel") {
                 StatRow("Version", stats.panelVersion)
@@ -109,10 +151,7 @@ private fun StatsList(stats: DashboardStats) {
 
 @Composable
 private fun StatCard(title: String, content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-    ) {
+    Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(text = title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             content()

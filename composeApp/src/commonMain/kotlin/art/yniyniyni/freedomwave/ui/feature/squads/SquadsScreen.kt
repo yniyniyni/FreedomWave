@@ -33,6 +33,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Squad
+import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -140,12 +142,12 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
                     text = { Text("External (${state.externalSquads.size})") })
             }
 
-            Box(modifier = Modifier.fillMaxSize()) {
-                when {
-                    state.isLoading && currentList.isEmpty() ->
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            when {
+                state.isLoading && currentList.isEmpty() ->
+                    ShimmerList()
 
-                    state.error != null && currentList.isEmpty() ->
+                state.error != null && currentList.isEmpty() ->
+                    Box(modifier = Modifier.fillMaxSize()) {
                         Column(
                             modifier = Modifier.align(Alignment.Center).padding(32.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -153,24 +155,31 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
                             Text(state.error!!, color = MaterialTheme.colorScheme.error)
                             Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
                         }
+                    }
 
-                    currentList.isEmpty() ->
-                        Text(
-                            "No squads. Tap + to create one.",
-                            modifier = Modifier.align(Alignment.Center),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                    else ->
-                        LazyColumn(
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(currentList, key = { it.uuid }) { squad ->
-                                SquadItem(squad = squad, onClick = { vm.select(squad) })
+                else ->
+                    PullToRefreshBox(
+                        isRefreshing = state.isLoading && currentList.isNotEmpty(),
+                        onRefresh = vm::load,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        if (currentList.isEmpty()) {
+                            Text(
+                                "No squads. Tap + to create one.",
+                                modifier = Modifier.align(Alignment.Center),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            LazyColumn(
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(currentList, key = { it.uuid }) { squad ->
+                                    SquadItem(squad = squad, onClick = { vm.select(squad) })
+                                }
                             }
                         }
-                }
+                    }
             }
         }
     }

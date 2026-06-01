@@ -22,6 +22,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.User
 import art.yniyniyni.freedomwave.domain.model.UserStatus
+import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.util.formatBytes
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -103,9 +105,8 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                     )
                     when {
                         state.isLoading && state.users.isEmpty() ->
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                CircularProgressIndicator()
-                            }
+                            ShimmerList()
+
                         state.error != null && state.users.isEmpty() ->
                             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -113,16 +114,31 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                                     Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
                                 }
                             }
+
                         else ->
-                            LazyColumn(
-                                contentPadding = PaddingValues(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            PullToRefreshBox(
+                                isRefreshing = state.isLoading && state.users.isNotEmpty(),
+                                onRefresh = vm::load
                             ) {
-                                items(state.filtered, key = { it.uuid }) { user ->
-                                    UserListItem(
-                                        user = user,
-                                        onClick = { nav = UsersNav.Detail(user) }
-                                    )
+                                if (state.filtered.isEmpty()) {
+                                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        Text(
+                                            if (state.query.isBlank()) "No users" else "No results for \"${state.query}\"",
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                } else {
+                                    LazyColumn(
+                                        contentPadding = PaddingValues(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        items(state.filtered, key = { it.uuid }) { user ->
+                                            UserListItem(
+                                                user = user,
+                                                onClick = { nav = UsersNav.Detail(user) }
+                                            )
+                                        }
+                                    }
                                 }
                             }
                     }
