@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -39,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Host
+import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,12 +74,12 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
             },
             snackbarHost = { SnackbarHost(snackbar) }
         ) { padding ->
-            Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-                when {
-                    state.isLoading && state.hosts.isEmpty() ->
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            when {
+                state.isLoading && state.hosts.isEmpty() ->
+                    ShimmerList(modifier = Modifier.padding(padding))
 
-                    state.error != null && state.hosts.isEmpty() ->
+                state.error != null && state.hosts.isEmpty() ->
+                    Box(Modifier.fillMaxSize().padding(padding)) {
                         Column(
                             modifier = Modifier.align(Alignment.Center).padding(32.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -87,24 +89,31 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
                                 Text("Retry")
                             }
                         }
+                    }
 
-                    state.hosts.isEmpty() ->
-                        Text(
-                            "No hosts",
-                            modifier = Modifier.align(Alignment.Center),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                    else ->
-                        LazyColumn(
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(state.hosts, key = { it.uuid }) { host ->
-                                HostItem(host = host, onClick = { vm.select(host) })
+                else ->
+                    PullToRefreshBox(
+                        isRefreshing = state.isLoading && state.hosts.isNotEmpty(),
+                        onRefresh = vm::load,
+                        modifier = Modifier.fillMaxSize().padding(padding)
+                    ) {
+                        if (state.hosts.isEmpty()) {
+                            Text(
+                                "No hosts",
+                                modifier = Modifier.align(Alignment.Center),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            LazyColumn(
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(state.hosts, key = { it.uuid }) { host ->
+                                    HostItem(host = host, onClick = { vm.select(host) })
+                                }
                             }
                         }
-                }
+                    }
             }
         }
     }
