@@ -26,6 +26,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -44,6 +45,7 @@ import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_DARK
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_LIGHT
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_SYSTEM
+import art.yniyniyni.freedomwave.ui.auth.rememberBiometricAuthenticator
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -54,10 +56,13 @@ private const val APP_VERSION = "1.0.0"
 fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
     val prefs: AppPreferences = koinInject()
-    val serverUrl by prefs.serverUrl.collectAsState("")
-    val apiKey by prefs.apiKey.collectAsState(null)
-    val themeMode by prefs.themeMode.collectAsState(THEME_SYSTEM)
-    val clipboard = LocalClipboardManager.current
+    val serverUrl        by prefs.serverUrl.collectAsState("")
+    val apiKey           by prefs.apiKey.collectAsState(null)
+    val themeMode        by prefs.themeMode.collectAsState(THEME_SYSTEM)
+    val biometricEnabled by prefs.biometricEnabled.collectAsState(false)
+    val clipboard        = LocalClipboardManager.current
+    val biometricAuth    = rememberBiometricAuthenticator()
+    val canUseBiometrics = biometricAuth.isAvailable()
 
     val maskedKey = apiKey?.let {
         if (it.length > 8) it.take(8) + "•".repeat(16) else "•".repeat(it.length)
@@ -130,6 +135,38 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                                     selected = themeMode == mode
                                 ) { Text(labels[i]) }
                             }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text("Security", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.height(4.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Biometric lock", style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    if (canUseBiometrics) "Require authentication on launch"
+                                    else "No biometrics enrolled on this device",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Switch(
+                                checked = biometricEnabled && canUseBiometrics,
+                                onCheckedChange = { vm.setBiometricEnabled(it) },
+                                enabled = canUseBiometrics
+                            )
                         }
                     }
                 }

@@ -62,6 +62,10 @@ class SettingsViewModel(
         viewModelScope.launch { prefs.saveThemeMode(mode) }
     }
 
+    fun setBiometricEnabled(enabled: Boolean) {
+        viewModelScope.launch { prefs.saveBiometricEnabled(enabled) }
+    }
+
     fun logout() {
         viewModelScope.launch { prefs.clearCredentials() }
     }
