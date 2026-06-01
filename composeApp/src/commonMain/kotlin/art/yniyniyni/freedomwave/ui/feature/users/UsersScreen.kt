@@ -3,8 +3,6 @@
 package art.yniyniyni.freedomwave.ui.feature.users
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -133,12 +131,12 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
         contentKey = { it },
         transitionSpec = {
             if (targetState) {
-                // Forward — detail slides in from the right.
+                // Forward — detail slides in from the right, on top; list parallaxes left underneath.
                 slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
             } else {
-                // Back — list fades in, detail slides out to the right.
-                fadeIn(initialAlpha = 0.7f) togetherWith slideOutHorizontally { it }
-            }.using(SizeTransform(clip = true))
+                // Back — detail (on top) slides out to the right, revealing the list underneath.
+                slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
+            }.apply { targetContentZIndex = if (targetState) 1f else 0f }
         },
     ) { showDetail ->
         if (showDetail) {

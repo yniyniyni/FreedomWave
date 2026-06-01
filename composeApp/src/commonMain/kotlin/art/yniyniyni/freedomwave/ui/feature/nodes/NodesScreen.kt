@@ -3,8 +3,6 @@
 package art.yniyniyni.freedomwave.ui.feature.nodes
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -117,8 +115,8 @@ fun NodesScreen(
             if (targetState) {
                 slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
             } else {
-                fadeIn(initialAlpha = 0.7f) togetherWith slideOutHorizontally { it }
-            }.using(SizeTransform(clip = true))
+                slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
+            }.apply { targetContentZIndex = if (targetState) 1f else 0f }
         },
     ) { showDetail ->
         if (showDetail) {
