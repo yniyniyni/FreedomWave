@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,8 +33,9 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
+import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -72,10 +74,11 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
         )
     } else {
         Scaffold(
+            contentWindowInsets = WindowInsets(0),
             topBar = {
-                TopAppBar(
-                    title = { Text("Hosts (${state.hosts.size})") },
-                    actions = { TextButton(onClick = vm::load) { Text("Refresh") } }
+                FwTopBar(
+                    title = "Hosts (${state.hosts.size})",
+                    actions = { TextButton(onClick = vm::load) { Text("Refresh") } },
                 )
             },
             snackbarHost = { SnackbarHost(snackbar) }
@@ -225,12 +228,8 @@ private fun HostDetailScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(host.remark) },
-                navigationIcon = { TextButton(onClick = onBack) { Text("← Back") } }
-            )
-        }
+        contentWindowInsets = WindowInsets(0),
+        topBar = { FwDetailTopBar(title = host.remark, onBack = onBack) }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
