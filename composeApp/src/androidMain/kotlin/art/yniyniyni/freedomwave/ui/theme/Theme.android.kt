@@ -1,26 +1,26 @@
 package art.yniyniyni.freedomwave.ui.theme
 
-import android.os.Build
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
 
 @Composable
 actual fun AppTheme(
     darkTheme: Boolean,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val ctx = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(ctx) else dynamicLightColorScheme(ctx)
-        }
-        darkTheme -> darkColorScheme()
-        else      -> lightColorScheme()
+    val scheme = if (darkTheme) FwDarkScheme else FwLightScheme
+    val status = if (darkTheme) FwStatusDark else FwStatusLight
+    val jbm    = JetBrainsMono()
+    CompositionLocalProvider(
+        LocalFwStatus  provides status,
+        LocalFwMonoFont provides jbm,
+    ) {
+        MaterialTheme(
+            colorScheme = scheme,
+            typography  = fwTypography(),
+            shapes      = FwShapes,
+            content     = content,
+        )
     }
-    MaterialTheme(colorScheme = colorScheme, content = content)
 }

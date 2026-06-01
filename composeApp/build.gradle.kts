@@ -22,6 +22,7 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             @Suppress("DEPRECATION") implementation(compose.material3)
+            @Suppress("DEPRECATION") implementation(compose.materialIconsExtended)
             @Suppress("DEPRECATION") implementation(compose.components.resources)
             @Suppress("DEPRECATION") implementation(compose.components.uiToolingPreview)
             implementation(libs.lifecycle.viewmodel.compose)

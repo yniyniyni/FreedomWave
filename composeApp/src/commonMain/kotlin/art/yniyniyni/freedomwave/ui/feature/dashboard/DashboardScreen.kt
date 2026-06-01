@@ -9,11 +9,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.Computer
+import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.material.icons.rounded.Group
+import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,11 +32,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.DashboardStats
 import art.yniyniyni.freedomwave.ui.components.SparklineChart
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
+import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.util.formatBytesStr
 import art.yniyniyni.freedomwave.util.formatUptime
 import org.koin.compose.viewmodel.koinViewModel
@@ -60,9 +68,8 @@ fun DashboardScreen(
                     ErrorState(error = state.error!!, onRetry = vm::refresh)
 
                 state.stats != null -> {
-                    val isRefreshing = state.isLoading
                     PullToRefreshBox(
-                        isRefreshing = isRefreshing,
+                        isRefreshing = state.isLoading,
                         onRefresh = vm::refresh,
                         modifier = Modifier.fillMaxSize()
                     ) {
@@ -88,13 +95,15 @@ private fun StatsList(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Traffic sparkline card
         if (sparklineData.isNotEmpty()) {
             item {
-                Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(1.dp)) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Traffic (${sparklineCategories.size}d)", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                FwCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            SectionTitle("Traffic", Icons.Rounded.Bolt)
                             if (sparklineCategories.isNotEmpty()) {
                                 Text(
                                     "${sparklineCategories.first().takeLast(5)} – ${sparklineCategories.last().takeLast(5)}",
@@ -110,14 +119,14 @@ private fun StatsList(
         }
 
         item {
-            StatCard(title = "Panel") {
+            StatCard(title = "Panel", icon = Icons.Rounded.Public) {
                 StatRow("Version", stats.panelVersion)
                 StatRow("Uptime", formatUptime(stats.uptimeSeconds))
                 StatRow("Countries", stats.distinctCountries.toString())
             }
         }
         item {
-            StatCard(title = "Users") {
+            StatCard(title = "Users", icon = Icons.Rounded.Group) {
                 StatRow("Active", stats.activeUsers.toString())
                 StatRow("Total", stats.totalUsers.toString())
                 StatRow("Online now", stats.onlineNow.toString())
@@ -126,22 +135,22 @@ private fun StatsList(
             }
         }
         item {
-            StatCard(title = "Nodes") {
+            StatCard(title = "Nodes", icon = Icons.Rounded.Dns) {
                 StatRow("Online", stats.onlineNodes.toString())
                 StatRow("Total", stats.totalNodes.toString())
                 StatRow("Lifetime traffic", formatBytesStr(stats.nodesBytesLifetime))
             }
         }
         item {
-            StatCard(title = "Traffic") {
+            StatCard(title = "Traffic", icon = Icons.Rounded.Bolt) {
                 StatRow("This month", formatBytesStr(stats.monthTraffic))
                 StatRow("All time", formatBytesStr(stats.totalTraffic))
             }
         }
         item {
-            StatCard(title = "System") {
+            StatCard(title = "System", icon = Icons.Rounded.Computer) {
                 StatRow("CPU cores", stats.cpuCores.toString())
-                val usedGb = stats.memoryUsedBytes / 1_073_741_824.0
+                val usedGb  = stats.memoryUsedBytes / 1_073_741_824.0
                 val totalGb = stats.memoryTotalBytes / 1_073_741_824.0
                 StatRow("RAM", "%.1f / %.1f GB".format(usedGb, totalGb))
             }
@@ -150,10 +159,37 @@ private fun StatsList(
 }
 
 @Composable
-private fun StatCard(title: String, content: @Composable () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(text = title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+private fun FwCard(content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape    = MaterialTheme.shapes.large,
+        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    ) {
+        Column(modifier = Modifier.padding(16.dp), content = { content() })
+    }
+}
+
+@Composable
+private fun SectionTitle(title: String, icon: ImageVector) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Icon(
+            imageVector        = icon,
+            contentDescription = null,
+            tint               = MaterialTheme.colorScheme.primary,
+            modifier           = Modifier.padding(end = 2.dp),
+        )
+        Text(text = title, style = MaterialTheme.typography.titleSmall)
+    }
+}
+
+@Composable
+private fun StatCard(title: String, icon: ImageVector, content: @Composable () -> Unit) {
+    FwCard {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SectionTitle(title, icon)
             content()
         }
     }
@@ -161,9 +197,18 @@ private fun StatCard(title: String, content: @Composable () -> Unit) {
 
 @Composable
 private fun StatRow(label: String, value: String) {
+    val monoFont = LocalFwMonoFont.current
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(text = value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+        Text(
+            text  = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text       = value,
+            style      = MaterialTheme.typography.bodyMedium.copy(fontFamily = monoFont),
+            color      = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
 

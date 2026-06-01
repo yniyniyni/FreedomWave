@@ -2,11 +2,13 @@ package art.yniyniyni.freedomwave.ui.feature.lock
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -36,13 +38,11 @@ fun LockScreen(
     var isAuthenticating by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Skip lock entirely if biometrics unavailable on this device
     LaunchedEffect(Unit) {
         if (!authenticator.isAvailable()) {
             onUnlocked()
             return@LaunchedEffect
         }
-        // Auto-trigger on first show
         triggerAuth(
             authenticator = authenticator,
             onStart  = { isAuthenticating = true },
@@ -58,27 +58,37 @@ fun LockScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                "FreedomWave",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold
-            )
+            Row(horizontalArrangement = Arrangement.Center) {
+                Text(
+                    "Freedom",
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    "Wave",
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
             Spacer(Modifier.height(8.dp))
             Text(
                 "Locked",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(48.dp))
 
             if (isAuthenticating) {
-                CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    color    = MaterialTheme.colorScheme.primary,
+                )
             } else {
                 errorMessage?.let {
                     Text(
                         it,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
                     )
                     Spacer(Modifier.height(16.dp))
                 }
@@ -93,7 +103,8 @@ fun LockScreen(
                                 onSuccess = onUnlocked
                             )
                         }
-                    }
+                    },
+                    shape = RoundedCornerShape(percent = 50),
                 ) {
                     Text("Unlock")
                 }
@@ -112,7 +123,7 @@ private suspend fun triggerAuth(
     onStart()
     when (val result = authenticator.authenticate()) {
         BiometricResult.Success    -> onSuccess()
-        BiometricResult.Cancelled  -> { /* user dismissed — stay on lock screen */ }
+        BiometricResult.Cancelled  -> { }
         is BiometricResult.Error   -> onError(result.message)
     }
     onFinish()
