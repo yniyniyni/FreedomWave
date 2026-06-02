@@ -73,7 +73,9 @@ data class CreateUserRequest(
     @SerialName("description")            val description: String? = null,
     @SerialName("tag")                    val tag: String? = null,
     @SerialName("email")                  val email: String? = null,
-    @SerialName("telegramId")             val telegramId: Long? = null
+    @SerialName("telegramId")             val telegramId: Long? = null,
+    @SerialName("hwidDeviceLimit")        val hwidDeviceLimit: Int? = null,
+    @SerialName("activeInternalSquads")   val activeInternalSquads: List<String>? = null,
 )
 
 @Serializable
@@ -86,5 +88,7 @@ data class UpdateUserRequest(
     @SerialName("description")            val description: String? = null,
     @SerialName("tag")                    val tag: String? = null,
     @SerialName("email")                  val email: String? = null,
-    @SerialName("telegramId")             val telegramId: Long? = null
+    @SerialName("telegramId")             val telegramId: Long? = null,
+    @SerialName("hwidDeviceLimit")        val hwidDeviceLimit: Int? = null,
+    @SerialName("activeInternalSquads")   val activeInternalSquads: List<String>? = null,
 )
