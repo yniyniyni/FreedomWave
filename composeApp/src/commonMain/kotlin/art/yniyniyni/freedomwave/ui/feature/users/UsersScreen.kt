@@ -28,8 +28,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
@@ -37,10 +40,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -66,17 +72,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.User
 import art.yniyniyni.freedomwave.domain.model.UserStatus
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
+import art.yniyniyni.freedomwave.util.countryFlag
 import art.yniyniyni.freedomwave.util.formatBytes
+import art.yniyniyni.freedomwave.util.formatExpiryRemaining
+import art.yniyniyni.freedomwave.util.formatRelativePast
 import org.koin.compose.viewmodel.koinViewModel
 
 private sealed interface UsersNav {
-    object List : UsersNav
+    data object List : UsersNav
     data class Detail(val user: User) : UsersNav
+    data class Form(val editing: User?) : UsersNav
+
+    val depth: Int get() = when (this) {
+        is List -> 0
+        is Detail -> 1
+        is Form -> 2
+    }
+    val key: String get() = when (this) {
+        is List -> "list"
+        is Detail -> "detail:${user.uuid}"
+        is Form -> "form:${editing?.uuid ?: "new"}"
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,7 +106,10 @@ private sealed interface UsersNav {
 fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
-    var nav: UsersNav by remember { mutableStateOf(UsersNav.List) }
+
+    var stack by remember { mutableStateOf<kotlin.collections.List<UsersNav>>(listOf(UsersNav.List)) }
+    val top = stack.last()
+    val canGoBack = stack.size > 1
 
     LaunchedEffect(state.actionError) {
         state.actionError?.let {
@@ -93,143 +118,176 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
         }
     }
 
-    LaunchedEffect(state.users) {
-        val current = nav as? UsersNav.Detail ?: return@LaunchedEffect
-        val updated = state.users.find { it.uuid == current.user.uuid } ?: return@LaunchedEffect
-        if (updated != current.user) nav = UsersNav.Detail(updated)
-    }
-
-    if (state.formVisible) {
-        UserCreateEditScreen(state, vm)
-        return
-    }
-
-    val isDetail = nav is UsersNav.Detail
-
-    // SeekableTransitionState drives the slide animation and responds to predictive back.
-    val transitionState = remember { SeekableTransitionState(false) }
+    val transitionState = remember { SeekableTransitionState<UsersNav>(UsersNav.List) }
     val transition = rememberTransition(transitionState, label = "users_nav")
 
-    // Sync transition with nav state (forward navigation or "← Back" button press).
-    LaunchedEffect(isDetail) { transitionState.animateTo(isDetail) }
+    // Animate to the current top whenever it changes via forward navigation or a programmatic pop.
+    LaunchedEffect(top) {
+        if (transitionState.currentState != top) transitionState.animateTo(top)
+    }
 
-    // Snapshot the last non-null user so the detail content stays available during the
-    // exit animation even after nav has been reset to List.
-    var lastDetailUser by remember { mutableStateOf<User?>(null) }
-    val currentDetailUser = (nav as? UsersNav.Detail)?.user
-    if (currentDetailUser != null) lastDetailUser = currentDetailUser
-
-    // Predictive back: seek the transition during the drag, complete or reverse on release.
+    // Predictive back: seek toward the previous entry, commit pops, cancel returns to top.
     BackGestureEffect(
-        enabled = isDetail,
-        onProgress = { fraction -> transitionState.seekTo(fraction, false) },
-        onCommit   = { transitionState.animateTo(false); nav = UsersNav.List },
-        onCancel   = { transitionState.animateTo(true) },
+        enabled = canGoBack,
+        onProgress = { fraction -> transitionState.seekTo(fraction, stack[stack.size - 2]) },
+        onCommit   = {
+            val target = stack[stack.size - 2]
+            transitionState.animateTo(target)
+            stack = stack.dropLast(1)
+        },
+        onCancel   = { transitionState.animateTo(top) },
     )
 
     transition.AnimatedContent(
-        contentKey = { it },
+        contentKey = { it.key },
         transitionSpec = {
-            if (targetState) {
-                // Forward — detail slides in from the right, on top; list parallaxes left underneath.
+            val deeper = targetState.depth > initialState.depth
+            if (deeper) {
                 slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
             } else {
-                // Back — detail (on top) slides out to the right, revealing the list underneath.
                 slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
-            }.apply { targetContentZIndex = if (targetState) 1f else 0f }
+            }.apply { targetContentZIndex = if (deeper) 1f else 0f }
         },
-    ) { showDetail ->
-        if (showDetail) {
-            lastDetailUser?.let { user ->
+    ) { navEntry ->
+        when (navEntry) {
+            is UsersNav.List -> UsersListContent(
+                state = state,
+                vm = vm,
+                snackbar = snackbar,
+                onOpenCreate = { vm.openCreateForm(); stack = stack + UsersNav.Form(null) },
+                onOpenDetail = { user -> stack = stack + UsersNav.Detail(user) },
+            )
+            is UsersNav.Detail -> {
+                val live = state.users.find { it.uuid == navEntry.user.uuid } ?: navEntry.user
                 UserDetailScreen(
-                    user          = user,
-                    onBack        = { nav = UsersNav.List },
-                    onEdit        = { vm.openEditForm(user) },
-                    onEnable      = { vm.enableUser(user.uuid) },
-                    onDisable     = { vm.disableUser(user.uuid) },
-                    onResetTraffic= { vm.resetTraffic(user.uuid) },
-                    onDelete      = { vm.deleteUser(user.uuid); nav = UsersNav.List },
+                    user           = live,
+                    onBack         = { stack = stack.dropLast(1) },
+                    onEdit         = { vm.openEditForm(live); stack = stack + UsersNav.Form(live) },
+                    onEnable       = { vm.enableUser(live.uuid) },
+                    onDisable      = { vm.disableUser(live.uuid) },
+                    onResetTraffic = { vm.resetTraffic(live.uuid) },
+                    onDelete       = { vm.deleteUser(live.uuid); stack = stack.dropLast(1) },
                 )
             }
-        } else {
-            Scaffold(
-                contentWindowInsets = WindowInsets(0),
-                snackbarHost = { SnackbarHost(snackbar) },
-                topBar = {
-                    FwTopBar(
-                        title = "Users (${state.filtered.size})",
-                        actions = { TextButton(onClick = vm::load) { Text("Refresh") } },
-                    )
+            is UsersNav.Form -> UserCreateEditScreen(
+                state = state,
+                vm = vm,
+                onBack = { stack = stack.dropLast(1) },
+                onSaved = { stack = stack.dropLast(1) },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun UsersListContent(
+    state: UsersUiState,
+    vm: UsersViewModel,
+    snackbar: SnackbarHostState,
+    onOpenCreate: () -> Unit,
+    onOpenDetail: (User) -> Unit,
+) {
+    var sortMenuOpen by remember { mutableStateOf(false) }
+    Scaffold(
+        contentWindowInsets = WindowInsets(0),
+        snackbarHost = { SnackbarHost(snackbar) },
+        topBar = {
+            FwTopBar(
+                title = "Users (${state.visible.size})",
+                actions = {
+                    IconButton(onClick = { sortMenuOpen = true }) {
+                        Icon(Icons.Rounded.SwapVert, contentDescription = "Sort")
+                    }
+                    DropdownMenu(expanded = sortMenuOpen, onDismissRequest = { sortMenuOpen = false }) {
+                        UserSortField.entries.forEach { field ->
+                            val active = state.sortField == field
+                            DropdownMenuItem(
+                                text = { Text(field.label) },
+                                onClick = { vm.onSortSelected(field) },
+                                trailingIcon = {
+                                    if (active) Icon(
+                                        if (state.sortAscending) Icons.Rounded.ArrowUpward
+                                        else Icons.Rounded.ArrowDownward,
+                                        contentDescription = null,
+                                    )
+                                },
+                            )
+                        }
+                    }
+                    TextButton(onClick = vm::load) { Text("Refresh") }
                 },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick        = vm::openCreateForm,
-                        shape          = MaterialTheme.shapes.large,
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor   = MaterialTheme.colorScheme.onPrimary,
-                        elevation      = FloatingActionButtonDefaults.elevation(0.dp),
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick        = onOpenCreate,
+                shape          = MaterialTheme.shapes.large,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor   = MaterialTheme.colorScheme.onPrimary,
+                elevation      = FloatingActionButtonDefaults.elevation(0.dp),
+            ) {
+                Icon(Icons.Rounded.Add, contentDescription = "New user", modifier = Modifier.size(28.dp))
+            }
+        },
+    ) { padding ->
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            OutlinedTextField(
+                value         = state.query,
+                onValueChange = vm::onQueryChange,
+                placeholder   = { Text("Search by username or tag") },
+                leadingIcon   = { Icon(Icons.Rounded.Search, contentDescription = null) },
+                singleLine    = true,
+                shape         = MaterialTheme.shapes.medium,
+                modifier      = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            )
+            when {
+                state.isLoading && state.users.isEmpty() -> ShimmerList()
+                state.error != null && state.users.isEmpty() ->
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(state.error!!, color = MaterialTheme.colorScheme.error)
+                            Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
+                        }
+                    }
+                else ->
+                    PullToRefreshBox(
+                        isRefreshing = state.isLoading && state.users.isNotEmpty(),
+                        onRefresh    = vm::load,
                     ) {
-                        Icon(Icons.Rounded.Add, contentDescription = "New user", modifier = Modifier.size(28.dp))
-                    }
-                },
-            ) { padding ->
-                Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-                    OutlinedTextField(
-                        value         = state.query,
-                        onValueChange = vm::onQueryChange,
-                        placeholder   = { Text("Search by username or tag") },
-                        leadingIcon   = { Icon(Icons.Rounded.Search, contentDescription = null) },
-                        singleLine    = true,
-                        shape         = MaterialTheme.shapes.medium,
-                        modifier      = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                    )
-                    when {
-                        state.isLoading && state.users.isEmpty() ->
-                            ShimmerList()
-
-                        state.error != null && state.users.isEmpty() ->
+                        if (state.visible.isEmpty()) {
                             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(state.error!!, color = MaterialTheme.colorScheme.error)
-                                    Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
-                                }
+                                Text(
+                                    if (state.query.isBlank()) "No users" else "No results for \"${state.query}\"",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                             }
-
-                        else ->
-                            PullToRefreshBox(
-                                isRefreshing = state.isLoading && state.users.isNotEmpty(),
-                                onRefresh    = vm::load,
+                        } else {
+                            LazyColumn(
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
-                                if (state.filtered.isEmpty()) {
-                                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                        Text(
-                                            if (state.query.isBlank()) "No users" else "No results for \"${state.query}\"",
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
-                                } else {
-                                    LazyColumn(
-                                        contentPadding = PaddingValues(16.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        items(state.filtered, key = { it.uuid }) { user ->
-                                            UserListItem(
-                                                user    = user,
-                                                onClick = { nav = UsersNav.Detail(user) },
-                                            )
-                                        }
-                                    }
+                                items(state.visible, key = { it.uuid }) { user ->
+                                    UserListItem(
+                                        user        = user,
+                                        nodesByUuid = state.nodesByUuid,
+                                        onClick     = { onOpenDetail(user) },
+                                    )
                                 }
                             }
+                        }
                     }
-                }
             }
         }
     }
 }
 
 @Composable
-private fun UserListItem(user: User, onClick: () -> Unit) {
+private fun UserListItem(
+    user: User,
+    nodesByUuid: Map<String, Node>,
+    onClick: () -> Unit,
+) {
     val monoFont = LocalFwMonoFont.current
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
@@ -266,10 +324,7 @@ private fun UserListItem(user: User, onClick: () -> Unit) {
                 if (user.trafficLimitBytes > 0) {
                     val fwStatus = LocalFwStatus.current
                     val progress = (user.usedTrafficBytes.toFloat() / user.trafficLimitBytes).coerceIn(0f, 1f)
-                    val barColor = when {
-                        progress >= 0.9f -> fwStatus.warning
-                        else             -> fwStatus.online
-                    }
+                    val barColor = if (progress >= 0.9f) fwStatus.warning else fwStatus.online
                     LinearProgressIndicator(
                         progress    = { progress },
                         modifier    = Modifier.fillMaxWidth().padding(top = 2.dp),
@@ -278,6 +333,26 @@ private fun UserListItem(user: User, onClick: () -> Unit) {
                         strokeCap   = StrokeCap.Round,
                     )
                 }
+                // Last connection: 🇩🇪 DE · node · 5m ago
+                val node = user.lastConnectedNodeUuid?.let { nodesByUuid[it] }
+                val lastConn = buildString {
+                    if (node != null && node.countryCode.isNotBlank()) {
+                        append("${node.countryCode} ${countryFlag(node.countryCode)} · ")
+                    }
+                    if (node != null) append("${node.name} · ")
+                    append(formatRelativePast(user.onlineAt))
+                }
+                Text(
+                    if (user.onlineAt == null) "Never connected" else lastConn,
+                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                // Expiry remaining
+                Text(
+                    formatExpiryRemaining(user.expireAt),
+                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
             Icon(
                 Icons.Rounded.ChevronRight,
