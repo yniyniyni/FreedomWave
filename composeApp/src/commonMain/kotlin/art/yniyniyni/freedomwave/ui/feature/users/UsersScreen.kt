@@ -169,12 +169,21 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                     onDelete       = { vm.deleteUser(live.uuid); stack = stack.dropLast(1) },
                 )
             }
-            is UsersNav.Form -> UserCreateEditScreen(
-                state = state,
-                vm = vm,
-                onBack = { stack = stack.dropLast(1) },
-                onSaved = { stack = stack.dropLast(1) },
-            )
+            is UsersNav.Form -> {
+                // Pop only when the Form is still on top. saveForm's onSuccess is async, so the
+                // user may have already backed out before it fires — popping unconditionally
+                // (twice) would empty the stack and crash stack.last(). Guarding makes both
+                // onBack and onSaved idempotent.
+                val dismissForm = {
+                    if (stack.lastOrNull() is UsersNav.Form) stack = stack.dropLast(1)
+                }
+                UserCreateEditScreen(
+                    state = state,
+                    vm = vm,
+                    onBack = dismissForm,
+                    onSaved = dismissForm,
+                )
+            }
         }
     }
 }
