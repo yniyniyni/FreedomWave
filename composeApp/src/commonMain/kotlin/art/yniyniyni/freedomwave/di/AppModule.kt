@@ -57,7 +57,7 @@ val viewModelModule = module {
     viewModel { BandwidthViewModel(get()) }
     viewModel { LoginViewModel(get()) }
     viewModel { DashboardViewModel(get()) }
-    viewModel { UsersViewModel(get()) }
+    viewModel { UsersViewModel(get(), get(), get()) }
     viewModel { NodesViewModel(get()) }
     viewModel { HostsViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }
