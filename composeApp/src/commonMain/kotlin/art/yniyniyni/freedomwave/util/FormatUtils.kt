@@ -26,6 +26,7 @@ fun countryFlag(code: String): String {
 
 private fun StringBuilder.appendCodePoint(codePoint: Int) {
     if (codePoint <= 0xFFFF) {
+        // BMP fallback; regional indicators are all > 0xFFFF
         append(codePoint.toChar())
     } else {
         val cp = codePoint - 0x10000
@@ -54,6 +55,7 @@ fun formatExpiryRemaining(iso: String?, now: Instant = Clock.System.now()): Stri
     val seconds = (instant - now).inWholeSeconds
     if (seconds <= 0) return "Expired"
     return when {
+        seconds < 60     -> "${seconds}s left"
         seconds < 3600   -> "${seconds / 60}m left"
         seconds < 86_400 -> "${seconds / 3600}h left"
         else             -> "${seconds / 86_400}d left"
