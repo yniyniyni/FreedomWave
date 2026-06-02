@@ -131,9 +131,11 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
         enabled = canGoBack,
         onProgress = { fraction -> transitionState.seekTo(fraction, stack[stack.size - 2]) },
         onCommit   = {
-            val target = stack[stack.size - 2]
-            transitionState.animateTo(target)
-            stack = stack.dropLast(1)
+            if (stack.size > 1) {
+                val target = stack[stack.size - 2]
+                transitionState.animateTo(target)
+                stack = stack.dropLast(1)
+            }
         },
         onCancel   = { transitionState.animateTo(top) },
     )
@@ -161,19 +163,19 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                 val live = state.users.find { it.uuid == navEntry.user.uuid } ?: navEntry.user
                 UserDetailScreen(
                     user           = live,
-                    onBack         = { stack = stack.dropLast(1) },
+                    onBack         = { if (stack.size > 1) stack = stack.dropLast(1) },
                     onEdit         = { vm.openEditForm(live); stack = stack + UsersNav.Form(live) },
                     onEnable       = { vm.enableUser(live.uuid) },
                     onDisable      = { vm.disableUser(live.uuid) },
                     onResetTraffic = { vm.resetTraffic(live.uuid) },
-                    onDelete       = { vm.deleteUser(live.uuid); stack = stack.dropLast(1) },
+                    onDelete       = { vm.deleteUser(live.uuid); if (stack.size > 1) stack = stack.dropLast(1) },
                 )
             }
             is UsersNav.Form -> UserCreateEditScreen(
                 state = state,
                 vm = vm,
-                onBack = { stack = stack.dropLast(1) },
-                onSaved = { stack = stack.dropLast(1) },
+                onBack = { if (stack.size > 1) stack = stack.dropLast(1) },
+                onSaved = { if (stack.size > 1) stack = stack.dropLast(1) },
             )
         }
     }
@@ -204,7 +206,7 @@ private fun UsersListContent(
                             val active = state.sortField == field
                             DropdownMenuItem(
                                 text = { Text(field.label) },
-                                onClick = { vm.onSortSelected(field) },
+                                onClick = { vm.onSortSelected(field); sortMenuOpen = false },
                                 trailingIcon = {
                                     if (active) Icon(
                                         if (state.sortAscending) Icons.Rounded.ArrowUpward
