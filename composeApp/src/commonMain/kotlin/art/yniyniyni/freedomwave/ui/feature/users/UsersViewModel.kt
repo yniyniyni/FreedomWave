@@ -14,6 +14,7 @@ import art.yniyniyni.freedomwave.domain.model.UserStatus
 import art.yniyniyni.freedomwave.util.FOREVER_DATE
 import art.yniyniyni.freedomwave.util.ExpiryPreset
 import art.yniyniyni.freedomwave.util.presetExpiryMillis
+import kotlin.math.roundToLong
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -121,8 +122,11 @@ class UsersViewModel(
     }
 
     fun openEditForm(user: User) {
-        val trafficGb = if (user.trafficLimitBytes == 0L) "0"
-            else (user.trafficLimitBytes.toDouble() / (1024.0 * 1024.0 * 1024.0)).toString()
+        val trafficGb = if (user.trafficLimitBytes == 0L) "0" else {
+            val gb = user.trafficLimitBytes.toDouble() / (1024.0 * 1024.0 * 1024.0)
+            val rounded = (gb * 100).roundToLong() / 100.0
+            rounded.toString().removeSuffix(".0")
+        }
         val expireMillis = Instant.parse(
             if (user.expireAt.isBlank()) FOREVER_DATE else user.expireAt
         ).toEpochMilliseconds()
@@ -191,7 +195,7 @@ class UsersViewModel(
         }
 
         val expireAt = Instant.fromEpochMilliseconds(s.formExpireMillis).toString()
-        val status = if (s.formStatusEnabled) "ACTIVE" else "DISABLED"
+        val statusForCreate = if (s.formStatusEnabled) "ACTIVE" else "DISABLED"
         val squads = s.formSelectedSquadUuids.toList()
 
         viewModelScope.launch {
@@ -199,7 +203,7 @@ class UsersViewModel(
             if (isCreate) {
                 val req = CreateUserRequest(
                     username             = s.formUsername.trim(),
-                    status               = status,
+                    status               = statusForCreate,
                     trafficLimitBytes    = trafficLimitBytes,
                     trafficLimitStrategy = s.formStrategy,
                     expireAt             = expireAt,
@@ -216,9 +220,13 @@ class UsersViewModel(
                     }
                     .onFailure { e -> _state.update { it.copy(formIsLoading = false, formError = e.message) } }
             } else {
+                val wasEnabled = s.editingUser!!.status != UserStatus.DISABLED
+                val statusForUpdate: String? =
+                    if (s.formStatusEnabled == wasEnabled) null
+                    else if (s.formStatusEnabled) "ACTIVE" else "DISABLED"
                 val req = UpdateUserRequest(
-                    uuid                 = s.editingUser!!.uuid,
-                    status               = status,
+                    uuid                 = s.editingUser.uuid,
+                    status               = statusForUpdate,
                     trafficLimitBytes    = trafficLimitBytes,
                     trafficLimitStrategy = s.formStrategy,
                     expireAt             = expireAt,

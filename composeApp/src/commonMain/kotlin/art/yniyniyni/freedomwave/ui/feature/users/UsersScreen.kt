@@ -431,7 +431,7 @@ private fun UserDetailScreen(
                     DetailRow("Status", user.status.label, monoFont)
                     DetailRow("UUID", user.shortUuid, monoFont)
                     DetailRow("Strategy", user.trafficLimitStrategy, monoFont)
-                    DetailRow("Expires", user.expireAt.take(10), monoFont)
+                    DetailRow("Expires", formatExpiryRemaining(user.expireAt), monoFont)
                     user.email?.let { DetailRow("Email", it, monoFont) }
                     user.tag?.let { DetailRow("Tag", it, monoFont) }
                     user.description?.let { DetailRow("Notes", it, monoFont) }
