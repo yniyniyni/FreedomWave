@@ -22,6 +22,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
+// Mirror the Remnawave backend create/update constraints so invalid input is caught
+// before the network round-trip, with a clear message.
+private val USERNAME_REGEX = Regex("^[A-Za-z0-9_-]{3,36}$")
+private val TAG_REGEX = Regex("^[A-Z0-9_]{1,16}$")
+private val EMAIL_REGEX = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+
 data class UsersUiState(
     val isLoading: Boolean   = false,
     val users: List<User>    = emptyList(),
@@ -176,8 +182,21 @@ class UsersViewModel(
         val s = _state.value
         val isCreate = s.editingUser == null
 
-        if (isCreate && s.formUsername.isBlank()) {
-            _state.update { it.copy(formError = "Username is required") }
+        // Username is immutable after create, so only validate it on create.
+        if (isCreate && !USERNAME_REGEX.matches(s.formUsername.trim())) {
+            _state.update { it.copy(formError = "3-36 chars, letters, digits, dash or underscore") }
+            return
+        }
+
+        val tag = s.formTag.trim()
+        if (tag.isNotEmpty() && !TAG_REGEX.matches(tag)) {
+            _state.update { it.copy(formError = "Tag: up to 16 uppercase letters, digits or underscore") }
+            return
+        }
+
+        val email = s.formEmail.trim()
+        if (email.isNotEmpty() && !EMAIL_REGEX.matches(email)) {
+            _state.update { it.copy(formError = "Enter a valid email address") }
             return
         }
 
