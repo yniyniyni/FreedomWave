@@ -14,6 +14,23 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpTimeout
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+
+/**
+ * Pull a human-readable message out of a Remnawave/NestJS error body, e.g.
+ * `{"message":"Username must be at least 3 characters","error":"Bad Request","statusCode":400}`
+ * or a zod-style `{"message":["err a","err b"]}`. Falls back to null on anything unexpected.
+ */
+private fun extractApiMessage(body: String): String? = runCatching {
+    val root = Json.parseToJsonElement(body).jsonObject
+    when (val msg = root["message"]) {
+        is JsonArray -> msg.joinToString("; ") { it.jsonPrimitive.content }
+        null         -> root["error"]?.jsonPrimitive?.content
+        else         -> msg.jsonPrimitive.content
+    }
+}.getOrNull()?.takeIf { it.isNotBlank() }
 
 fun buildHttpClient(prefs: AppPreferences): HttpClient = HttpClient {
 
@@ -50,6 +67,12 @@ fun buildHttpClient(prefs: AppPreferences): HttpClient = HttpClient {
             when (response.status.value) {
                 401         -> throw ApiError.Unauthorized()
                 404         -> throw ApiError.NotFound()
+                in 400..499 -> {
+                    val body = response.bodyAsText()
+                    throw ApiError.ServerError(
+                        extractApiMessage(body) ?: "Request failed (${response.status.value})"
+                    )
+                }
                 in 500..599 -> throw ApiError.ServerError("Server error ${response.status.value}: ${response.bodyAsText()}")
             }
         }
