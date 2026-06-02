@@ -67,6 +67,7 @@ import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.TimeRange
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
+import art.yniyniyni.freedomwave.util.countryFlag
 import art.yniyniyni.freedomwave.util.formatBytes
 import art.yniyniyni.freedomwave.util.formatUptime
 import org.koin.compose.viewmodel.koinViewModel
@@ -239,13 +240,6 @@ private fun NodeStatusDot(status: NodeStatus) {
         NodeStatus.CONNECTING -> fwStatus.warning
     }
     Surface(modifier = Modifier.size(12.dp), shape = CircleShape, color = color) {}
-}
-
-private fun countryFlag(code: String): String {
-    if (code.length != 2) return ""
-    val base = 0x1F1E6 - 'A'.code
-    return String(Character.toChars(base + code[0].uppercaseChar().code)) +
-           String(Character.toChars(base + code[1].uppercaseChar().code))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
