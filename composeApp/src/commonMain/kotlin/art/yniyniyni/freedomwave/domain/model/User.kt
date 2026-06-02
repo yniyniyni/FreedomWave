@@ -15,6 +15,7 @@ enum class UserStatus(val apiValue: String, val label: String) {
 
 data class User(
     val uuid: String,
+    val id: Int,
     val shortUuid: String,
     val username: String,
     val status: UserStatus,
@@ -31,6 +32,8 @@ data class User(
     val telegramId: Long?,
     val hwidDeviceLimit: Int?,
     val activeSquads: List<String>,
+    val activeSquadUuids: List<String>,
+    val lastConnectedNodeUuid: String?,
     val createdAt: String
 ) {
     val isActive: Boolean   get() = status == UserStatus.ACTIVE
@@ -39,6 +42,7 @@ data class User(
     companion object {
         fun from(dto: UserDto) = User(
             uuid                     = dto.uuid,
+            id                       = dto.id,
             shortUuid                = dto.shortUuid,
             username                 = dto.username,
             status                   = UserStatus.from(dto.status),
@@ -55,6 +59,8 @@ data class User(
             telegramId               = dto.telegramId,
             hwidDeviceLimit          = dto.hwidDeviceLimit,
             activeSquads             = dto.activeInternalSquads.map { it.name },
+            activeSquadUuids         = dto.activeInternalSquads.map { it.uuid },
+            lastConnectedNodeUuid    = dto.userTraffic.lastConnectedNodeUuid,
             createdAt                = dto.createdAt
         )
     }
