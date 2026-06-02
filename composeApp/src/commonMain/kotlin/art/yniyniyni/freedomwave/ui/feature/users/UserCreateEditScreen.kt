@@ -101,6 +101,8 @@ internal fun UserCreateEditScreen(
                         label = { Text(if (isCreate) "Username *" else "Username") },
                         singleLine = true,
                         enabled = isCreate && !state.formIsLoading,
+                        isError = state.usernameError != null,
+                        supportingText = state.usernameError?.let { { Text(it) } },
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
@@ -109,6 +111,8 @@ internal fun UserCreateEditScreen(
                         label = { Text("Tag") },
                         singleLine = true,
                         enabled = !state.formIsLoading,
+                        isError = state.tagError != null,
+                        supportingText = state.tagError?.let { { Text(it) } },
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
@@ -117,6 +121,8 @@ internal fun UserCreateEditScreen(
                         label = { Text("Email") },
                         singleLine = true,
                         enabled = !state.formIsLoading,
+                        isError = state.emailError != null,
+                        supportingText = state.emailError?.let { { Text(it) } },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         modifier = Modifier.fillMaxWidth()
                     )

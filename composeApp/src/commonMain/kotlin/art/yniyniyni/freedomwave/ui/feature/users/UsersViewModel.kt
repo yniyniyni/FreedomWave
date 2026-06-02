@@ -28,6 +28,10 @@ private val USERNAME_REGEX = Regex("^[A-Za-z0-9_-]{3,36}$")
 private val TAG_REGEX = Regex("^[A-Z0-9_]{1,16}$")
 private val EMAIL_REGEX = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
 
+private const val USERNAME_ERROR = "3-36 chars, letters, digits, dash or underscore"
+private const val TAG_ERROR = "Tag: up to 16 uppercase letters, digits or underscore"
+private const val EMAIL_ERROR = "Enter a valid email address"
+
 data class UsersUiState(
     val isLoading: Boolean   = false,
     val users: List<User>    = emptyList(),
@@ -63,6 +67,16 @@ data class UsersUiState(
             }
         return sortedUsers(matched, sortField, sortAscending)
     }
+
+    // Live per-field validation surfaced under each input. Only flags a field once the user
+    // has typed something invalid (empty fields stay clean; saveForm() is the final gate).
+    val usernameError: String? get() =
+        if (editingUser == null && formUsername.isNotBlank() && !USERNAME_REGEX.matches(formUsername.trim()))
+            USERNAME_ERROR else null
+    val tagError: String? get() =
+        if (formTag.isNotBlank() && !TAG_REGEX.matches(formTag.trim())) TAG_ERROR else null
+    val emailError: String? get() =
+        if (formEmail.isNotBlank() && !EMAIL_REGEX.matches(formEmail.trim())) EMAIL_ERROR else null
 }
 
 class UsersViewModel(
@@ -184,19 +198,19 @@ class UsersViewModel(
 
         // Username is immutable after create, so only validate it on create.
         if (isCreate && !USERNAME_REGEX.matches(s.formUsername.trim())) {
-            _state.update { it.copy(formError = "3-36 chars, letters, digits, dash or underscore") }
+            _state.update { it.copy(formError = USERNAME_ERROR) }
             return
         }
 
         val tag = s.formTag.trim()
         if (tag.isNotEmpty() && !TAG_REGEX.matches(tag)) {
-            _state.update { it.copy(formError = "Tag: up to 16 uppercase letters, digits or underscore") }
+            _state.update { it.copy(formError = TAG_ERROR) }
             return
         }
 
         val email = s.formEmail.trim()
         if (email.isNotEmpty() && !EMAIL_REGEX.matches(email)) {
-            _state.update { it.copy(formError = "Enter a valid email address") }
+            _state.update { it.copy(formError = EMAIL_ERROR) }
             return
         }
 
