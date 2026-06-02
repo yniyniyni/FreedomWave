@@ -11,6 +11,7 @@ kotlin {
         namespace = "art.yniyniyni.freedomwave.shared"
         compileSdk = 36
         minSdk = 31
+        withHostTest {}
     }
 
     // iOS targets: compile-verified stubs, no Xcode project yet
