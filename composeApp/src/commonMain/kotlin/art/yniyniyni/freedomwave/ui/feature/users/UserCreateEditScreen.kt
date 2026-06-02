@@ -1,6 +1,7 @@
 package art.yniyniyni.freedomwave.ui.feature.users
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -309,16 +310,40 @@ private fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long) 
     val timeStr = "${p2(ldt.hour)}:${p2(ldt.minute)}"
 
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        OutlinedTextField(
-            value = dateStr, onValueChange = {}, readOnly = true, enabled = enabled,
-            label = { Text("Date") },
-            modifier = Modifier.weight(1f).clickableField(enabled) { showDate = true },
-        )
-        OutlinedTextField(
-            value = timeStr, onValueChange = {}, readOnly = true, enabled = enabled,
-            label = { Text("Time") },
-            modifier = Modifier.weight(1f).clickableField(enabled) { showTime = true },
-        )
+        Box(modifier = Modifier.weight(1f)) {
+            OutlinedTextField(
+                value = dateStr, onValueChange = {}, readOnly = true, enabled = enabled,
+                label = { Text("Date") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            if (enabled) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) { showDate = true }
+                )
+            }
+        }
+        Box(modifier = Modifier.weight(1f)) {
+            OutlinedTextField(
+                value = timeStr, onValueChange = {}, readOnly = true, enabled = enabled,
+                label = { Text("Time") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            if (enabled) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) { showTime = true }
+                )
+            }
+        }
     }
 
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -381,10 +406,3 @@ private fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long) 
     }
 }
 
-/** Make a read-only field behave like a button (the field itself swallows clicks when readOnly). */
-private fun Modifier.clickableField(enabled: Boolean, onClick: () -> Unit): Modifier =
-    if (enabled) this.clickable(
-        interactionSource = MutableInteractionSource(),
-        indication = null,
-        onClick = onClick,
-    ) else this
