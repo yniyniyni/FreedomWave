@@ -32,6 +32,21 @@ private fun extractApiMessage(body: String): String? = runCatching {
     }
 }.getOrNull()?.takeIf { it.isNotBlank() }
 
+/**
+ * Minimal client with no auth/custom headers — used for third-party calls (e.g. ipwho.is).
+ * Must not send the Authorization bearer token or x-remnawave-client-type to external hosts.
+ */
+fun buildPlainHttpClient(): HttpClient = HttpClient {
+    install(ContentNegotiation) {
+        json(Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true })
+    }
+    install(HttpTimeout) {
+        requestTimeoutMillis = 10_000
+        connectTimeoutMillis = 5_000
+        socketTimeoutMillis  = 10_000
+    }
+}
+
 fun buildHttpClient(prefs: AppPreferences): HttpClient = HttpClient {
 
     install(ContentNegotiation) {
