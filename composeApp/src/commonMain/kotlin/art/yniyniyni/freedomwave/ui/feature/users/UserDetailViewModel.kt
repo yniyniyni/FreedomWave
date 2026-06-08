@@ -38,6 +38,8 @@ data class UserDetailUiState(
     val setLimitGbInput: String        = "",
     val showSetExpiryDialog: Boolean   = false,
     val setExpiryMillis: Long          = 0L,
+    val showDeviceLimitDialog: Boolean = false,
+    val deviceLimitInput: String       = "",
 )
 
 class UserDetailViewModel(
@@ -153,6 +155,26 @@ class UserDetailViewModel(
 
     fun adjustDeviceLimit(current: Int?, delta: Int, onUpdated: (User) -> Unit) {
         val newLimit = ((current ?: 0) + delta).coerceAtLeast(0)
+        setDeviceLimit(newLimit, onUpdated)
+    }
+
+    fun openDeviceLimitDialog(current: Int?) =
+        _state.update { it.copy(showDeviceLimitDialog = true, deviceLimitInput = (current ?: 0).toString()) }
+
+    fun onDeviceLimitInput(v: String) = _state.update { it.copy(deviceLimitInput = v) }
+    fun dismissDeviceLimitDialog()    = _state.update { it.copy(showDeviceLimitDialog = false) }
+
+    fun confirmDeviceLimit(onUpdated: (User) -> Unit) {
+        val limit = _state.value.deviceLimitInput.trim().toIntOrNull()
+        if (limit == null || limit < 0) {
+            _state.update { it.copy(actionError = "Enter a whole number ≥ 0") }
+            return
+        }
+        _state.update { it.copy(showDeviceLimitDialog = false) }
+        setDeviceLimit(limit, onUpdated)
+    }
+
+    private fun setDeviceLimit(newLimit: Int, onUpdated: (User) -> Unit) {
         viewModelScope.launch {
             userRepository.updateUser(UpdateUserRequest(uuid = userUuid, hwidDeviceLimit = newLimit))
                 .onSuccess { updated ->
