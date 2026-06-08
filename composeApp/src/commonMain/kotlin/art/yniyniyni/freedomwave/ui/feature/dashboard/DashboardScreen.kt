@@ -207,11 +207,7 @@ private fun StatsList(
                 }
 
                 // Row A: Online Users | Online Nodes
-                val today = sparklineData.lastOrNull()
-                val prev = if (sparklineData.size >= 2) sparklineData[sparklineData.size - 2] else null
-                val deltaPercent: Int? = if (today != null && prev != null && prev > 0) {
-                    ((today - prev) / prev * 100).toInt()
-                } else null
+                val todayDelta = stats.todayDeltaPercent
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -243,10 +239,10 @@ private fun StatsList(
                         icon = Icons.Rounded.Bolt,
                         tint = primary,
                         label = "TODAY",
-                        value = if (today != null) formatBytes(today.toLong()) else "—",
-                        badge = if (deltaPercent != null) {
+                        value = formatBytes(stats.todayBytes),
+                        badge = if (todayDelta != null) {
                             {
-                                val deltaColor = if (deltaPercent < 0) fwStatus.offline else fwStatus.online
+                                val deltaColor = if (todayDelta < 0) fwStatus.offline else fwStatus.online
                                 Surface(
                                     shape = RoundedCornerShape(50),
                                     color = deltaColor.copy(alpha = 0.16f)
@@ -257,13 +253,13 @@ private fun StatsList(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Icon(
-                                            imageVector = if (deltaPercent < 0) Icons.Rounded.ArrowDownward else Icons.Rounded.ArrowUpward,
+                                            imageVector = if (todayDelta < 0) Icons.Rounded.ArrowDownward else Icons.Rounded.ArrowUpward,
                                             contentDescription = null,
                                             tint = deltaColor,
                                             modifier = Modifier.size(12.dp)
                                         )
                                         Text(
-                                            text = "${abs(deltaPercent)}%",
+                                            text = "${abs(todayDelta)}%",
                                             style = MaterialTheme.typography.labelSmall,
                                             color = deltaColor,
                                             maxLines = 1,
@@ -445,8 +441,8 @@ private fun LiveTile(
                 )
             }
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth().height(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(

@@ -72,6 +72,28 @@ fun formatBytes(bytes: Long): String = when {
 
 fun formatBytesStr(bytesStr: String): String = formatBytes(bytesStr.toLongOrNull() ?: 0L)
 
+/**
+ * Parses a humanized byte string as produced by the Remnawave backend
+ * (e.g. "31.29 GiB", "-10.33 GiB", "0") into a raw byte count.
+ * Units are binary (1 KiB = 1024 B); KB/MB/… are treated the same as KiB/MiB/….
+ */
+fun parsePrettyBytes(pretty: String): Long {
+    val trimmed = pretty.trim()
+    if (trimmed.isEmpty() || trimmed == "0") return 0L
+    val parts = trimmed.split(' ')
+    val value = parts[0].replace(',', '.').toDoubleOrNull() ?: return 0L
+    val multiplier = when (parts.getOrNull(1)?.uppercase()) {
+        null, "B"      -> 1.0
+        "KIB", "KB"    -> 1_024.0
+        "MIB", "MB"    -> 1_048_576.0
+        "GIB", "GB"    -> 1_073_741_824.0
+        "TIB", "TB"    -> 1_099_511_627_776.0
+        "PIB", "PB"    -> 1_125_899_906_842_624.0
+        else           -> 1.0
+    }
+    return (value * multiplier).toLong()
+}
+
 fun formatUptime(seconds: Long): String {
     val days = seconds / 86_400
     val hours = (seconds % 86_400) / 3_600

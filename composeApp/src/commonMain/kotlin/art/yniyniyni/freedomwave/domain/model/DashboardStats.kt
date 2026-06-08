@@ -21,7 +21,9 @@ data class DashboardStats(
     val panelVersion: String,
     val distinctCountries: Int,
     val neverOnline: Int,
-    val statusCounts: Map<String, Int>
+    val statusCounts: Map<String, Int>,
+    val todayBytes: Long = 0L,
+    val todayDeltaPercent: Int? = null
 ) {
     companion object {
         fun from(stats: SystemStatsData, recap: RecapData) = DashboardStats(

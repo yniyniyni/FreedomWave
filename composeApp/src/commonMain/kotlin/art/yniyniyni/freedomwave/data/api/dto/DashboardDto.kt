@@ -66,6 +66,24 @@ data class RecapData(
     @SerialName("initDate")  val initDate: String
 )
 
+// GET /api/system/stats/bandwidth
+@Serializable
+data class BandwidthStatsResponse(
+    @SerialName("response") val response: BandwidthStatsData
+)
+
+@Serializable
+data class BandwidthStatsData(
+    @SerialName("bandwidthLastTwoDays") val lastTwoDays: BaseStat
+)
+
+@Serializable
+data class BaseStat(
+    @SerialName("current")    val current: String,
+    @SerialName("previous")   val previous: String,
+    @SerialName("difference") val difference: String
+)
+
 @Serializable
 data class RecapPeriod(
     @SerialName("users")   val users: Int,
