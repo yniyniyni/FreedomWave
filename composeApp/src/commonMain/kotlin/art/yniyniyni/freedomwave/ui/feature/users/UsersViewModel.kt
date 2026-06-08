@@ -111,9 +111,15 @@ class UsersViewModel(
         else it.copy(sortField = field, sortAscending = true)
     }
 
-    fun enableUser(uuid: String)   = action(uuid) { userRepository.enableUser(uuid) }
-    fun disableUser(uuid: String)  = action(uuid) { userRepository.disableUser(uuid) }
-    fun resetTraffic(uuid: String) = action(uuid) { userRepository.resetTraffic(uuid) }
+    fun enableUser(uuid: String)         = action(uuid) { userRepository.enableUser(uuid) }
+    fun disableUser(uuid: String)        = action(uuid) { userRepository.disableUser(uuid) }
+    fun resetTraffic(uuid: String)       = action(uuid) { userRepository.resetTraffic(uuid) }
+    fun revokeSubscription(uuid: String) = action(uuid) { userRepository.revokeSubscription(uuid) }
+
+    /** Apply an updated User returned by the detail VM's quick-edit calls into the shared list. */
+    fun applyUserUpdate(updated: User) {
+        _state.update { it.copy(users = it.users.map { u -> if (u.uuid == updated.uuid) updated else u }) }
+    }
 
     fun deleteUser(uuid: String) {
         viewModelScope.launch {
