@@ -3,12 +3,37 @@ package art.yniyniyni.freedomwave.ui.feature.users
 import art.yniyniyni.freedomwave.domain.model.User
 import art.yniyniyni.freedomwave.domain.model.UserStatus
 import art.yniyniyni.freedomwave.util.parseInstant
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 enum class UserSortField(val label: String) {
     USERNAME("Username"),
     STATUS("Status"),
     ONLINE("Online"),
     ID("ID"),
+}
+
+enum class UserCategory(val label: String) {
+    ALL("All"),
+    ACTIVE("Active"),
+    DISABLED("Disabled"),
+    EXPIRED("Expired"),
+    ONLINE("Online"),
+    NEVER_ONLINE("Never online"),
+}
+
+// "Online now" window — matches the dashboard's onlineNow definition (active within the last minute).
+private val ONLINE_WINDOW = 60.seconds
+
+/** Whether [this] user belongs to the given [category]. */
+fun User.matchesCategory(category: UserCategory, now: Instant = Clock.System.now()): Boolean = when (category) {
+    UserCategory.ALL          -> true
+    UserCategory.ACTIVE       -> status == UserStatus.ACTIVE
+    UserCategory.DISABLED     -> status == UserStatus.DISABLED
+    UserCategory.EXPIRED      -> status == UserStatus.EXPIRED
+    UserCategory.ONLINE       -> parseInstant(onlineAt)?.let { now - it <= ONLINE_WINDOW } == true
+    UserCategory.NEVER_ONLINE -> onlineAt == null
 }
 
 private fun statusOrder(s: UserStatus) = when (s) {

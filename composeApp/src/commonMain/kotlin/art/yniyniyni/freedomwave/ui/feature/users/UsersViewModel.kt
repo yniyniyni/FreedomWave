@@ -41,6 +41,8 @@ data class UsersUiState(
     // sort
     val sortField: UserSortField = UserSortField.USERNAME,
     val sortAscending: Boolean   = true,
+    // category filter
+    val category: UserCategory   = UserCategory.ALL,
     // node map: uuid -> Node (for last-connection display)
     val nodesByUuid: Map<String, Node> = emptyMap(),
     // create / edit form
@@ -60,11 +62,13 @@ data class UsersUiState(
     val formError: String?     = null,
 ) {
     val visible: List<User> get() {
-        val matched = if (query.isBlank()) users
+        val byQuery = if (query.isBlank()) users
             else users.filter {
                 it.username.contains(query, ignoreCase = true) ||
                 it.tag?.contains(query, ignoreCase = true) == true
             }
+        val matched = if (category == UserCategory.ALL) byQuery
+            else byQuery.filter { it.matchesCategory(category) }
         return sortedUsers(matched, sortField, sortAscending)
     }
 
@@ -105,6 +109,8 @@ class UsersViewModel(
     }
 
     fun onQueryChange(q: String) = _state.update { it.copy(query = q) }
+
+    fun onCategorySelected(category: UserCategory) = _state.update { it.copy(category = category) }
 
     fun onSortSelected(field: UserSortField) = _state.update {
         if (it.sortField == field) it.copy(sortAscending = !it.sortAscending)

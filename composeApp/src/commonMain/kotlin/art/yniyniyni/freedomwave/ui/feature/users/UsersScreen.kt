@@ -25,7 +25,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
@@ -50,6 +52,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -182,6 +185,7 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                 val live = state.users.find { it.uuid == navEntry.user.uuid } ?: navEntry.user
                 UserDetailScreen(
                     user           = live,
+                    nodesByUuid    = state.nodesByUuid,
                     onBack         = { stack = stack.dropLast(1) },
                     onEdit         = { vm.openEditForm(live); stack = stack + UsersNav.Form(live) },
                     onEnable       = { vm.enableUser(live.uuid) },
@@ -272,6 +276,19 @@ private fun UsersListContent(
                 shape         = MaterialTheme.shapes.medium,
                 modifier      = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             )
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+            ) {
+                items(UserCategory.entries) { cat ->
+                    FilterChip(
+                        selected = state.category == cat,
+                        onClick  = { vm.onCategorySelected(cat) },
+                        label    = { Text(cat.label) },
+                    )
+                }
+            }
             when {
                 state.isLoading && state.users.isEmpty() -> ShimmerList()
                 state.error != null && state.users.isEmpty() ->
@@ -424,6 +441,7 @@ private fun StatusBadge(status: UserStatus) {
 @Composable
 private fun UserDetailScreen(
     user: User,
+    nodesByUuid: Map<String, Node>,
     onBack: () -> Unit,
     onEdit: () -> Unit,
     onEnable: () -> Unit,
@@ -494,6 +512,15 @@ private fun UserDetailScreen(
         )
     }
 
+    if (detailState.showDeviceLimitDialog) {
+        DeviceLimitDialog(
+            input     = detailState.deviceLimitInput,
+            onInput   = detailVm::onDeviceLimitInput,
+            onConfirm = { detailVm.confirmDeviceLimit(onApplyUpdate) },
+            onDismiss = detailVm::dismissDeviceLimitDialog,
+        )
+    }
+
     val clipboard = LocalClipboardManager.current
 
     Scaffold(
@@ -520,15 +547,29 @@ private fun UserDetailScreen(
             // ── Info card ──────────────────────────────────────────────────────
             item {
                 FwDetailCard {
-                    DetailSectionTitle("Info")
-                    DetailRow("Status",   user.status.label,        monoFont)
-                    DetailRow("UUID",     user.shortUuid,           monoFont)
-                    DetailRow("Strategy", user.trafficLimitStrategy, monoFont)
+                    // Compact header: title + status badge on one line.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        DetailSectionTitle("Info")
+                        StatusBadge(user.status)
+                    }
+                    // Last connection, formatted like the user list: 🇩🇪 DE · node · 5m ago
+                    val node = user.lastConnectedNodeUuid?.let { nodesByUuid[it] }
+                    val lastConn = buildString {
+                        if (node != null && node.countryCode.isNotBlank()) {
+                            append("${node.countryCode} ${countryFlag(node.countryCode)} · ")
+                        }
+                        if (node != null) append("${node.name} · ")
+                        append(formatRelativePast(user.onlineAt))
+                    }
+                    DetailRow("Last seen", if (user.onlineAt == null) "Never connected" else lastConn, monoFont)
                     DetailRow("Expires",  formatExpiryRemaining(user.expireAt), monoFont)
                     user.email?.let { DetailRow("Email", it, monoFont) }
                     user.tag?.let   { DetailRow("Tag",   it, monoFont) }
                     user.description?.let { DetailRow("Notes", it, monoFont) }
-                    DetailRow("Created", formatRelativePast(user.createdAt), monoFont)
                 }
             }
 
@@ -542,6 +583,16 @@ private fun UserDetailScreen(
                         limitBytes    = user.trafficLimitBytes,
                         lifetimeBytes = user.lifetimeUsedTrafficBytes,
                     )
+                    // Reset strategy only matters when traffic actually resets.
+                    if (user.trafficLimitStrategy.isNotBlank() && user.trafficLimitStrategy != "NO_RESET") {
+                        Spacer(Modifier.height(8.dp))
+                        DetailRow(
+                            "Resets",
+                            user.trafficLimitStrategy.lowercase().replace('_', ' ')
+                                .replaceFirstChar { it.uppercase() },
+                            monoFont,
+                        )
+                    }
                 }
             }
 
@@ -816,6 +867,11 @@ private fun ManageCard(
                 modifier = Modifier.weight(1f),
             )
             OutlinedButton(
+                onClick = { detailVm.openDeviceLimitDialog(user.hwidDeviceLimit) },
+                shape = RoundedCornerShape(percent = 50),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+            ) { Text("Edit") }
+            OutlinedButton(
                 onClick = { detailVm.adjustDeviceLimit(user.hwidDeviceLimit, -1, onApplyUpdate) },
                 shape = RoundedCornerShape(percent = 50),
                 modifier = Modifier.size(40.dp),
@@ -991,11 +1047,19 @@ private fun QrDialog(url: String, onDismiss: () -> Unit) {
             ) {
                 Text("Subscription QR", style = MaterialTheme.typography.titleMedium)
                 val painter = rememberQrCodePainter(url)
-                Image(
-                    painter     = painter,
-                    contentDescription = "QR code",
-                    modifier    = Modifier.size(220.dp),
-                )
+                // qrose draws dark cells on a transparent background, so on a dark-theme dialog the
+                // code would vanish. Render it on a fixed white quiet zone — scannable in any theme.
+                Box(
+                    modifier = Modifier
+                        .background(Color.White, RoundedCornerShape(12.dp))
+                        .padding(12.dp),
+                ) {
+                    Image(
+                        painter     = painter,
+                        contentDescription = "QR code",
+                        modifier    = Modifier.size(220.dp),
+                    )
+                }
                 TextButton(onClick = onDismiss) { Text("Close") }
             }
         }
@@ -1024,6 +1088,32 @@ private fun SetLimitDialog(
                 supportingText = { Text("0 = unlimited") },
                 singleLine    = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
+        confirmButton = { TextButton(onClick = onConfirm) { Text("Set") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+    )
+}
+
+@Composable
+private fun DeviceLimitDialog(
+    input: String,
+    onInput: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title  = { Text("Set Device Limit") },
+        text   = {
+            OutlinedTextField(
+                value         = input,
+                onValueChange = onInput,
+                label         = { Text("Devices") },
+                supportingText = { Text("0 = unlimited") },
+                singleLine    = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
             )
         },
