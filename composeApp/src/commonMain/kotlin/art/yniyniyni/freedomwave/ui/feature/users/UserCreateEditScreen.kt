@@ -303,7 +303,7 @@ private fun StrategyDropdown(selected: String, enabled: Boolean, onSelect: (Stri
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-private fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long) -> Unit) {
+internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long) -> Unit) {
     var showDate by remember { mutableStateOf(false) }
     var showTime by remember { mutableStateOf(false) }
 
