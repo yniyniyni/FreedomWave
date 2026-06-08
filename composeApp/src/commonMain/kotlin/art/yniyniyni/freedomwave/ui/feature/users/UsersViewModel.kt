@@ -39,8 +39,8 @@ data class UsersUiState(
     val error: String?       = null,
     val actionError: String? = null,
     // sort
-    val sortField: UserSortField = UserSortField.USERNAME,
-    val sortAscending: Boolean   = true,
+    val sortField: UserSortField = UserSortField.ID,
+    val sortAscending: Boolean   = false,
     // category filter
     val category: UserCategory   = UserCategory.ALL,
     // node map: uuid -> Node (for last-connection display)
