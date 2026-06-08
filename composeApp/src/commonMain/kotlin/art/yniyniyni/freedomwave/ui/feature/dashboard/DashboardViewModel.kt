@@ -9,11 +9,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
 data class DashboardUiState(
     val isLoading: Boolean      = false,
     val stats: DashboardStats?  = null,
-    val error: String?          = null
+    val error: String?          = null,
+    val lastUpdatedAt: Long?    = null
 )
 
 class DashboardViewModel(
@@ -29,7 +31,7 @@ class DashboardViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
             dashboardRepository.getStats()
-                .onSuccess { stats -> _state.update { it.copy(isLoading = false, stats = stats) } }
+                .onSuccess { stats -> _state.update { it.copy(isLoading = false, stats = stats, lastUpdatedAt = Clock.System.now().toEpochMilliseconds()) } }
                 .onFailure { e   -> _state.update { it.copy(isLoading = false, error = e.message) } }
         }
     }

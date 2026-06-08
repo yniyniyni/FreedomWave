@@ -63,7 +63,7 @@ val networkModule = module {
 val repositoryModule = module {
     single { AuthRepository(get(), get()) }
     single { BandwidthRepository(get(), get()) }
-    single { DashboardRepository(get(), get()) }
+    single { DashboardRepository(get(), get(), get()) }
     single { UserRepository(get(), get()) }
     single { NodeRepository(get(), get()) }
     single { HostRepository(get(), get()) }

@@ -19,7 +19,9 @@ data class DashboardStats(
     val totalTraffic: String,
     val nodesBytesLifetime: String,
     val panelVersion: String,
-    val distinctCountries: Int
+    val distinctCountries: Int,
+    val neverOnline: Int,
+    val statusCounts: Map<String, Int>
 ) {
     companion object {
         fun from(stats: SystemStatsData, recap: RecapData) = DashboardStats(
@@ -38,7 +40,9 @@ data class DashboardStats(
             totalTraffic      = recap.total.traffic,
             nodesBytesLifetime = stats.nodes.totalBytesLifetime,
             panelVersion      = recap.version,
-            distinctCountries = recap.total.distinctCountries
+            distinctCountries = recap.total.distinctCountries,
+            neverOnline       = stats.onlineStats.neverOnline,
+            statusCounts      = stats.users.statusCounts
         )
     }
 }
