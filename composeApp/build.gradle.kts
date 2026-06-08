@@ -52,6 +52,9 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
 
+            // QR Code
+            implementation(libs.qrose)
+
             // Logging
             implementation(libs.kermit)
         }
