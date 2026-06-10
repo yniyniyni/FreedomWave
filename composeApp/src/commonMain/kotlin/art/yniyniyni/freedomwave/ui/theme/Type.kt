@@ -9,11 +9,11 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Typography
-import freedomwave.composeapp.generated.resources.JetBrainsMono
-import freedomwave.composeapp.generated.resources.JetBrainsMonoItalic
-import freedomwave.composeapp.generated.resources.Manrope
-import freedomwave.composeapp.generated.resources.MartianMono
-import freedomwave.composeapp.generated.resources.Res
+import art.yniyniyni.freedomwave.resources.JetBrainsMono
+import art.yniyniyni.freedomwave.resources.JetBrainsMonoItalic
+import art.yniyniyni.freedomwave.resources.Manrope
+import art.yniyniyni.freedomwave.resources.MartianMono
+import art.yniyniyni.freedomwave.resources.Res
 import org.jetbrains.compose.resources.Font
 
 @Composable

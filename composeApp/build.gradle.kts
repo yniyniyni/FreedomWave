@@ -86,3 +86,7 @@ kotlin {
         }
     }
 }
+
+compose.resources {
+    packageOfResClass = "art.yniyniyni.freedomwave.resources"
+}
