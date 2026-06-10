@@ -10,10 +10,6 @@
     <string name="common_copied">Скопировано</string>
     <string name="common_retry">Повторить</string>
     <string name="common_connect">Подключиться</string>
-    <string name="common_empty_dash">—</string>
-    <!-- brand wordmark: never translated, identical in every locale -->
-    <string name="common_brand_freedom">Freedom</string>
-    <string name="common_brand_wave">Wave</string>
 
     <!-- settings -->
     <string name="settings_title">Настройки</string>
@@ -41,9 +37,8 @@
     <!-- login -->
     <string name="login_subtitle">Админ-панель Remnawave</string>
     <string name="login_server_url">URL сервера</string>
-    <string name="login_server_url_placeholder">https://panel.example.com</string>
     <string name="login_api_key">API-ключ</string>
-    <string name="login_api_key_hint">Создайте API-ключ в панели Remnawave в разделе API-токенов</string>
+    <string name="login_api_key_hint">Создайте API-ключ в разделе «API-токены» панели Remnawave</string>
 
     <!-- lock -->
     <string name="lock_locked">Заблокировано</string>
@@ -68,7 +63,6 @@
     <string name="unit_tb">ТБ</string>
     <string name="time_never">Никогда</string>
     <string name="time_now">сейчас</string>
-    <string name="time_infinite">∞</string>
     <string name="time_expired">Истёк</string>
     <string name="time_ago_seconds">%1$d с назад</string>
     <string name="time_ago_minutes">%1$d мин назад</string>
@@ -81,8 +75,4 @@
     <string name="uptime_days_hours">%1$d дн %2$d ч</string>
     <string name="uptime_hours_minutes">%1$d ч %2$d мин</string>
     <string name="uptime_minutes">%1$d мин</string>
-
-    <!-- language endonyms: never translated, identical in every locale -->
-    <string name="language_english">English</string>
-    <string name="language_russian">Русский</string>
 </resources>
