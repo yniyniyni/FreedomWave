@@ -4,6 +4,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.abs
 import kotlin.math.roundToLong
 
 const val FOREVER_DATE = "2099-12-31T23:59:59.000Z"
@@ -95,8 +96,10 @@ fun uptimeParts(seconds: Long): UptimeParts =
 
 /** KMP-safe "%.2f" replacement (String.format is JVM-only). */
 fun Double.format2(): String {
+    // TODO(fa): digits + decimal separator localization when Farsi lands
     val scaled = (this * 100).roundToLong()
-    return "${scaled / 100}.${(scaled % 100).toString().padStart(2, '0')}"
+    val abs = abs(scaled)
+    return "${if (scaled < 0) "-" else ""}${abs / 100}.${(abs % 100).toString().padStart(2, '0')}"
 }
 
 /**

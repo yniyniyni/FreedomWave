@@ -61,7 +61,7 @@
     <string name="time_left_minutes">осталось %1$d мин</string>
     <string name="time_left_hours">осталось %1$d ч</string>
     <string name="time_left_days">осталось %1$d дн</string>
-    <string name="uptime_days_hours">%1$d д %2$d ч</string>
+    <string name="uptime_days_hours">%1$d дн %2$d ч</string>
     <string name="uptime_hours_minutes">%1$d ч %2$d мин</string>
     <string name="uptime_minutes">%1$d мин</string>
 

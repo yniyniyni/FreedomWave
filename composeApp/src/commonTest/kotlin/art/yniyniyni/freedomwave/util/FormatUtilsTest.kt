@@ -53,4 +53,32 @@ class FormatUtilsTest {
 
     @Test fun parse_instant_valid_round_trip() =
         assertEquals(Instant.parse("2026-06-02T00:00:00Z"), parseInstant("2026-06-02T00:00:00Z"))
+
+    // --- relativePast boundary tests ---
+    @Test fun relative_59s_is_seconds() =
+        assertEquals(RelativePast.Ago(59, DurationUnit.SECONDS), relativePast("2026-06-01T23:59:01Z", now))
+    @Test fun relative_60s_is_minutes() =
+        assertEquals(RelativePast.Ago(1, DurationUnit.MINUTES), relativePast("2026-06-01T23:59:00Z", now))
+    @Test fun relative_3599s_is_minutes() =
+        assertEquals(RelativePast.Ago(59, DurationUnit.MINUTES), relativePast("2026-06-01T23:00:01Z", now))
+    @Test fun relative_3600s_is_hours() =
+        assertEquals(RelativePast.Ago(1, DurationUnit.HOURS), relativePast("2026-06-01T23:00:00Z", now))
+    @Test fun relative_86399s_is_hours() =
+        assertEquals(RelativePast.Ago(23, DurationUnit.HOURS), relativePast("2026-06-01T00:00:01Z", now))
+    @Test fun relative_86400s_is_days() =
+        assertEquals(RelativePast.Ago(1, DurationUnit.DAYS), relativePast("2026-06-01T00:00:00Z", now))
+
+    // --- byteValue boundary tests ---
+    @Test fun bytes_exactly_1024_is_kb() = assertEquals(ByteValue(1.0, ByteUnit.KB), byteValue(1024L))
+    @Test fun bytes_1023_is_b() = assertEquals(ByteValue(1023.0, ByteUnit.B), byteValue(1023L))
+    @Test fun bytes_tb_range() = assertEquals(ByteValue(2.0, ByteUnit.TB), byteValue(2_199_023_255_552L))
+
+    // --- format2 edge cases ---
+    @Test fun format2_rounding_carry() = assertEquals("1.00", 0.999.format2())
+    @Test fun format2_single_digit_remainder() = assertEquals("2.05", 2.05.format2())
+    @Test fun format2_negative() = assertEquals("-1.50", (-1.5).format2())
+    @Test fun format2_negative_below_one() = assertEquals("-0.50", (-0.5).format2())
+
+    // --- uptimeParts boundary ---
+    @Test fun uptime_under_minute_is_zero_minutes() = assertEquals(UptimeParts(0, 0, 0), uptimeParts(59L))
 }
