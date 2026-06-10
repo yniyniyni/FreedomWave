@@ -6,14 +6,19 @@ import art.yniyniyni.freedomwave.resources.language_russian
 import art.yniyniyni.freedomwave.resources.settings_language_system
 import org.jetbrains.compose.resources.StringResource
 
+// When adding a locale, also update app/src/main/res/xml/locales_config.xml and add composeResources/values-<tag>/strings.xml
 enum class AppLanguage(val tag: String?, val labelRes: StringResource) {
     SYSTEM(null, Res.string.settings_language_system),
     ENGLISH("en", Res.string.language_english),
     RUSSIAN("ru", Res.string.language_russian);
 
     companion object {
-        fun fromTag(tag: String?): AppLanguage =
-            entries.firstOrNull { e -> e.tag?.let { tag?.startsWith(it) } == true } ?: SYSTEM
+        fun fromTag(tag: String?): AppLanguage {
+            val first = tag?.substringBefore(',')
+            return entries.firstOrNull { e ->
+                e.tag != null && first != null && (first == e.tag || first.startsWith("${e.tag}-"))
+            } ?: SYSTEM
+        }
     }
 }
 

@@ -31,10 +31,12 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -47,14 +49,10 @@ import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_DARK
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_LIGHT
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_SYSTEM
-import art.yniyniyni.freedomwave.ui.auth.rememberBiometricAuthenticator
-import art.yniyniyni.freedomwave.ui.l10n.AppLanguage
-import art.yniyniyni.freedomwave.ui.l10n.applyAppLanguage
-import art.yniyniyni.freedomwave.ui.l10n.currentAppLanguageTag
-import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.resources.Res
 import art.yniyniyni.freedomwave.resources.common_cancel
 import art.yniyniyni.freedomwave.resources.common_connect
+import art.yniyniyni.freedomwave.resources.common_empty_dash
 import art.yniyniyni.freedomwave.resources.settings_about
 import art.yniyniyni.freedomwave.resources.settings_api_key
 import art.yniyniyni.freedomwave.resources.settings_appearance
@@ -75,6 +73,12 @@ import art.yniyniyni.freedomwave.resources.settings_theme_light
 import art.yniyniyni.freedomwave.resources.settings_theme_system
 import art.yniyniyni.freedomwave.resources.settings_title
 import art.yniyniyni.freedomwave.resources.settings_version
+import art.yniyniyni.freedomwave.ui.auth.rememberBiometricAuthenticator
+import art.yniyniyni.freedomwave.ui.components.FwTopBar
+import art.yniyniyni.freedomwave.ui.l10n.AppLanguage
+import art.yniyniyni.freedomwave.ui.l10n.applyAppLanguage
+import art.yniyniyni.freedomwave.ui.l10n.currentAppLanguageTag
+import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -94,10 +98,11 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
     val biometricAuth    = rememberBiometricAuthenticator()
     val canUseBiometrics = biometricAuth.isAvailable()
     val monoFont         = LocalFwMonoFont.current
+    val emptyDash        = stringResource(Res.string.common_empty_dash)
 
     val maskedKey = apiKey?.let {
         if (it.length > 8) it.take(8) + "•".repeat(16) else "•".repeat(it.length)
-    } ?: "—"
+    } ?: emptyDash
 
     if (state.showChangeKeyDialog) {
         ChangeKeyDialog(
@@ -125,7 +130,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                 FwCard {
                     Text(stringResource(Res.string.settings_connection), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(4.dp))
-                    InfoRow(stringResource(Res.string.settings_server), serverUrl.ifBlank { "—" }, monoFont)
+                    InfoRow(stringResource(Res.string.settings_server), serverUrl.ifBlank { emptyDash }, monoFont)
                     InfoRow(stringResource(Res.string.settings_api_key), maskedKey, monoFont)
                     Spacer(Modifier.height(4.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -170,13 +175,13 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                 FwCard {
                     Text(stringResource(Res.string.settings_language), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
-                    val current = AppLanguage.fromTag(currentAppLanguageTag())
+                    var current by remember { mutableStateOf(AppLanguage.fromTag(currentAppLanguageTag())) }
                     val languages = AppLanguage.entries
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         languages.forEachIndexed { i, lang ->
                             SegmentedButton(
                                 shape    = SegmentedButtonDefaults.itemShape(index = i, count = languages.size),
-                                onClick  = { applyAppLanguage(lang.tag) },
+                                onClick  = { current = lang; applyAppLanguage(lang.tag) },
                                 selected = current == lang
                             ) { Text(stringResource(lang.labelRes)) }
                         }
