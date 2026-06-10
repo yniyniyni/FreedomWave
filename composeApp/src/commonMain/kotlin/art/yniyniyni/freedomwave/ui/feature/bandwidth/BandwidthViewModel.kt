@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.api.dto.BandwidthNodesData
 import art.yniyniyni.freedomwave.data.repository.BandwidthRepository
+import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +34,7 @@ data class BandwidthUiState(
     val isLoading: Boolean       = false,
     val selectedRange: TimeRange = TimeRange.DAYS_7,
     val data: BandwidthNodesData? = null,
-    val error: String?           = null
+    val error: UiText?           = null
 )
 
 class BandwidthViewModel(private val repo: BandwidthRepository) : ViewModel() {
@@ -53,7 +55,7 @@ class BandwidthViewModel(private val repo: BandwidthRepository) : ViewModel() {
             _state.update { it.copy(isLoading = true, error = null) }
             repo.getNodesStats(start, end)
                 .onSuccess { data -> _state.update { it.copy(isLoading = false, data = data) } }
-                .onFailure { e   -> _state.update { it.copy(isLoading = false, error = e.message) } }
+                .onFailure { e   -> _state.update { it.copy(isLoading = false, error = e.toUiText()) } }
         }
     }
 }

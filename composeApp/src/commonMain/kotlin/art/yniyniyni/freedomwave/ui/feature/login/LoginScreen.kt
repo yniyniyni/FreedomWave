@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -113,7 +114,7 @@ fun LoginScreen(vm: LoginViewModel = koinViewModel()) {
 
             state.error?.let { error ->
                 Text(
-                    text = error,
+                    text = error.resolve(),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.fillMaxWidth(),

@@ -82,13 +82,10 @@ fun buildHttpClient(prefs: AppPreferences): HttpClient = HttpClient {
             when (response.status.value) {
                 401         -> throw ApiError.Unauthorized()
                 404         -> throw ApiError.NotFound()
-                in 400..499 -> {
-                    val body = response.bodyAsText()
-                    throw ApiError.ServerError(
-                        extractApiMessage(body) ?: "Request failed (${response.status.value})"
-                    )
-                }
-                in 500..599 -> throw ApiError.ServerError("Server error ${response.status.value}: ${response.bodyAsText()}")
+                // Only pass genuine backend-provided messages through; a blank message makes
+                // the UI layer fall back to a localized generic error instead of app-baked
+                // English (or a raw HTML body on 5xx).
+                in 400..599 -> throw ApiError.ServerError(extractApiMessage(response.bodyAsText()) ?: "")
             }
         }
         handleResponseExceptionWithRequest { cause, _ ->

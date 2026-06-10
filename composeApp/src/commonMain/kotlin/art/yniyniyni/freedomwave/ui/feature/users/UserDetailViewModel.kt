@@ -9,6 +9,8 @@ import art.yniyniyni.freedomwave.data.repository.UserRepository
 import art.yniyniyni.freedomwave.domain.model.HwidDevice
 import art.yniyniyni.freedomwave.domain.model.IpRow
 import art.yniyniyni.freedomwave.domain.model.User
+import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,18 +22,18 @@ data class UserDetailUiState(
     // Devices section
     val devicesLoading: Boolean        = true,
     val devices: List<HwidDevice>      = emptyList(),
-    val devicesError: String?          = null,
+    val devicesError: UiText?          = null,
     val devicesExpanded: Boolean       = true,
 
     // IP section
     val ipLoading: Boolean             = true,
     val ipRows: List<IpRow>            = emptyList(),
-    val ipError: String?               = null,
+    val ipError: UiText?               = null,
     val ipExpanded: Boolean            = true,
 
     // Quick-edit action feedback
-    val actionError: String?           = null,
-    val actionSuccess: String?         = null,
+    val actionError: UiText?           = null,
+    val actionSuccess: UiText?         = null,
 
     // Quick-edit dialogs
     val showSetLimitDialog: Boolean    = false,
@@ -67,7 +69,7 @@ class UserDetailViewModel(
             _state.update { it.copy(devicesLoading = true, devicesError = null) }
             hwidRepository.getDevices(userUuid)
                 .onSuccess { list -> _state.update { it.copy(devicesLoading = false, devices = list) } }
-                .onFailure { e   -> _state.update { it.copy(devicesLoading = false, devicesError = e.message) } }
+                .onFailure { e   -> _state.update { it.copy(devicesLoading = false, devicesError = e.toUiText()) } }
         }
     }
 
@@ -76,7 +78,7 @@ class UserDetailViewModel(
             _state.update { it.copy(ipLoading = true, ipError = null) }
             subHistoryRepository.getIpRows(userUuid)
                 .onSuccess { rows -> _state.update { it.copy(ipLoading = false, ipRows = rows) } }
-                .onFailure { e   -> _state.update { it.copy(ipLoading = false, ipError = e.message) } }
+                .onFailure { e   -> _state.update { it.copy(ipLoading = false, ipError = e.toUiText()) } }
         }
     }
 
@@ -89,10 +91,10 @@ class UserDetailViewModel(
         viewModelScope.launch {
             userRepository.revokeSubscription(userUuid)
                 .onSuccess { updated ->
-                    _state.update { it.copy(actionSuccess = "Subscription revoked") }
+                    _state.update { it.copy(actionSuccess = UiText.Raw("Subscription revoked")) }
                     onUpdated(updated)
                 }
-                .onFailure { e -> _state.update { it.copy(actionError = e.message) } }
+                .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
         }
     }
 
@@ -114,7 +116,7 @@ class UserDetailViewModel(
         val gbStr = _state.value.setLimitGbInput.trim()
         val gb = gbStr.toDoubleOrNull()
         if (gb == null || gb < 0) {
-            _state.update { it.copy(actionError = "Enter a number ≥ 0") }
+            _state.update { it.copy(actionError = UiText.Raw("Enter a number ≥ 0")) }
             return
         }
         val bytes = (gb * 1024.0 * 1024.0 * 1024.0).toLong()
@@ -122,10 +124,10 @@ class UserDetailViewModel(
         viewModelScope.launch {
             userRepository.updateUser(UpdateUserRequest(uuid = userUuid, trafficLimitBytes = bytes))
                 .onSuccess { updated ->
-                    _state.update { it.copy(actionSuccess = "Traffic limit updated") }
+                    _state.update { it.copy(actionSuccess = UiText.Raw("Traffic limit updated")) }
                     onUpdated(updated)
                 }
-                .onFailure { e -> _state.update { it.copy(actionError = e.message) } }
+                .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
         }
     }
 
@@ -144,10 +146,10 @@ class UserDetailViewModel(
         viewModelScope.launch {
             userRepository.updateUser(UpdateUserRequest(uuid = userUuid, expireAt = expireAt))
                 .onSuccess { updated ->
-                    _state.update { it.copy(actionSuccess = "Expiry updated") }
+                    _state.update { it.copy(actionSuccess = UiText.Raw("Expiry updated")) }
                     onUpdated(updated)
                 }
-                .onFailure { e -> _state.update { it.copy(actionError = e.message) } }
+                .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
         }
     }
 
@@ -167,7 +169,7 @@ class UserDetailViewModel(
     fun confirmDeviceLimit(onUpdated: (User) -> Unit) {
         val limit = _state.value.deviceLimitInput.trim().toIntOrNull()
         if (limit == null || limit < 0) {
-            _state.update { it.copy(actionError = "Enter a whole number ≥ 0") }
+            _state.update { it.copy(actionError = UiText.Raw("Enter a whole number ≥ 0")) }
             return
         }
         _state.update { it.copy(showDeviceLimitDialog = false) }
@@ -178,10 +180,10 @@ class UserDetailViewModel(
         viewModelScope.launch {
             userRepository.updateUser(UpdateUserRequest(uuid = userUuid, hwidDeviceLimit = newLimit))
                 .onSuccess { updated ->
-                    _state.update { it.copy(actionSuccess = "Device limit set to $newLimit") }
+                    _state.update { it.copy(actionSuccess = UiText.Raw("Device limit set to $newLimit")) }
                     onUpdated(updated)
                 }
-                .onFailure { e -> _state.update { it.copy(actionError = e.message) } }
+                .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
         }
     }
 

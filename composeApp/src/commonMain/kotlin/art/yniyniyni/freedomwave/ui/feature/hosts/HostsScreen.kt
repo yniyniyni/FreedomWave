@@ -58,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Host
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -67,8 +68,9 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
-    LaunchedEffect(state.actionError) {
-        state.actionError?.let {
+    val actionErrorText = state.actionError?.resolve()
+    LaunchedEffect(actionErrorText) {
+        actionErrorText?.let {
             snackbar.showSnackbar(it)
             vm.clearActionError()
         }
@@ -134,7 +136,7 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
                                 modifier = Modifier.align(Alignment.Center).padding(32.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
-                                Text(state.error!!, color = MaterialTheme.colorScheme.error)
+                                Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
                                 Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
                             }
                         }

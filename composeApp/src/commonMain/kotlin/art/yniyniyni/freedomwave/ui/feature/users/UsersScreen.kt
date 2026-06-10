@@ -95,6 +95,7 @@ import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.User
 import art.yniyniyni.freedomwave.domain.model.UserStatus
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.countryFlag
@@ -135,8 +136,9 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
     val top = stack.last()
     val canGoBack = stack.size > 1
 
-    LaunchedEffect(state.actionError) {
-        state.actionError?.let {
+    val actionErrorText = state.actionError?.resolve()
+    LaunchedEffect(actionErrorText) {
+        actionErrorText?.let {
             snackbar.showSnackbar(it)
             vm.clearActionError()
         }
@@ -294,7 +296,7 @@ private fun UsersListContent(
                 state.error != null && state.users.isEmpty() ->
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(state.error!!, color = MaterialTheme.colorScheme.error)
+                            Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
                             Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
                         }
                     }
@@ -457,11 +459,13 @@ private fun UserDetailScreen(
     val snackbar = remember { SnackbarHostState() }
 
     // Feedback snackbars
-    LaunchedEffect(detailState.actionError) {
-        detailState.actionError?.let { snackbar.showSnackbar(it); detailVm.clearMessages() }
+    val detailActionErrorText = detailState.actionError?.resolve()
+    LaunchedEffect(detailActionErrorText) {
+        detailActionErrorText?.let { snackbar.showSnackbar(it); detailVm.clearMessages() }
     }
-    LaunchedEffect(detailState.actionSuccess) {
-        detailState.actionSuccess?.let { snackbar.showSnackbar(it); detailVm.clearMessages() }
+    val detailActionSuccessText = detailState.actionSuccess?.resolve()
+    LaunchedEffect(detailActionSuccessText) {
+        detailActionSuccessText?.let { snackbar.showSnackbar(it); detailVm.clearMessages() }
     }
 
     // ── Dialogs ────────────────────────────────────────────────────────────────
@@ -679,7 +683,7 @@ private fun UserDetailScreen(
                                 }
                             detailState.devicesError != null ->
                                 Text(
-                                    detailState.devicesError!!,
+                                    detailState.devicesError!!.resolve(),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.error,
                                 )
@@ -733,7 +737,7 @@ private fun UserDetailScreen(
                                 }
                             detailState.ipError != null ->
                                 Text(
-                                    detailState.ipError!!,
+                                    detailState.ipError!!.resolve(),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.error,
                                 )

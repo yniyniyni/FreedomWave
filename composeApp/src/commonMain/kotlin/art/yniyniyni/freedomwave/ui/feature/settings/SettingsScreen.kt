@@ -77,7 +77,9 @@ import art.yniyniyni.freedomwave.ui.auth.rememberBiometricAuthenticator
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import art.yniyniyni.freedomwave.ui.l10n.AppLanguage
 import art.yniyniyni.freedomwave.ui.l10n.applyAppLanguage
+import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.currentAppLanguageTag
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -265,7 +267,7 @@ private fun ChangeKeyDialog(
     serverUrl: String,
     apiKey: String,
     isLoading: Boolean,
-    error: String?,
+    error: UiText?,
     onServerUrlChange: (String) -> Unit,
     onApiKeyChange: (String) -> Unit,
     onConfirm: () -> Unit,
@@ -305,7 +307,7 @@ private fun ChangeKeyDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 error?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    Text(it.resolve(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 }
             }
         },

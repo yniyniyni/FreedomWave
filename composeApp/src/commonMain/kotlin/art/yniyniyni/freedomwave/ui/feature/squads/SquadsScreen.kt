@@ -53,6 +53,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Squad
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,8 +62,9 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
-    LaunchedEffect(state.actionError) {
-        state.actionError?.let { vm.clearActionError(); snackbar.showSnackbar(it) }
+    val actionErrorText = state.actionError?.resolve()
+    LaunchedEffect(actionErrorText) {
+        actionErrorText?.let { vm.clearActionError(); snackbar.showSnackbar(it) }
     }
 
     // Dialogs
@@ -95,7 +97,7 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
                     }
                     state.dialogError?.let {
                         Spacer(Modifier.height(4.dp))
-                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                        Text(it.resolve(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             },
@@ -168,7 +170,7 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
                             modifier = Modifier.align(Alignment.Center).padding(32.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(state.error!!, color = MaterialTheme.colorScheme.error)
+                            Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
                             Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
                         }
                     }

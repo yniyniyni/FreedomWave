@@ -51,6 +51,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.ui.window.Dialog
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.util.ExpiryPreset
 import art.yniyniyni.freedomwave.util.presetExpiryMillis
 import kotlinx.datetime.Instant
@@ -102,7 +103,7 @@ internal fun UserCreateEditScreen(
                         singleLine = true,
                         enabled = isCreate && !state.formIsLoading,
                         isError = state.usernameError != null,
-                        supportingText = state.usernameError?.let { { Text(it) } },
+                        supportingText = state.usernameError?.let { { Text(it.resolve()) } },
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
@@ -112,7 +113,7 @@ internal fun UserCreateEditScreen(
                         singleLine = true,
                         enabled = !state.formIsLoading,
                         isError = state.tagError != null,
-                        supportingText = state.tagError?.let { { Text(it) } },
+                        supportingText = state.tagError?.let { { Text(it.resolve()) } },
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
@@ -122,7 +123,7 @@ internal fun UserCreateEditScreen(
                         singleLine = true,
                         enabled = !state.formIsLoading,
                         isError = state.emailError != null,
-                        supportingText = state.emailError?.let { { Text(it) } },
+                        supportingText = state.emailError?.let { { Text(it.resolve()) } },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -231,7 +232,7 @@ internal fun UserCreateEditScreen(
             if (state.formError != null) {
                 item {
                     Text(
-                        state.formError,
+                        state.formError!!.resolve(),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(horizontal = 4.dp)

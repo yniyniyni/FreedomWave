@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.NodeRepository
 import art.yniyniyni.freedomwave.domain.model.Node
+import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,8 +15,8 @@ import kotlinx.coroutines.launch
 data class NodesUiState(
     val isLoading: Boolean   = false,
     val nodes: List<Node>    = emptyList(),
-    val error: String?       = null,
-    val actionError: String? = null
+    val error: UiText?       = null,
+    val actionError: UiText? = null
 )
 
 class NodesViewModel(private val nodeRepository: NodeRepository) : ViewModel() {
@@ -29,7 +31,7 @@ class NodesViewModel(private val nodeRepository: NodeRepository) : ViewModel() {
             _state.update { it.copy(isLoading = true, error = null) }
             nodeRepository.getNodes()
                 .onSuccess { nodes -> _state.update { it.copy(isLoading = false, nodes = nodes) } }
-                .onFailure { e    -> _state.update { it.copy(isLoading = false, error = e.message) } }
+                .onFailure { e    -> _state.update { it.copy(isLoading = false, error = e.toUiText()) } }
         }
     }
 
@@ -44,7 +46,7 @@ class NodesViewModel(private val nodeRepository: NodeRepository) : ViewModel() {
         viewModelScope.launch {
             block()
                 .onSuccess { updated -> _state.update { it.copy(nodes = it.nodes.map { n -> if (n.uuid == uuid) updated else n }) } }
-                .onFailure { e -> _state.update { it.copy(actionError = e.message) } }
+                .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
         }
     }
 }

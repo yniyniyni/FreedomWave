@@ -58,6 +58,8 @@ import art.yniyniyni.freedomwave.domain.model.DashboardStats
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import art.yniyniyni.freedomwave.ui.components.SparklineChart
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
+import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.formatBytes
@@ -611,13 +613,13 @@ private fun StatRow(label: String, value: String) {
 }
 
 @Composable
-private fun ErrorState(error: String, onRetry: () -> Unit) {
+private fun ErrorState(error: UiText, onRetry: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+        Text(error.resolve(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
         Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
     }
 }

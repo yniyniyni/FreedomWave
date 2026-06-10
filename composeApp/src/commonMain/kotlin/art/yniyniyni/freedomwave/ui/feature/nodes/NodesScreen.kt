@@ -65,6 +65,7 @@ import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthUiState
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.TimeRange
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.countryFlag
@@ -88,8 +89,9 @@ fun NodesScreen(
     val snackbar = remember { SnackbarHostState() }
     var nav: NodesNav by remember { mutableStateOf(NodesNav.List) }
 
-    LaunchedEffect(state.actionError) {
-        state.actionError?.let { snackbar.showSnackbar(it); vm.clearActionError() }
+    val actionErrorText = state.actionError?.resolve()
+    LaunchedEffect(actionErrorText) {
+        actionErrorText?.let { snackbar.showSnackbar(it); vm.clearActionError() }
     }
 
     val isDetail = nav is NodesNav.Detail
@@ -154,7 +156,7 @@ fun NodesScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                         ) {
-                            Text(state.error!!, color = MaterialTheme.colorScheme.error)
+                            Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
                             Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
                         }
 

@@ -11,6 +11,8 @@ import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.Squad
 import art.yniyniyni.freedomwave.domain.model.User
 import art.yniyniyni.freedomwave.domain.model.UserStatus
+import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import art.yniyniyni.freedomwave.util.FOREVER_DATE
 import art.yniyniyni.freedomwave.util.ExpiryPreset
 import art.yniyniyni.freedomwave.util.presetExpiryMillis
@@ -28,16 +30,16 @@ private val USERNAME_REGEX = Regex("^[A-Za-z0-9_-]{3,36}$")
 private val TAG_REGEX = Regex("^[A-Z0-9_]{1,16}$")
 private val EMAIL_REGEX = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
 
-private const val USERNAME_ERROR = "3-36 chars, letters, digits, dash or underscore"
-private const val TAG_ERROR = "Tag: up to 16 uppercase letters, digits or underscore"
-private const val EMAIL_ERROR = "Enter a valid email address"
+private val USERNAME_ERROR = UiText.Raw("3-36 chars, letters, digits, dash or underscore")
+private val TAG_ERROR = UiText.Raw("Tag: up to 16 uppercase letters, digits or underscore")
+private val EMAIL_ERROR = UiText.Raw("Enter a valid email address")
 
 data class UsersUiState(
     val isLoading: Boolean   = false,
     val users: List<User>    = emptyList(),
     val query: String        = "",
-    val error: String?       = null,
-    val actionError: String? = null,
+    val error: UiText?       = null,
+    val actionError: UiText? = null,
     // sort
     val sortField: UserSortField = UserSortField.ID,
     val sortAscending: Boolean   = false,
@@ -59,7 +61,7 @@ data class UsersUiState(
     val formSquads: List<Squad> = emptyList(),
     val formSelectedSquadUuids: Set<String> = emptySet(),
     val formIsLoading: Boolean = false,
-    val formError: String?     = null,
+    val formError: UiText?     = null,
 ) {
     val visible: List<User> get() {
         val byQuery = if (query.isBlank()) users
@@ -74,12 +76,12 @@ data class UsersUiState(
 
     // Live per-field validation surfaced under each input. Only flags a field once the user
     // has typed something invalid (empty fields stay clean; saveForm() is the final gate).
-    val usernameError: String? get() =
+    val usernameError: UiText? get() =
         if (editingUser == null && formUsername.isNotBlank() && !USERNAME_REGEX.matches(formUsername.trim()))
             USERNAME_ERROR else null
-    val tagError: String? get() =
+    val tagError: UiText? get() =
         if (formTag.isNotBlank() && !TAG_REGEX.matches(formTag.trim())) TAG_ERROR else null
-    val emailError: String? get() =
+    val emailError: UiText? get() =
         if (formEmail.isNotBlank() && !EMAIL_REGEX.matches(formEmail.trim())) EMAIL_ERROR else null
 }
 
@@ -99,7 +101,7 @@ class UsersViewModel(
             _state.update { it.copy(isLoading = true, error = null) }
             userRepository.getUsers()
                 .onSuccess { users -> _state.update { it.copy(isLoading = false, users = users) } }
-                .onFailure { e    -> _state.update { it.copy(isLoading = false, error = e.message) } }
+                .onFailure { e    -> _state.update { it.copy(isLoading = false, error = e.toUiText()) } }
         }
         viewModelScope.launch {
             nodeRepository.getNodes()
@@ -131,7 +133,7 @@ class UsersViewModel(
         viewModelScope.launch {
             userRepository.deleteUser(uuid)
                 .onSuccess { _state.update { it.copy(users = it.users.filterNot { u -> u.uuid == uuid }) } }
-                .onFailure { e -> _state.update { it.copy(actionError = e.message) } }
+                .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
         }
     }
 
@@ -228,14 +230,14 @@ class UsersViewModel(
 
         val trafficGb = s.formTrafficGb.trim().toDoubleOrNull()
         if (trafficGb == null || trafficGb < 0) {
-            _state.update { it.copy(formError = "Traffic limit must be a number ≥ 0") }
+            _state.update { it.copy(formError = UiText.Raw("Traffic limit must be a number ≥ 0")) }
             return
         }
         val trafficLimitBytes = (trafficGb * 1024.0 * 1024.0 * 1024.0).toLong()
 
         val hwid: Int? = s.formHwid.trim().let { if (it.isBlank()) null else it.toIntOrNull() }
         if (s.formHwid.trim().isNotBlank() && (hwid == null || hwid < 0)) {
-            _state.update { it.copy(formError = "Device limit must be a whole number ≥ 0") }
+            _state.update { it.copy(formError = UiText.Raw("Device limit must be a whole number ≥ 0")) }
             return
         }
 
@@ -263,7 +265,7 @@ class UsersViewModel(
                         _state.update { it.copy(formIsLoading = false, users = listOf(created) + it.users) }
                         onSuccess()
                     }
-                    .onFailure { e -> _state.update { it.copy(formIsLoading = false, formError = e.message) } }
+                    .onFailure { e -> _state.update { it.copy(formIsLoading = false, formError = e.toUiText()) } }
             } else {
                 val wasEnabled = s.editingUser!!.status != UserStatus.DISABLED
                 val statusForUpdate: String? =
@@ -289,7 +291,7 @@ class UsersViewModel(
                         ) }
                         onSuccess()
                     }
-                    .onFailure { e -> _state.update { it.copy(formIsLoading = false, formError = e.message) } }
+                    .onFailure { e -> _state.update { it.copy(formIsLoading = false, formError = e.toUiText()) } }
             }
         }
     }
@@ -300,7 +302,7 @@ class UsersViewModel(
                 .onSuccess { updated ->
                     _state.update { it.copy(users = it.users.map { u -> if (u.uuid == uuid) updated else u }) }
                 }
-                .onFailure { e -> _state.update { it.copy(actionError = e.message) } }
+                .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
         }
     }
 }
