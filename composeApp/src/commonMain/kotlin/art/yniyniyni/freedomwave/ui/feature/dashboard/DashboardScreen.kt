@@ -59,12 +59,12 @@ import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import art.yniyniyni.freedomwave.ui.components.SparklineChart
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.localized
+import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
-import art.yniyniyni.freedomwave.util.formatBytes
-import art.yniyniyni.freedomwave.util.formatBytesStr
-import art.yniyniyni.freedomwave.util.formatUptime
+import art.yniyniyni.freedomwave.util.uptimeParts
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import org.koin.compose.viewmodel.koinViewModel
@@ -241,7 +241,7 @@ private fun StatsList(
                         icon = Icons.Rounded.Bolt,
                         tint = primary,
                         label = "TODAY",
-                        value = formatBytes(stats.todayBytes),
+                        value = localizedBytes(stats.todayBytes),
                         badge = if (todayDelta != null) {
                             {
                                 val deltaColor = if (todayDelta < 0) fwStatus.offline else fwStatus.online
@@ -277,7 +277,7 @@ private fun StatsList(
                         icon = Icons.Rounded.CalendarMonth,
                         tint = tertiary,
                         label = "THIS MONTH",
-                        value = formatBytesStr(stats.monthTraffic)
+                        value = localizedBytes(stats.monthTraffic)
                     )
                 }
             }
@@ -385,7 +385,7 @@ private fun StatsList(
         item {
             StatCard(title = "Panel", icon = Icons.Rounded.Public) {
                 StatRow("Version", stats.panelVersion)
-                StatRow("Uptime", formatUptime(stats.uptimeSeconds))
+                StatRow("Uptime", uptimeParts(stats.uptimeSeconds).localized())
                 StatRow("Countries", stats.distinctCountries.toString())
             }
         }
@@ -393,15 +393,13 @@ private fun StatsList(
             StatCard(title = "Nodes", icon = Icons.Rounded.Dns) {
                 StatRow("Online", stats.onlineNodes.toString())
                 StatRow("Total", stats.totalNodes.toString())
-                StatRow("Lifetime traffic", formatBytesStr(stats.nodesBytesLifetime))
+                StatRow("Lifetime traffic", localizedBytes(stats.nodesBytesLifetime))
             }
         }
         item {
             StatCard(title = "System", icon = Icons.Rounded.Computer) {
                 StatRow("CPU cores", stats.cpuCores.toString())
-                val usedGb  = stats.memoryUsedBytes / 1_073_741_824.0
-                val totalGb = stats.memoryTotalBytes / 1_073_741_824.0
-                StatRow("RAM", "%.1f / %.1f GB".format(usedGb, totalGb))
+                StatRow("RAM", "${localizedBytes(stats.memoryUsedBytes)} / ${localizedBytes(stats.memoryTotalBytes)}")
             }
         }
     }

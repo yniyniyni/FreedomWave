@@ -43,6 +43,28 @@
     <string name="error_fill_all_fields">Please fill in all fields</string>
     <string name="error_request_failed_code">Request failed (%1$d)</string>
 
+    <!-- units & time -->
+    <string name="unit_b">B</string>
+    <string name="unit_kb">KB</string>
+    <string name="unit_mb">MB</string>
+    <string name="unit_gb">GB</string>
+    <string name="unit_tb">TB</string>
+    <string name="time_never">Never</string>
+    <string name="time_now">now</string>
+    <string name="time_infinite">∞</string>
+    <string name="time_expired">Expired</string>
+    <string name="time_ago_seconds">%1$ds ago</string>
+    <string name="time_ago_minutes">%1$dm ago</string>
+    <string name="time_ago_hours">%1$dh ago</string>
+    <string name="time_ago_days">%1$dd ago</string>
+    <string name="time_left_seconds">%1$ds left</string>
+    <string name="time_left_minutes">%1$dm left</string>
+    <string name="time_left_hours">%1$dh left</string>
+    <string name="time_left_days">%1$dd left</string>
+    <string name="uptime_days_hours">%1$dd %2$dh</string>
+    <string name="uptime_hours_minutes">%1$dh %2$dm</string>
+    <string name="uptime_minutes">%1$dm</string>
+
     <!-- language endonyms: never translated, identical in every locale -->
     <string name="language_english">English</string>
     <string name="language_russian">Русский</string>

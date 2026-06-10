@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
-import art.yniyniyni.freedomwave.util.formatBytes
+import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
 
 /**
  * Circular donut chart for traffic usage.
@@ -138,14 +138,14 @@ fun TrafficDonut(
         Spacer(Modifier.height(0.dp))
 
         // Three-column stats below the donut
-        val limitStr = if (isUnlimited) "∞" else formatBytes(limitBytes)
+        val limitStr = if (isUnlimited) "∞" else localizedBytes(limitBytes)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            DonutStatColumn("Used",     formatBytes(usedBytes),   monoFont)
+            DonutStatColumn("Used",     localizedBytes(usedBytes),   monoFont)
             DonutStatColumn("Limit",    limitStr,                  monoFont)
-            DonutStatColumn("Lifetime", formatBytes(lifetimeBytes), monoFont)
+            DonutStatColumn("Lifetime", localizedBytes(lifetimeBytes), monoFont)
         }
     }
 }

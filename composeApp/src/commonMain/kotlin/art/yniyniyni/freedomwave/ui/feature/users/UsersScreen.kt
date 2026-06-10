@@ -95,14 +95,15 @@ import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.User
 import art.yniyniyni.freedomwave.domain.model.UserStatus
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
+import art.yniyniyni.freedomwave.ui.l10n.localized
+import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.countryFlag
-import art.yniyniyni.freedomwave.util.formatBytes
-import art.yniyniyni.freedomwave.util.formatExpiryRemaining
-import art.yniyniyni.freedomwave.util.formatRelativePast
+import art.yniyniyni.freedomwave.util.expiryRemaining
 import art.yniyniyni.freedomwave.util.parseInstant
+import art.yniyniyni.freedomwave.util.relativePast
 import androidx.compose.foundation.Image
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import kotlinx.datetime.Clock
@@ -364,8 +365,8 @@ private fun UserListItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                val usedStr  = formatBytes(user.usedTrafficBytes)
-                val limitStr = if (user.trafficLimitBytes > 0) formatBytes(user.trafficLimitBytes) else "∞"
+                val usedStr  = localizedBytes(user.usedTrafficBytes)
+                val limitStr = if (user.trafficLimitBytes > 0) localizedBytes(user.trafficLimitBytes) else "∞"
                 Text(
                     "$usedStr / $limitStr",
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
@@ -385,12 +386,13 @@ private fun UserListItem(
                 }
                 // Last connection: 🇩🇪 DE · node · 5m ago
                 val node = user.lastConnectedNodeUuid?.let { nodesByUuid[it] }
+                val lastSeen = relativePast(user.onlineAt).localized()
                 val lastConn = buildString {
                     if (node != null && node.countryCode.isNotBlank()) {
                         append("${node.countryCode} ${countryFlag(node.countryCode)} · ")
                     }
                     if (node != null) append("${node.name} · ")
-                    append(formatRelativePast(user.onlineAt))
+                    append(lastSeen)
                 }
                 Text(
                     if (user.onlineAt == null) "Never connected" else lastConn,
@@ -399,7 +401,7 @@ private fun UserListItem(
                 )
                 // Expiry remaining
                 Text(
-                    formatExpiryRemaining(user.expireAt),
+                    expiryRemaining(user.expireAt).localized(),
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -562,15 +564,16 @@ private fun UserDetailScreen(
                     }
                     // Last connection, formatted like the user list: 🇩🇪 DE · node · 5m ago
                     val node = user.lastConnectedNodeUuid?.let { nodesByUuid[it] }
+                    val lastSeen = relativePast(user.onlineAt).localized()
                     val lastConn = buildString {
                         if (node != null && node.countryCode.isNotBlank()) {
                             append("${node.countryCode} ${countryFlag(node.countryCode)} · ")
                         }
                         if (node != null) append("${node.name} · ")
-                        append(formatRelativePast(user.onlineAt))
+                        append(lastSeen)
                     }
                     DetailRow("Last seen", if (user.onlineAt == null) "Never connected" else lastConn, monoFont)
-                    DetailRow("Expires",  formatExpiryRemaining(user.expireAt), monoFont)
+                    DetailRow("Expires",  expiryRemaining(user.expireAt).localized(), monoFont)
                     user.email?.let { DetailRow("Email", it, monoFont) }
                     user.tag?.let   { DetailRow("Tag",   it, monoFont) }
                     user.description?.let { DetailRow("Notes", it, monoFont) }
@@ -968,7 +971,7 @@ private fun DeviceRow(device: HwidDevice, monoFont: FontFamily) {
             }
         }
         Text(
-            formatRelativePast(device.updatedAt),
+            relativePast(device.updatedAt).localized(),
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -1026,7 +1029,7 @@ private fun IpAddressRow(row: IpRow, monoFont: FontFamily) {
             }
         }
         Text(
-            formatRelativePast(row.lastSeenAt),
+            relativePast(row.lastSeenAt).localized(),
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

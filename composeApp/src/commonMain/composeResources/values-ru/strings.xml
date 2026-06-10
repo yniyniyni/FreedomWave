@@ -43,6 +43,28 @@
     <string name="error_fill_all_fields">Заполните все поля</string>
     <string name="error_request_failed_code">Ошибка запроса (%1$d)</string>
 
+    <!-- units & time -->
+    <string name="unit_b">Б</string>
+    <string name="unit_kb">КБ</string>
+    <string name="unit_mb">МБ</string>
+    <string name="unit_gb">ГБ</string>
+    <string name="unit_tb">ТБ</string>
+    <string name="time_never">Никогда</string>
+    <string name="time_now">сейчас</string>
+    <string name="time_infinite">∞</string>
+    <string name="time_expired">Истёк</string>
+    <string name="time_ago_seconds">%1$d с назад</string>
+    <string name="time_ago_minutes">%1$d мин назад</string>
+    <string name="time_ago_hours">%1$d ч назад</string>
+    <string name="time_ago_days">%1$d дн назад</string>
+    <string name="time_left_seconds">осталось %1$d с</string>
+    <string name="time_left_minutes">осталось %1$d мин</string>
+    <string name="time_left_hours">осталось %1$d ч</string>
+    <string name="time_left_days">осталось %1$d дн</string>
+    <string name="uptime_days_hours">%1$d д %2$d ч</string>
+    <string name="uptime_hours_minutes">%1$d ч %2$d мин</string>
+    <string name="uptime_minutes">%1$d мин</string>
+
     <!-- language endonyms: never translated, identical in every locale -->
     <string name="language_english">English</string>
     <string name="language_russian">Русский</string>

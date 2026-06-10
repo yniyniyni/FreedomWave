@@ -65,12 +65,14 @@ import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthUiState
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.TimeRange
+import art.yniyniyni.freedomwave.ui.l10n.localized
+import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.countryFlag
-import art.yniyniyni.freedomwave.util.formatBytes
-import art.yniyniyni.freedomwave.util.formatUptime
+import art.yniyniyni.freedomwave.util.format2
+import art.yniyniyni.freedomwave.util.uptimeParts
 import org.koin.compose.viewmodel.koinViewModel
 
 private sealed interface NodesNav {
@@ -218,7 +220,7 @@ private fun NodeListItem(node: Node, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    formatBytes(node.trafficUsedBytes),
+                    localizedBytes(node.trafficUsedBytes),
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -286,8 +288,8 @@ private fun NodeDetailScreen(
             item {
                 FwDetailCard {
                     DetailSectionTitle("Traffic")
-                    DetailRow("Used", formatBytes(node.trafficUsedBytes), monoFont)
-                    DetailRow("Limit", node.trafficLimitBytes?.let { formatBytes(it) } ?: "Unlimited", monoFont)
+                    DetailRow("Used", localizedBytes(node.trafficUsedBytes), monoFont)
+                    DetailRow("Limit", node.trafficLimitBytes?.let { localizedBytes(it) } ?: "Unlimited", monoFont)
                 }
             }
 
@@ -336,11 +338,11 @@ private fun NodeDetailScreen(
                         node.cpus?.let { DetailRow("CPUs", it.toString(), monoFont) }
                         node.memoryUsedBytes?.let { used ->
                             node.memoryTotalBytes?.let { total ->
-                                DetailRow("RAM", "${formatBytes(used)} / ${formatBytes(total)}", monoFont)
+                                DetailRow("RAM", "${localizedBytes(used)} / ${localizedBytes(total)}", monoFont)
                             }
                         }
-                        node.uptimeSeconds?.let { DetailRow("Uptime", formatUptime(it), monoFont) }
-                        node.loadAvg?.let { DetailRow("Load", "%.2f".format(it), monoFont) }
+                        node.uptimeSeconds?.let { DetailRow("Uptime", uptimeParts(it).localized(), monoFont) }
+                        node.loadAvg?.let { DetailRow("Load", it.toDouble().format2(), monoFont) }
                     }
                 }
             }
