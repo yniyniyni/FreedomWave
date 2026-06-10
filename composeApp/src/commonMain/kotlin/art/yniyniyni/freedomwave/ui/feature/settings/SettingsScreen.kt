@@ -48,7 +48,34 @@ import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_DARK
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_LIGHT
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_SYSTEM
 import art.yniyniyni.freedomwave.ui.auth.rememberBiometricAuthenticator
+import art.yniyniyni.freedomwave.ui.l10n.AppLanguage
+import art.yniyniyni.freedomwave.ui.l10n.applyAppLanguage
+import art.yniyniyni.freedomwave.ui.l10n.currentAppLanguageTag
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
+import art.yniyniyni.freedomwave.resources.Res
+import art.yniyniyni.freedomwave.resources.common_cancel
+import art.yniyniyni.freedomwave.resources.common_connect
+import art.yniyniyni.freedomwave.resources.settings_about
+import art.yniyniyni.freedomwave.resources.settings_api_key
+import art.yniyniyni.freedomwave.resources.settings_appearance
+import art.yniyniyni.freedomwave.resources.settings_biometric_lock
+import art.yniyniyni.freedomwave.resources.settings_biometric_on_desc
+import art.yniyniyni.freedomwave.resources.settings_biometric_unavailable
+import art.yniyniyni.freedomwave.resources.settings_change_key
+import art.yniyniyni.freedomwave.resources.settings_change_key_title
+import art.yniyniyni.freedomwave.resources.settings_connection
+import art.yniyniyni.freedomwave.resources.settings_copy_key
+import art.yniyniyni.freedomwave.resources.settings_language
+import art.yniyniyni.freedomwave.resources.settings_log_out
+import art.yniyniyni.freedomwave.resources.settings_security
+import art.yniyniyni.freedomwave.resources.settings_server
+import art.yniyniyni.freedomwave.resources.settings_server_url
+import art.yniyniyni.freedomwave.resources.settings_theme_dark
+import art.yniyniyni.freedomwave.resources.settings_theme_light
+import art.yniyniyni.freedomwave.resources.settings_theme_system
+import art.yniyniyni.freedomwave.resources.settings_title
+import art.yniyniyni.freedomwave.resources.settings_version
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -87,7 +114,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
-        topBar = { FwTopBar(title = "Settings") }
+        topBar = { FwTopBar(title = stringResource(Res.string.settings_title)) }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
@@ -96,10 +123,10 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
         ) {
             item {
                 FwCard {
-                    Text("Connection", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(Res.string.settings_connection), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(4.dp))
-                    InfoRow("Server", serverUrl.ifBlank { "—" }, monoFont)
-                    InfoRow("API Key", maskedKey, monoFont)
+                    InfoRow(stringResource(Res.string.settings_server), serverUrl.ifBlank { "—" }, monoFont)
+                    InfoRow(stringResource(Res.string.settings_api_key), maskedKey, monoFont)
                     Spacer(Modifier.height(4.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(
@@ -107,22 +134,26 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                             enabled = apiKey != null,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(percent = 50),
-                        ) { Text("Copy key") }
+                        ) { Text(stringResource(Res.string.settings_copy_key)) }
                         OutlinedButton(
                             onClick = vm::openChangeKeyDialog,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(percent = 50),
-                        ) { Text("Change key") }
+                        ) { Text(stringResource(Res.string.settings_change_key)) }
                     }
                 }
             }
 
             item {
                 FwCard {
-                    Text("Appearance", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(Res.string.settings_appearance), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
                     val modes  = listOf(THEME_SYSTEM, THEME_LIGHT, THEME_DARK)
-                    val labels = listOf("System", "Light", "Dark")
+                    val labels = listOf(
+                        stringResource(Res.string.settings_theme_system),
+                        stringResource(Res.string.settings_theme_light),
+                        stringResource(Res.string.settings_theme_dark)
+                    )
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         modes.forEachIndexed { i, mode ->
                             SegmentedButton(
@@ -137,7 +168,25 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
 
             item {
                 FwCard {
-                    Text("Security", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(Res.string.settings_language), style = MaterialTheme.typography.titleSmall)
+                    Spacer(Modifier.height(8.dp))
+                    val current = AppLanguage.fromTag(currentAppLanguageTag())
+                    val languages = AppLanguage.entries
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        languages.forEachIndexed { i, lang ->
+                            SegmentedButton(
+                                shape    = SegmentedButtonDefaults.itemShape(index = i, count = languages.size),
+                                onClick  = { applyAppLanguage(lang.tag) },
+                                selected = current == lang
+                            ) { Text(stringResource(lang.labelRes)) }
+                        }
+                    }
+                }
+            }
+
+            item {
+                FwCard {
+                    Text(stringResource(Res.string.settings_security), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -145,10 +194,10 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Biometric lock", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(Res.string.settings_biometric_lock), style = MaterialTheme.typography.bodyMedium)
                             Text(
-                                if (canUseBiometrics) "Require authentication on launch"
-                                else "No biometrics enrolled on this device",
+                                if (canUseBiometrics) stringResource(Res.string.settings_biometric_on_desc)
+                                else stringResource(Res.string.settings_biometric_unavailable),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -164,9 +213,9 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
 
             item {
                 FwCard {
-                    Text("About", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(Res.string.settings_about), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
-                    InfoRow("Version", APP_VERSION, monoFont)
+                    InfoRow(stringResource(Res.string.settings_version), APP_VERSION, monoFont)
                 }
             }
 
@@ -177,7 +226,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(percent = 50),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("Log Out") }
+                ) { Text(stringResource(Res.string.settings_log_out)) }
             }
         }
     }
@@ -219,13 +268,13 @@ private fun ChangeKeyDialog(
 ) {
     AlertDialog(
         onDismissRequest = { if (!isLoading) onDismiss() },
-        title = { Text("Change API Key") },
+        title = { Text(stringResource(Res.string.settings_change_key_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = serverUrl,
                     onValueChange = onServerUrlChange,
-                    label = { Text("Server URL") },
+                    label = { Text(stringResource(Res.string.settings_server_url)) },
                     singleLine = true,
                     enabled = !isLoading,
                     shape = MaterialTheme.shapes.medium,
@@ -238,7 +287,7 @@ private fun ChangeKeyDialog(
                 OutlinedTextField(
                     value = apiKey,
                     onValueChange = onApiKeyChange,
-                    label = { Text("API Key") },
+                    label = { Text(stringResource(Res.string.settings_api_key)) },
                     singleLine = true,
                     enabled = !isLoading,
                     shape = MaterialTheme.shapes.medium,
@@ -262,11 +311,11 @@ private fun ChangeKeyDialog(
                 shape = RoundedCornerShape(percent = 50),
             ) {
                 if (isLoading) CircularProgressIndicator(modifier = Modifier.height(16.dp), strokeWidth = 2.dp)
-                else Text("Connect")
+                else Text(stringResource(Res.string.common_connect))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss, enabled = !isLoading) { Text("Cancel") }
+            TextButton(onClick = onDismiss, enabled = !isLoading) { Text(stringResource(Res.string.common_cancel)) }
         }
     )
 }
