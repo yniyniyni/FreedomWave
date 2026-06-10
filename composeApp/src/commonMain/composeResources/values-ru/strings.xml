@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- common -->
     <string name="common_cancel">Отмена</string>
     <string name="common_close">Закрыть</string>
     <string name="common_save">Сохранить</string>
@@ -11,6 +12,7 @@
     <string name="common_connect">Подключиться</string>
     <string name="common_empty_dash">—</string>
 
+    <!-- settings -->
     <string name="settings_title">Настройки</string>
     <string name="settings_connection">Подключение</string>
     <string name="settings_server">Сервер</string>
@@ -23,8 +25,6 @@
     <string name="settings_theme_dark">Тёмная</string>
     <string name="settings_language">Язык</string>
     <string name="settings_language_system">Системный</string>
-    <string name="language_english">English</string>
-    <string name="language_russian">Русский</string>
     <string name="settings_security">Безопасность</string>
     <string name="settings_biometric_lock">Биометрическая блокировка</string>
     <string name="settings_biometric_on_desc">Требовать аутентификацию при запуске</string>
@@ -34,4 +34,8 @@
     <string name="settings_log_out">Выйти</string>
     <string name="settings_change_key_title">Смена API-ключа</string>
     <string name="settings_server_url">URL сервера</string>
+
+    <!-- language endonyms: never translated, identical in every locale -->
+    <string name="language_english">English</string>
+    <string name="language_russian">Русский</string>
 </resources>

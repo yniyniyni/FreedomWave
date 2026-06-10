@@ -16,7 +16,7 @@
     <string name="settings_title">Settings</string>
     <string name="settings_connection">Connection</string>
     <string name="settings_server">Server</string>
-    <string name="settings_api_key">API Key</string>
+    <string name="settings_api_key">API key</string>
     <string name="settings_copy_key">Copy key</string>
     <string name="settings_change_key">Change key</string>
     <string name="settings_appearance">Appearance</string>
@@ -25,15 +25,17 @@
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">System</string>
-    <string name="language_english">English</string>
-    <string name="language_russian">Русский</string>
     <string name="settings_security">Security</string>
     <string name="settings_biometric_lock">Biometric lock</string>
     <string name="settings_biometric_on_desc">Require authentication on launch</string>
     <string name="settings_biometric_unavailable">No biometrics enrolled on this device</string>
     <string name="settings_about">About</string>
     <string name="settings_version">Version</string>
-    <string name="settings_log_out">Log Out</string>
-    <string name="settings_change_key_title">Change API Key</string>
+    <string name="settings_log_out">Log out</string>
+    <string name="settings_change_key_title">Change API key</string>
     <string name="settings_server_url">Server URL</string>
+
+    <!-- language endonyms: never translated, identical in every locale -->
+    <string name="language_english">English</string>
+    <string name="language_russian">Русский</string>
 </resources>
