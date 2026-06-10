@@ -35,6 +35,14 @@
     <string name="settings_change_key_title">Change API key</string>
     <string name="settings_server_url">Server URL</string>
 
+    <!-- errors -->
+    <string name="error_unauthorized">Session expired, please log in again</string>
+    <string name="error_not_found">Resource not found</string>
+    <string name="error_network">Network error, check your connection</string>
+    <string name="error_generic">Something went wrong</string>
+    <string name="error_fill_all_fields">Please fill in all fields</string>
+    <string name="error_connection_failed">Connection failed</string>
+
     <!-- language endonyms: never translated, identical in every locale -->
     <string name="language_english">English</string>
     <string name="language_russian">Русский</string>

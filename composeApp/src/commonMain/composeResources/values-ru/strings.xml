@@ -35,6 +35,14 @@
     <string name="settings_change_key_title">Смена API-ключа</string>
     <string name="settings_server_url">URL сервера</string>
 
+    <!-- errors -->
+    <string name="error_unauthorized">Сессия истекла, войдите снова</string>
+    <string name="error_not_found">Ресурс не найден</string>
+    <string name="error_network">Ошибка сети, проверьте подключение</string>
+    <string name="error_generic">Что-то пошло не так</string>
+    <string name="error_fill_all_fields">Заполните все поля</string>
+    <string name="error_connection_failed">Не удалось подключиться</string>
+
     <!-- language endonyms: never translated, identical in every locale -->
     <string name="language_english">English</string>
     <string name="language_russian">Русский</string>
