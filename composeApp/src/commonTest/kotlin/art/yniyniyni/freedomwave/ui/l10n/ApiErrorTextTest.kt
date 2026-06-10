@@ -30,4 +30,13 @@ class ApiErrorTextTest {
 
     @Test fun unknown_throwable_without_message_is_generic() =
         assertEquals(UiText.Res(Res.string.error_generic), IllegalStateException().toUiText())
+
+    @Test fun unauthorized_with_custom_message_still_maps_to_resource() =
+        assertEquals(UiText.Res(Res.string.error_unauthorized), ApiError.Unauthorized("server says X").toUiText())
+
+    @Test fun unknown_api_error_keeps_message_as_raw() =
+        assertEquals(UiText.Raw("oops"), ApiError.Unknown("oops").toUiText())
+
+    @Test fun res_vararg_constructor_equals_list_constructor() =
+        assertEquals(UiText.Res(Res.string.error_generic, "a"), UiText.Res(Res.string.error_generic, args = listOf("a")))
 }
