@@ -41,7 +41,7 @@
     <string name="error_network">Ошибка сети, проверьте подключение</string>
     <string name="error_generic">Что-то пошло не так</string>
     <string name="error_fill_all_fields">Заполните все поля</string>
-    <string name="error_connection_failed">Не удалось подключиться</string>
+    <string name="error_request_failed_code">Ошибка запроса (%1$d)</string>
 
     <!-- language endonyms: never translated, identical in every locale -->
     <string name="language_english">English</string>

@@ -5,6 +5,7 @@ import art.yniyniyni.freedomwave.resources.Res
 import art.yniyniyni.freedomwave.resources.error_generic
 import art.yniyniyni.freedomwave.resources.error_network
 import art.yniyniyni.freedomwave.resources.error_not_found
+import art.yniyniyni.freedomwave.resources.error_request_failed_code
 import art.yniyniyni.freedomwave.resources.error_unauthorized
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,4 +40,10 @@ class ApiErrorTextTest {
 
     @Test fun res_vararg_constructor_equals_list_constructor() =
         assertEquals(UiText.Res(Res.string.error_generic, "a"), UiText.Res(Res.string.error_generic, args = listOf("a")))
+
+    @Test fun server_error_blank_with_status_maps_to_request_failed_code() =
+        assertEquals(UiText.Res(Res.string.error_request_failed_code, 503), ApiError.ServerError("", 503).toUiText())
+
+    @Test fun server_error_with_message_and_status_keeps_message() =
+        assertEquals(UiText.Raw("quota exceeded"), ApiError.ServerError("quota exceeded", 429).toUiText())
 }

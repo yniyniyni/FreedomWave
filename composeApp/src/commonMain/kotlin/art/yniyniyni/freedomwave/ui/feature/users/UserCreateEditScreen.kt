@@ -229,10 +229,10 @@ internal fun UserCreateEditScreen(
                 }
             }
 
-            if (state.formError != null) {
+            state.formError?.let { formError ->
                 item {
                     Text(
-                        state.formError!!.resolve(),
+                        formError.resolve(),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(horizontal = 4.dp)

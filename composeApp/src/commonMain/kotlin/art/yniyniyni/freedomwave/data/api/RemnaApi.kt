@@ -85,7 +85,7 @@ fun buildHttpClient(prefs: AppPreferences): HttpClient = HttpClient {
                 // Only pass genuine backend-provided messages through; a blank message makes
                 // the UI layer fall back to a localized generic error instead of app-baked
                 // English (or a raw HTML body on 5xx).
-                in 400..599 -> throw ApiError.ServerError(extractApiMessage(response.bodyAsText()) ?: "")
+                in 400..599 -> throw ApiError.ServerError(extractApiMessage(response.bodyAsText()) ?: "", response.status.value)
             }
         }
         handleResponseExceptionWithRequest { cause, _ ->

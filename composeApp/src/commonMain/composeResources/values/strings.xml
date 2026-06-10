@@ -41,7 +41,7 @@
     <string name="error_network">Network error, check your connection</string>
     <string name="error_generic">Something went wrong</string>
     <string name="error_fill_all_fields">Please fill in all fields</string>
-    <string name="error_connection_failed">Connection failed</string>
+    <string name="error_request_failed_code">Request failed (%1$d)</string>
 
     <!-- language endonyms: never translated, identical in every locale -->
     <string name="language_english">English</string>
