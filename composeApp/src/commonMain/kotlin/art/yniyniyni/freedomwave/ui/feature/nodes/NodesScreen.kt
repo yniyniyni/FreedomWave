@@ -59,6 +59,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.NodeStatus
+import art.yniyniyni.freedomwave.resources.Res
+import art.yniyniyni.freedomwave.resources.bandwidth_range_30d
+import art.yniyniyni.freedomwave.resources.bandwidth_range_7d
+import art.yniyniyni.freedomwave.resources.bandwidth_range_90d
+import art.yniyniyni.freedomwave.resources.common_retry
+import art.yniyniyni.freedomwave.resources.nodes_detail_address
+import art.yniyniyni.freedomwave.resources.nodes_detail_country
+import art.yniyniyni.freedomwave.resources.nodes_detail_cpus
+import art.yniyniyni.freedomwave.resources.nodes_detail_hostname
+import art.yniyniyni.freedomwave.resources.nodes_detail_info
+import art.yniyniyni.freedomwave.resources.nodes_detail_limit
+import art.yniyniyni.freedomwave.resources.nodes_detail_load
+import art.yniyniyni.freedomwave.resources.nodes_detail_message
+import art.yniyniyni.freedomwave.resources.nodes_detail_no_traffic_data
+import art.yniyniyni.freedomwave.resources.nodes_detail_ram
+import art.yniyniyni.freedomwave.resources.nodes_detail_status
+import art.yniyniyni.freedomwave.resources.nodes_detail_system
+import art.yniyniyni.freedomwave.resources.nodes_detail_tags
+import art.yniyniyni.freedomwave.resources.nodes_detail_traffic
+import art.yniyniyni.freedomwave.resources.nodes_detail_traffic_history
+import art.yniyniyni.freedomwave.resources.nodes_detail_unlimited
+import art.yniyniyni.freedomwave.resources.nodes_detail_uptime
+import art.yniyniyni.freedomwave.resources.nodes_detail_used
+import art.yniyniyni.freedomwave.resources.nodes_disable
+import art.yniyniyni.freedomwave.resources.nodes_empty
+import art.yniyniyni.freedomwave.resources.nodes_enable
+import art.yniyniyni.freedomwave.resources.nodes_refresh
+import art.yniyniyni.freedomwave.resources.nodes_reset_traffic
+import art.yniyniyni.freedomwave.resources.nodes_restart
+import art.yniyniyni.freedomwave.resources.nodes_status_connecting
+import art.yniyniyni.freedomwave.resources.nodes_status_disabled
+import art.yniyniyni.freedomwave.resources.nodes_status_offline
+import art.yniyniyni.freedomwave.resources.nodes_status_online
+import art.yniyniyni.freedomwave.resources.nodes_title_count
 import art.yniyniyni.freedomwave.ui.components.BandwidthChart
 import art.yniyniyni.freedomwave.ui.components.ChartSeries
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
@@ -73,6 +107,7 @@ import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.countryFlag
 import art.yniyniyni.freedomwave.util.format2
 import art.yniyniyni.freedomwave.util.uptimeParts
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private sealed interface NodesNav {
@@ -143,8 +178,8 @@ fun NodesScreen(
                 snackbarHost = { SnackbarHost(snackbar) },
                 topBar = {
                     FwTopBar(
-                        title   = "Nodes (${state.nodes.size})",
-                        actions = { TextButton(onClick = vm::load) { Text("Refresh") } },
+                        title   = stringResource(Res.string.nodes_title_count, state.nodes.size),
+                        actions = { TextButton(onClick = vm::load) { Text(stringResource(Res.string.nodes_refresh)) } },
                     )
                 },
             ) { padding ->
@@ -159,7 +194,7 @@ fun NodesScreen(
                             verticalArrangement = Arrangement.Center,
                         ) {
                             Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
-                            Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
+                            Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
                         }
 
                     else ->
@@ -170,7 +205,7 @@ fun NodesScreen(
                         ) {
                             if (state.nodes.isEmpty()) {
                                 Text(
-                                    "No nodes found",
+                                    stringResource(Res.string.nodes_empty),
                                     modifier = Modifier.align(Alignment.Center),
                                     color    = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -235,6 +270,25 @@ private fun NodeListItem(node: Node, onClick: () -> Unit) {
 }
 
 @Composable
+private fun nodeStatusLabel(status: NodeStatus): String = stringResource(
+    when (status) {
+        NodeStatus.ONLINE     -> Res.string.nodes_status_online
+        NodeStatus.OFFLINE    -> Res.string.nodes_status_offline
+        NodeStatus.DISABLED   -> Res.string.nodes_status_disabled
+        NodeStatus.CONNECTING -> Res.string.nodes_status_connecting
+    }
+)
+
+@Composable
+private fun timeRangeLabel(range: TimeRange): String = stringResource(
+    when (range) {
+        TimeRange.DAYS_7  -> Res.string.bandwidth_range_7d
+        TimeRange.DAYS_30 -> Res.string.bandwidth_range_30d
+        TimeRange.DAYS_90 -> Res.string.bandwidth_range_90d
+    }
+)
+
+@Composable
 private fun NodeStatusDot(status: NodeStatus) {
     val fwStatus = LocalFwStatus.current
     val color = when (status) {
@@ -275,34 +329,34 @@ private fun NodeDetailScreen(
         ) {
             item {
                 FwDetailCard {
-                    DetailSectionTitle("Node Info")
-                    DetailRow("Status", node.status.name, monoFont)
-                    DetailRow("Address", "${node.address}${node.port?.let { ":$it" } ?: ""}", monoFont)
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_info))
+                    DetailRow(stringResource(Res.string.nodes_detail_status), nodeStatusLabel(node.status), monoFont)
+                    DetailRow(stringResource(Res.string.nodes_detail_address), "${node.address}${node.port?.let { ":$it" } ?: ""}", monoFont)
                     if (node.countryCode.isNotBlank()) {
-                        DetailRow("Country", "${node.countryCode} ${countryFlag(node.countryCode)}", monoFont)
+                        DetailRow(stringResource(Res.string.nodes_detail_country), "${node.countryCode} ${countryFlag(node.countryCode)}", monoFont)
                     }
-                    if (node.tags.isNotEmpty()) DetailRow("Tags", node.tags.joinToString(", "), monoFont)
-                    node.lastStatusMessage?.let { DetailRow("Message", it, monoFont) }
+                    if (node.tags.isNotEmpty()) DetailRow(stringResource(Res.string.nodes_detail_tags), node.tags.joinToString(", "), monoFont)
+                    node.lastStatusMessage?.let { DetailRow(stringResource(Res.string.nodes_detail_message), it, monoFont) }
                 }
             }
             item {
                 FwDetailCard {
-                    DetailSectionTitle("Traffic")
-                    DetailRow("Used", localizedBytes(node.trafficUsedBytes), monoFont)
-                    DetailRow("Limit", node.trafficLimitBytes?.let { localizedBytes(it) } ?: "Unlimited", monoFont)
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic))
+                    DetailRow(stringResource(Res.string.nodes_detail_used), localizedBytes(node.trafficUsedBytes), monoFont)
+                    DetailRow(stringResource(Res.string.nodes_detail_limit), node.trafficLimitBytes?.let { localizedBytes(it) } ?: stringResource(Res.string.nodes_detail_unlimited), monoFont)
                 }
             }
 
             item {
                 FwDetailCard {
-                    DetailSectionTitle("Traffic History")
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic_history))
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         TimeRange.entries.forEachIndexed { index, range ->
                             SegmentedButton(
                                 selected = bandwidthState.selectedRange == range,
                                 onClick  = { onRangeChange(range) },
                                 shape    = SegmentedButtonDefaults.itemShape(index, TimeRange.entries.size),
-                                label    = { Text(range.label) }
+                                label    = { Text(timeRangeLabel(range)) }
                             )
                         }
                     }
@@ -315,7 +369,7 @@ private fun NodeDetailScreen(
 
                         nodeSeries.isEmpty() && bandwidthState.data != null ->
                             Text(
-                                "No traffic data for this node",
+                                stringResource(Res.string.nodes_detail_no_traffic_data),
                                 style    = MaterialTheme.typography.bodySmall,
                                 color    = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(vertical = 8.dp)
@@ -333,16 +387,16 @@ private fun NodeDetailScreen(
             node.hostname?.let { hostname ->
                 item {
                     FwDetailCard {
-                        DetailSectionTitle("System")
-                        DetailRow("Hostname", hostname, monoFont)
-                        node.cpus?.let { DetailRow("CPUs", it.toString(), monoFont) }
+                        DetailSectionTitle(stringResource(Res.string.nodes_detail_system))
+                        DetailRow(stringResource(Res.string.nodes_detail_hostname), hostname, monoFont)
+                        node.cpus?.let { DetailRow(stringResource(Res.string.nodes_detail_cpus), it.toString(), monoFont) }
                         node.memoryUsedBytes?.let { used ->
                             node.memoryTotalBytes?.let { total ->
-                                DetailRow("RAM", "${localizedBytes(used)} / ${localizedBytes(total)}", monoFont)
+                                DetailRow(stringResource(Res.string.nodes_detail_ram), "${localizedBytes(used)} / ${localizedBytes(total)}", monoFont)
                             }
                         }
-                        node.uptimeSeconds?.let { DetailRow("Uptime", uptimeParts(it).localized(), monoFont) }
-                        node.loadAvg?.let { DetailRow("Load", it.toDouble().format2(), monoFont) }
+                        node.uptimeSeconds?.let { DetailRow(stringResource(Res.string.nodes_detail_uptime), uptimeParts(it).localized(), monoFont) }
+                        node.loadAvg?.let { DetailRow(stringResource(Res.string.nodes_detail_load), it.toDouble().format2(), monoFont) }
                     }
                 }
             }
@@ -357,29 +411,29 @@ private fun NodeDetailScreen(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 contentColor   = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
-                        ) { Text("Disable Node") }
+                        ) { Text(stringResource(Res.string.nodes_disable)) }
                         Button(
                             onClick = onRestart,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(percent = 50),
-                        ) { Text("Restart Node") }
+                        ) { Text(stringResource(Res.string.nodes_restart)) }
                     } else if (node.isDisabled) {
                         Button(
                             onClick = onEnable,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(percent = 50),
-                        ) { Text("Enable Node") }
+                        ) { Text(stringResource(Res.string.nodes_enable)) }
                     } else {
                         Button(
                             onClick = onEnable,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(percent = 50),
-                        ) { Text("Enable Node") }
+                        ) { Text(stringResource(Res.string.nodes_enable)) }
                         Button(
                             onClick = onRestart,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(percent = 50),
-                        ) { Text("Restart Node") }
+                        ) { Text(stringResource(Res.string.nodes_restart)) }
                     }
                     Button(
                         onClick = onReset,
@@ -389,7 +443,7 @@ private fun NodeDetailScreen(
                             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                             contentColor   = MaterialTheme.colorScheme.onSurface,
                         )
-                    ) { Text("Reset Traffic") }
+                    ) { Text(stringResource(Res.string.nodes_reset_traffic)) }
                 }
             }
         }

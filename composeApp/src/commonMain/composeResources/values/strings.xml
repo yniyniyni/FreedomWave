@@ -60,6 +60,73 @@
     <string name="error_fill_all_fields">Please fill in all fields</string>
     <string name="error_request_failed_code">Request failed (%1$d)</string>
 
+    <!-- dashboard -->
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard_refresh">Refresh</string>
+    <string name="dashboard_live">Live</string>
+    <string name="dashboard_online_users">Online users</string>
+    <string name="dashboard_online_nodes">Online nodes</string>
+    <string name="dashboard_today">Today</string>
+    <string name="dashboard_this_month">This month</string>
+    <string name="dashboard_online_activity">Online activity</string>
+    <string name="dashboard_last_24h">Last 24h</string>
+    <string name="dashboard_last_7d">Last 7d</string>
+    <string name="dashboard_never">Never</string>
+    <string name="dashboard_users_by_status">Users by status</string>
+    <string name="dashboard_total_count">Total: %1$d</string>
+    <string name="dashboard_status_active">Active</string>
+    <string name="dashboard_status_limited">Limited</string>
+    <string name="dashboard_status_expired">Expired</string>
+    <string name="dashboard_status_disabled">Disabled</string>
+    <string name="dashboard_traffic">Traffic</string>
+    <string name="dashboard_panel">Panel</string>
+    <string name="dashboard_version">Version</string>
+    <string name="dashboard_uptime">Uptime</string>
+    <string name="dashboard_countries">Countries</string>
+    <string name="dashboard_nodes">Nodes</string>
+    <string name="dashboard_online">Online</string>
+    <string name="dashboard_total">Total</string>
+    <string name="dashboard_lifetime_traffic">Lifetime traffic</string>
+    <string name="dashboard_system">System</string>
+    <string name="dashboard_cpu_cores">CPU cores</string>
+    <string name="dashboard_ram">RAM</string>
+
+    <!-- nodes -->
+    <string name="nodes_title_count">Nodes (%1$d)</string>
+    <string name="nodes_refresh">Refresh</string>
+    <string name="nodes_empty">No nodes found</string>
+    <string name="nodes_status_online">Online</string>
+    <string name="nodes_status_offline">Offline</string>
+    <string name="nodes_status_disabled">Disabled</string>
+    <string name="nodes_status_connecting">Connecting</string>
+    <string name="nodes_detail_info">Node info</string>
+    <string name="nodes_detail_status">Status</string>
+    <string name="nodes_detail_address">Address</string>
+    <string name="nodes_detail_country">Country</string>
+    <string name="nodes_detail_tags">Tags</string>
+    <string name="nodes_detail_message">Message</string>
+    <string name="nodes_detail_traffic">Traffic</string>
+    <string name="nodes_detail_used">Used</string>
+    <string name="nodes_detail_limit">Limit</string>
+    <string name="nodes_detail_unlimited">Unlimited</string>
+    <string name="nodes_detail_traffic_history">Traffic history</string>
+    <string name="nodes_detail_no_traffic_data">No traffic data for this node</string>
+    <string name="nodes_detail_system">System</string>
+    <string name="nodes_detail_hostname">Hostname</string>
+    <string name="nodes_detail_cpus">CPUs</string>
+    <string name="nodes_detail_ram">RAM</string>
+    <string name="nodes_detail_uptime">Uptime</string>
+    <string name="nodes_detail_load">Load</string>
+    <string name="nodes_disable">Disable node</string>
+    <string name="nodes_enable">Enable node</string>
+    <string name="nodes_restart">Restart node</string>
+    <string name="nodes_reset_traffic">Reset traffic</string>
+
+    <!-- bandwidth -->
+    <string name="bandwidth_range_7d">7d</string>
+    <string name="bandwidth_range_30d">30d</string>
+    <string name="bandwidth_range_90d">90d</string>
+
     <!-- units & time -->
     <string name="unit_b">B</string>
     <string name="unit_kb">KB</string>

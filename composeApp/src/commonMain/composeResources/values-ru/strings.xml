@@ -55,6 +55,73 @@
     <string name="error_fill_all_fields">Заполните все поля</string>
     <string name="error_request_failed_code">Ошибка запроса (%1$d)</string>
 
+    <!-- dashboard -->
+    <string name="dashboard_title">Дашборд</string>
+    <string name="dashboard_refresh">Обновить</string>
+    <string name="dashboard_live">Сейчас</string>
+    <string name="dashboard_online_users">Пользователи онлайн</string>
+    <string name="dashboard_online_nodes">Ноды онлайн</string>
+    <string name="dashboard_today">Сегодня</string>
+    <string name="dashboard_this_month">За месяц</string>
+    <string name="dashboard_online_activity">Активность онлайн</string>
+    <string name="dashboard_last_24h">За 24 ч</string>
+    <string name="dashboard_last_7d">За 7 дн</string>
+    <string name="dashboard_never">Никогда</string>
+    <string name="dashboard_users_by_status">Пользователи по статусу</string>
+    <string name="dashboard_total_count">Всего: %1$d</string>
+    <string name="dashboard_status_active">Активные</string>
+    <string name="dashboard_status_limited">Ограничены</string>
+    <string name="dashboard_status_expired">Истёкшие</string>
+    <string name="dashboard_status_disabled">Отключены</string>
+    <string name="dashboard_traffic">Трафик</string>
+    <string name="dashboard_panel">Панель</string>
+    <string name="dashboard_version">Версия</string>
+    <string name="dashboard_uptime">Аптайм</string>
+    <string name="dashboard_countries">Страны</string>
+    <string name="dashboard_nodes">Ноды</string>
+    <string name="dashboard_online">Онлайн</string>
+    <string name="dashboard_total">Всего</string>
+    <string name="dashboard_lifetime_traffic">Трафик за всё время</string>
+    <string name="dashboard_system">Система</string>
+    <string name="dashboard_cpu_cores">Ядра CPU</string>
+    <string name="dashboard_ram">ОЗУ</string>
+
+    <!-- nodes -->
+    <string name="nodes_title_count">Ноды (%1$d)</string>
+    <string name="nodes_refresh">Обновить</string>
+    <string name="nodes_empty">Ноды не найдены</string>
+    <string name="nodes_status_online">В сети</string>
+    <string name="nodes_status_offline">Не в сети</string>
+    <string name="nodes_status_disabled">Отключена</string>
+    <string name="nodes_status_connecting">Подключается</string>
+    <string name="nodes_detail_info">О ноде</string>
+    <string name="nodes_detail_status">Статус</string>
+    <string name="nodes_detail_address">Адрес</string>
+    <string name="nodes_detail_country">Страна</string>
+    <string name="nodes_detail_tags">Теги</string>
+    <string name="nodes_detail_message">Сообщение</string>
+    <string name="nodes_detail_traffic">Трафик</string>
+    <string name="nodes_detail_used">Использовано</string>
+    <string name="nodes_detail_limit">Лимит</string>
+    <string name="nodes_detail_unlimited">Без лимита</string>
+    <string name="nodes_detail_traffic_history">История трафика</string>
+    <string name="nodes_detail_no_traffic_data">Нет данных о трафике для этой ноды</string>
+    <string name="nodes_detail_system">Система</string>
+    <string name="nodes_detail_hostname">Имя хоста</string>
+    <string name="nodes_detail_cpus">ЦП</string>
+    <string name="nodes_detail_ram">ОЗУ</string>
+    <string name="nodes_detail_uptime">Аптайм</string>
+    <string name="nodes_detail_load">Нагрузка</string>
+    <string name="nodes_disable">Отключить ноду</string>
+    <string name="nodes_enable">Включить ноду</string>
+    <string name="nodes_restart">Перезапустить ноду</string>
+    <string name="nodes_reset_traffic">Сбросить трафик</string>
+
+    <!-- bandwidth -->
+    <string name="bandwidth_range_7d">7 дн</string>
+    <string name="bandwidth_range_30d">30 дн</string>
+    <string name="bandwidth_range_90d">90 дн</string>
+
     <!-- units & time -->
     <string name="unit_b">Б</string>
     <string name="unit_kb">КБ</string>

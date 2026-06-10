@@ -55,6 +55,41 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import art.yniyniyni.freedomwave.domain.model.DashboardStats
+import art.yniyniyni.freedomwave.resources.Res
+import art.yniyniyni.freedomwave.resources.common_empty_dash
+import art.yniyniyni.freedomwave.resources.common_retry
+import art.yniyniyni.freedomwave.resources.dashboard_countries
+import art.yniyniyni.freedomwave.resources.dashboard_cpu_cores
+import art.yniyniyni.freedomwave.resources.dashboard_last_24h
+import art.yniyniyni.freedomwave.resources.dashboard_last_7d
+import art.yniyniyni.freedomwave.resources.dashboard_lifetime_traffic
+import art.yniyniyni.freedomwave.resources.dashboard_live
+import art.yniyniyni.freedomwave.resources.dashboard_never
+import art.yniyniyni.freedomwave.resources.dashboard_nodes
+import art.yniyniyni.freedomwave.resources.dashboard_online
+import art.yniyniyni.freedomwave.resources.dashboard_online_activity
+import art.yniyniyni.freedomwave.resources.dashboard_online_nodes
+import art.yniyniyni.freedomwave.resources.dashboard_online_users
+import art.yniyniyni.freedomwave.resources.dashboard_panel
+import art.yniyniyni.freedomwave.resources.dashboard_ram
+import art.yniyniyni.freedomwave.resources.dashboard_refresh
+import art.yniyniyni.freedomwave.resources.dashboard_status_active
+import art.yniyniyni.freedomwave.resources.dashboard_status_disabled
+import art.yniyniyni.freedomwave.resources.dashboard_status_expired
+import art.yniyniyni.freedomwave.resources.dashboard_status_limited
+import art.yniyniyni.freedomwave.resources.dashboard_system
+import art.yniyniyni.freedomwave.resources.dashboard_this_month
+import art.yniyniyni.freedomwave.resources.dashboard_title
+import art.yniyniyni.freedomwave.resources.dashboard_today
+import art.yniyniyni.freedomwave.resources.dashboard_total
+import art.yniyniyni.freedomwave.resources.dashboard_total_count
+import art.yniyniyni.freedomwave.resources.dashboard_traffic
+import art.yniyniyni.freedomwave.resources.dashboard_uptime
+import art.yniyniyni.freedomwave.resources.dashboard_users_by_status
+import art.yniyniyni.freedomwave.resources.dashboard_version
+import art.yniyniyni.freedomwave.resources.time_ago_hours
+import art.yniyniyni.freedomwave.resources.time_ago_minutes
+import art.yniyniyni.freedomwave.resources.time_ago_seconds
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import art.yniyniyni.freedomwave.ui.components.SparklineChart
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
@@ -67,6 +102,7 @@ import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.uptimeParts
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.abs
 
@@ -83,8 +119,8 @@ fun DashboardScreen(
         contentWindowInsets = WindowInsets(0),
         topBar = {
             FwTopBar(
-                title = "Dashboard",
-                actions = { TextButton(onClick = vm::refresh) { Text("Refresh") } },
+                title = stringResource(Res.string.dashboard_title),
+                actions = { TextButton(onClick = vm::refresh) { Text(stringResource(Res.string.dashboard_refresh)) } },
             )
         }
     ) { padding ->
@@ -131,10 +167,10 @@ private fun StatsList(
     }
     val secs: Long? = if (lastUpdatedAt == null) null else ((now - lastUpdatedAt) / 1000).coerceAtLeast(0)
     val agoString: String = when {
-        secs == null     -> "—"
-        secs < 60        -> "${secs}s ago"
-        secs < 3600      -> "${secs / 60}m ago"
-        else             -> "${secs / 3600}h ago"
+        secs == null     -> stringResource(Res.string.common_empty_dash)
+        secs < 60        -> stringResource(Res.string.time_ago_seconds, secs)
+        secs < 3600      -> stringResource(Res.string.time_ago_minutes, secs / 60)
+        else             -> stringResource(Res.string.time_ago_hours, secs / 3600)
     }
     val isFresh = secs != null && secs < 60
 
@@ -178,7 +214,7 @@ private fun StatsList(
                             )
                         }
                         Text(
-                            text = "Live",
+                            text = stringResource(Res.string.dashboard_live),
                             style = MaterialTheme.typography.titleMedium,
                             color = onSurface
                         )
@@ -219,14 +255,14 @@ private fun StatsList(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Rounded.Person,
                         tint = fwStatus.online,
-                        label = "ONLINE USERS",
+                        label = stringResource(Res.string.dashboard_online_users).uppercase(),
                         value = stats.onlineNow.toString()
                     )
                     LiveTile(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Rounded.Hub,
                         tint = fwStatus.warning,
-                        label = "ONLINE NODES",
+                        label = stringResource(Res.string.dashboard_online_nodes).uppercase(),
                         value = "${stats.onlineNodes} / ${stats.totalNodes}"
                     )
                 }
@@ -240,7 +276,7 @@ private fun StatsList(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Rounded.Bolt,
                         tint = primary,
-                        label = "TODAY",
+                        label = stringResource(Res.string.dashboard_today).uppercase(),
                         value = localizedBytes(stats.todayBytes),
                         badge = if (todayDelta != null) {
                             {
@@ -276,7 +312,7 @@ private fun StatsList(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Rounded.CalendarMonth,
                         tint = tertiary,
-                        label = "THIS MONTH",
+                        label = stringResource(Res.string.dashboard_this_month).uppercase(),
                         value = localizedBytes(stats.monthTraffic)
                     )
                 }
@@ -287,7 +323,7 @@ private fun StatsList(
         item {
             FwCard {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    SectionTitle("Online Activity", Icons.Rounded.BarChart)
+                    SectionTitle(stringResource(Res.string.dashboard_online_activity), Icons.Rounded.BarChart)
 
                     // 3 mini activity tiles
                     Row(
@@ -298,19 +334,19 @@ private fun StatsList(
                             modifier = Modifier.weight(1f),
                             icon = Icons.Rounded.Schedule,
                             value = stats.onlineLastDay.toString(),
-                            label = "LAST 24H"
+                            label = stringResource(Res.string.dashboard_last_24h).uppercase()
                         )
                         ActivityTile(
                             modifier = Modifier.weight(1f),
                             icon = Icons.Rounded.CalendarMonth,
                             value = stats.onlineLastWeek.toString(),
-                            label = "LAST 7D"
+                            label = stringResource(Res.string.dashboard_last_7d).uppercase()
                         )
                         ActivityTile(
                             modifier = Modifier.weight(1f),
                             icon = Icons.Rounded.Bedtime,
                             value = stats.neverOnline.toString(),
-                            label = "NEVER"
+                            label = stringResource(Res.string.dashboard_never).uppercase()
                         )
                     }
 
@@ -323,30 +359,34 @@ private fun StatsList(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "USERS BY STATUS",
+                                text = stringResource(Res.string.dashboard_users_by_status).uppercase(),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = onSurfaceVariant,
                                 letterSpacing = 0.5.sp
                             )
                             Text(
-                                text = "Total: ${stats.totalUsers}",
+                                text = stringResource(Res.string.dashboard_total_count, stats.totalUsers),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = onSurfaceVariant
                             )
                         }
 
                         // Fixed order: ACTIVE, LIMITED, EXPIRED (if present), DISABLED
+                        val activeLabel   = stringResource(Res.string.dashboard_status_active)
+                        val limitedLabel  = stringResource(Res.string.dashboard_status_limited)
+                        val expiredLabel  = stringResource(Res.string.dashboard_status_expired)
+                        val disabledLabel = stringResource(Res.string.dashboard_status_disabled)
                         val statusEntries = buildList {
-                            add(Triple("ACTIVE",   stats.statusCounts["ACTIVE"]   ?: 0, fwStatus.online))
-                            add(Triple("LIMITED",  stats.statusCounts["LIMITED"]  ?: 0, fwStatus.warning))
+                            add(Triple(activeLabel,   stats.statusCounts["ACTIVE"]   ?: 0, fwStatus.online))
+                            add(Triple(limitedLabel,  stats.statusCounts["LIMITED"]  ?: 0, fwStatus.warning))
                             if (stats.statusCounts.containsKey("EXPIRED")) {
-                                add(Triple("EXPIRED", stats.statusCounts["EXPIRED"] ?: 0, fwStatus.neutral))
+                                add(Triple(expiredLabel, stats.statusCounts["EXPIRED"] ?: 0, fwStatus.neutral))
                             }
-                            add(Triple("DISABLED", stats.statusCounts["DISABLED"] ?: 0, fwStatus.offline))
+                            add(Triple(disabledLabel, stats.statusCounts["DISABLED"] ?: 0, fwStatus.offline))
                         }
                         statusEntries.forEach { (label, count, color) ->
                             StatusBar(
-                                label = label,
+                                label = label.uppercase(),
                                 count = count,
                                 total = stats.totalUsers,
                                 color = color
@@ -366,7 +406,7 @@ private fun StatsList(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            SectionTitle("Traffic", Icons.Rounded.Bolt)
+                            SectionTitle(stringResource(Res.string.dashboard_traffic), Icons.Rounded.Bolt)
                             if (sparklineCategories.isNotEmpty()) {
                                 Text(
                                     "${sparklineCategories.first().takeLast(5)} – ${sparklineCategories.last().takeLast(5)}",
@@ -383,23 +423,23 @@ private fun StatsList(
 
         // ── 4. Detail cards: Panel, Nodes, System ─────────────────────────────
         item {
-            StatCard(title = "Panel", icon = Icons.Rounded.Public) {
-                StatRow("Version", stats.panelVersion)
-                StatRow("Uptime", uptimeParts(stats.uptimeSeconds).localized())
-                StatRow("Countries", stats.distinctCountries.toString())
+            StatCard(title = stringResource(Res.string.dashboard_panel), icon = Icons.Rounded.Public) {
+                StatRow(stringResource(Res.string.dashboard_version), stats.panelVersion)
+                StatRow(stringResource(Res.string.dashboard_uptime), uptimeParts(stats.uptimeSeconds).localized())
+                StatRow(stringResource(Res.string.dashboard_countries), stats.distinctCountries.toString())
             }
         }
         item {
-            StatCard(title = "Nodes", icon = Icons.Rounded.Dns) {
-                StatRow("Online", stats.onlineNodes.toString())
-                StatRow("Total", stats.totalNodes.toString())
-                StatRow("Lifetime traffic", localizedBytes(stats.nodesBytesLifetime))
+            StatCard(title = stringResource(Res.string.dashboard_nodes), icon = Icons.Rounded.Dns) {
+                StatRow(stringResource(Res.string.dashboard_online), stats.onlineNodes.toString())
+                StatRow(stringResource(Res.string.dashboard_total), stats.totalNodes.toString())
+                StatRow(stringResource(Res.string.dashboard_lifetime_traffic), localizedBytes(stats.nodesBytesLifetime))
             }
         }
         item {
-            StatCard(title = "System", icon = Icons.Rounded.Computer) {
-                StatRow("CPU cores", stats.cpuCores.toString())
-                StatRow("RAM", "${localizedBytes(stats.memoryUsedBytes)} / ${localizedBytes(stats.memoryTotalBytes)}")
+            StatCard(title = stringResource(Res.string.dashboard_system), icon = Icons.Rounded.Computer) {
+                StatRow(stringResource(Res.string.dashboard_cpu_cores), stats.cpuCores.toString())
+                StatRow(stringResource(Res.string.dashboard_ram), "${localizedBytes(stats.memoryUsedBytes)} / ${localizedBytes(stats.memoryTotalBytes)}")
             }
         }
     }
@@ -618,6 +658,6 @@ private fun ErrorState(error: UiText, onRetry: () -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(error.resolve(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
-        Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
+        Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
     }
 }

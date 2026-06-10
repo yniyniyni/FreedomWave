@@ -17,10 +17,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 
-enum class TimeRange(val days: Int, val label: String) {
-    DAYS_7(7, "7d"),
-    DAYS_30(30, "30d"),
-    DAYS_90(90, "90d");
+enum class TimeRange(val days: Int) {
+    DAYS_7(7),
+    DAYS_30(30),
+    DAYS_90(90);
 
     fun toDateRange(): Pair<String, String> {
         val tz = TimeZone.currentSystemDefault()
