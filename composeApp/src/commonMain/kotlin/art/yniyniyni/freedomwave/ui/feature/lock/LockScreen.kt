@@ -25,9 +25,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import art.yniyniyni.freedomwave.resources.Res
+import art.yniyniyni.freedomwave.resources.common_brand_freedom
+import art.yniyniyni.freedomwave.resources.common_brand_wave
+import art.yniyniyni.freedomwave.resources.lock_locked
+import art.yniyniyni.freedomwave.resources.lock_unlock
 import art.yniyniyni.freedomwave.ui.auth.BiometricAuthenticator
 import art.yniyniyni.freedomwave.ui.auth.BiometricResult
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LockScreen(
@@ -60,19 +66,19 @@ fun LockScreen(
         ) {
             Row(horizontalArrangement = Arrangement.Center) {
                 Text(
-                    "Freedom",
+                    stringResource(Res.string.common_brand_freedom),
                     style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    "Wave",
+                    stringResource(Res.string.common_brand_wave),
                     style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                "Locked",
+                stringResource(Res.string.lock_locked),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -106,7 +112,7 @@ fun LockScreen(
                     },
                     shape = RoundedCornerShape(percent = 50),
                 ) {
-                    Text("Unlock")
+                    Text(stringResource(Res.string.lock_unlock))
                 }
             }
         }

@@ -11,6 +11,9 @@
     <string name="common_retry">Повторить</string>
     <string name="common_connect">Подключиться</string>
     <string name="common_empty_dash">—</string>
+    <!-- brand wordmark: never translated, identical in every locale -->
+    <string name="common_brand_freedom">Freedom</string>
+    <string name="common_brand_wave">Wave</string>
 
     <!-- settings -->
     <string name="settings_title">Настройки</string>
@@ -34,6 +37,20 @@
     <string name="settings_log_out">Выйти</string>
     <string name="settings_change_key_title">Смена API-ключа</string>
     <string name="settings_server_url">URL сервера</string>
+
+    <!-- login -->
+    <string name="login_subtitle">Админ-панель Remnawave</string>
+    <string name="login_server_url">URL сервера</string>
+    <string name="login_server_url_placeholder">https://panel.example.com</string>
+    <string name="login_api_key">API-ключ</string>
+    <string name="login_api_key_hint">Создайте API-ключ в панели Remnawave в разделе API-токенов</string>
+
+    <!-- lock -->
+    <string name="lock_locked">Заблокировано</string>
+    <string name="lock_unlock">Разблокировать</string>
+    <string name="lock_biometric_title">Разблокировка FreedomWave</string>
+    <string name="lock_biometric_subtitle">Пройдите аутентификацию, чтобы продолжить</string>
+    <string name="lock_biometric_failed">Не удалось пройти аутентификацию</string>
 
     <!-- errors -->
     <string name="error_unauthorized">Сессия истекла, войдите снова</string>
