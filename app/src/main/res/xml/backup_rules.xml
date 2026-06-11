@@ -1,3 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
+    <!-- Never back up the DataStore that holds the panel API key (long-lived admin JWT). -->
+    <exclude domain="file" path="settings.preferences_pb" />
 </full-backup-content>
