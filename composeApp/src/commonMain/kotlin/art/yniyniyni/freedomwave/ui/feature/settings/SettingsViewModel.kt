@@ -71,6 +71,7 @@ class SettingsViewModel(
     }
 
     fun logout() {
-        viewModelScope.launch { prefs.clearCredentials() }
+        // Route through the repository so the Bearer-token cache is cleared too (one place).
+        viewModelScope.launch { authRepo.logout() }
     }
 }
