@@ -52,19 +52,58 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import art.yniyniyni.freedomwave.domain.model.DashboardStats
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.common_empty_dash
+import freedomwave.composeapp.generated.resources.common_retry
+import freedomwave.composeapp.generated.resources.dashboard_countries
+import freedomwave.composeapp.generated.resources.dashboard_cpu_cores
+import freedomwave.composeapp.generated.resources.dashboard_last_24h
+import freedomwave.composeapp.generated.resources.dashboard_last_7d
+import freedomwave.composeapp.generated.resources.dashboard_lifetime_traffic
+import freedomwave.composeapp.generated.resources.dashboard_live
+import freedomwave.composeapp.generated.resources.dashboard_never
+import freedomwave.composeapp.generated.resources.dashboard_nodes
+import freedomwave.composeapp.generated.resources.dashboard_online
+import freedomwave.composeapp.generated.resources.dashboard_online_activity
+import freedomwave.composeapp.generated.resources.dashboard_online_nodes
+import freedomwave.composeapp.generated.resources.dashboard_online_users
+import freedomwave.composeapp.generated.resources.dashboard_panel
+import freedomwave.composeapp.generated.resources.dashboard_ram
+import freedomwave.composeapp.generated.resources.common_refresh
+import freedomwave.composeapp.generated.resources.dashboard_status_active
+import freedomwave.composeapp.generated.resources.dashboard_status_disabled
+import freedomwave.composeapp.generated.resources.dashboard_status_expired
+import freedomwave.composeapp.generated.resources.dashboard_status_limited
+import freedomwave.composeapp.generated.resources.dashboard_system
+import freedomwave.composeapp.generated.resources.dashboard_this_month
+import freedomwave.composeapp.generated.resources.dashboard_title
+import freedomwave.composeapp.generated.resources.dashboard_today
+import freedomwave.composeapp.generated.resources.dashboard_total
+import freedomwave.composeapp.generated.resources.dashboard_total_count
+import freedomwave.composeapp.generated.resources.dashboard_traffic
+import freedomwave.composeapp.generated.resources.dashboard_uptime
+import freedomwave.composeapp.generated.resources.dashboard_users_by_status
+import freedomwave.composeapp.generated.resources.dashboard_version
+import freedomwave.composeapp.generated.resources.time_ago_hours
+import freedomwave.composeapp.generated.resources.time_ago_minutes
+import freedomwave.composeapp.generated.resources.time_ago_seconds
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import art.yniyniyni.freedomwave.ui.components.SparklineChart
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
+import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.localized
+import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
-import art.yniyniyni.freedomwave.util.formatBytes
-import art.yniyniyni.freedomwave.util.formatBytesStr
-import art.yniyniyni.freedomwave.util.formatUptime
+import art.yniyniyni.freedomwave.util.uptimeParts
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.abs
 
@@ -81,8 +120,8 @@ fun DashboardScreen(
         contentWindowInsets = WindowInsets(0),
         topBar = {
             FwTopBar(
-                title = "Dashboard",
-                actions = { TextButton(onClick = vm::refresh) { Text("Refresh") } },
+                title = stringResource(Res.string.dashboard_title),
+                actions = { TextButton(onClick = vm::refresh) { Text(stringResource(Res.string.common_refresh)) } },
             )
         }
     ) { padding ->
@@ -129,10 +168,10 @@ private fun StatsList(
     }
     val secs: Long? = if (lastUpdatedAt == null) null else ((now - lastUpdatedAt) / 1000).coerceAtLeast(0)
     val agoString: String = when {
-        secs == null     -> "—"
-        secs < 60        -> "${secs}s ago"
-        secs < 3600      -> "${secs / 60}m ago"
-        else             -> "${secs / 3600}h ago"
+        secs == null     -> stringResource(Res.string.common_empty_dash)
+        secs < 60        -> stringResource(Res.string.time_ago_seconds, secs)
+        secs < 3600      -> stringResource(Res.string.time_ago_minutes, secs / 60)
+        else             -> stringResource(Res.string.time_ago_hours, secs / 3600)
     }
     val isFresh = secs != null && secs < 60
 
@@ -176,7 +215,7 @@ private fun StatsList(
                             )
                         }
                         Text(
-                            text = "Live",
+                            text = stringResource(Res.string.dashboard_live),
                             style = MaterialTheme.typography.titleMedium,
                             color = onSurface
                         )
@@ -217,14 +256,14 @@ private fun StatsList(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Rounded.Person,
                         tint = fwStatus.online,
-                        label = "ONLINE USERS",
+                        label = stringResource(Res.string.dashboard_online_users).uppercase(),
                         value = stats.onlineNow.toString()
                     )
                     LiveTile(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Rounded.Hub,
                         tint = fwStatus.warning,
-                        label = "ONLINE NODES",
+                        label = stringResource(Res.string.dashboard_online_nodes).uppercase(),
                         value = "${stats.onlineNodes} / ${stats.totalNodes}"
                     )
                 }
@@ -238,8 +277,8 @@ private fun StatsList(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Rounded.Bolt,
                         tint = primary,
-                        label = "TODAY",
-                        value = formatBytes(stats.todayBytes),
+                        label = stringResource(Res.string.dashboard_today).uppercase(),
+                        value = localizedBytes(stats.todayBytes),
                         badge = if (todayDelta != null) {
                             {
                                 val deltaColor = if (todayDelta < 0) fwStatus.offline else fwStatus.online
@@ -274,8 +313,8 @@ private fun StatsList(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Rounded.CalendarMonth,
                         tint = tertiary,
-                        label = "THIS MONTH",
-                        value = formatBytesStr(stats.monthTraffic)
+                        label = stringResource(Res.string.dashboard_this_month).uppercase(),
+                        value = localizedBytes(stats.monthTraffic)
                     )
                 }
             }
@@ -285,7 +324,7 @@ private fun StatsList(
         item {
             FwCard {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    SectionTitle("Online Activity", Icons.Rounded.BarChart)
+                    SectionTitle(stringResource(Res.string.dashboard_online_activity), Icons.Rounded.BarChart)
 
                     // 3 mini activity tiles
                     Row(
@@ -296,19 +335,19 @@ private fun StatsList(
                             modifier = Modifier.weight(1f),
                             icon = Icons.Rounded.Schedule,
                             value = stats.onlineLastDay.toString(),
-                            label = "LAST 24H"
+                            label = stringResource(Res.string.dashboard_last_24h).uppercase()
                         )
                         ActivityTile(
                             modifier = Modifier.weight(1f),
                             icon = Icons.Rounded.CalendarMonth,
                             value = stats.onlineLastWeek.toString(),
-                            label = "LAST 7D"
+                            label = stringResource(Res.string.dashboard_last_7d).uppercase()
                         )
                         ActivityTile(
                             modifier = Modifier.weight(1f),
                             icon = Icons.Rounded.Bedtime,
                             value = stats.neverOnline.toString(),
-                            label = "NEVER"
+                            label = stringResource(Res.string.dashboard_never).uppercase()
                         )
                     }
 
@@ -321,30 +360,34 @@ private fun StatsList(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "USERS BY STATUS",
+                                text = stringResource(Res.string.dashboard_users_by_status).uppercase(),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = onSurfaceVariant,
                                 letterSpacing = 0.5.sp
                             )
                             Text(
-                                text = "Total: ${stats.totalUsers}",
+                                text = stringResource(Res.string.dashboard_total_count, stats.totalUsers),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = onSurfaceVariant
                             )
                         }
 
                         // Fixed order: ACTIVE, LIMITED, EXPIRED (if present), DISABLED
+                        val activeLabel   = stringResource(Res.string.dashboard_status_active)
+                        val limitedLabel  = stringResource(Res.string.dashboard_status_limited)
+                        val expiredLabel  = stringResource(Res.string.dashboard_status_expired)
+                        val disabledLabel = stringResource(Res.string.dashboard_status_disabled)
                         val statusEntries = buildList {
-                            add(Triple("ACTIVE",   stats.statusCounts["ACTIVE"]   ?: 0, fwStatus.online))
-                            add(Triple("LIMITED",  stats.statusCounts["LIMITED"]  ?: 0, fwStatus.warning))
+                            add(Triple(activeLabel,   stats.statusCounts["ACTIVE"]   ?: 0, fwStatus.online))
+                            add(Triple(limitedLabel,  stats.statusCounts["LIMITED"]  ?: 0, fwStatus.warning))
                             if (stats.statusCounts.containsKey("EXPIRED")) {
-                                add(Triple("EXPIRED", stats.statusCounts["EXPIRED"] ?: 0, fwStatus.neutral))
+                                add(Triple(expiredLabel, stats.statusCounts["EXPIRED"] ?: 0, fwStatus.neutral))
                             }
-                            add(Triple("DISABLED", stats.statusCounts["DISABLED"] ?: 0, fwStatus.offline))
+                            add(Triple(disabledLabel, stats.statusCounts["DISABLED"] ?: 0, fwStatus.offline))
                         }
                         statusEntries.forEach { (label, count, color) ->
                             StatusBar(
-                                label = label,
+                                label = label.uppercase(),
                                 count = count,
                                 total = stats.totalUsers,
                                 color = color
@@ -364,7 +407,7 @@ private fun StatsList(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            SectionTitle("Traffic", Icons.Rounded.Bolt)
+                            SectionTitle(stringResource(Res.string.dashboard_traffic), Icons.Rounded.Bolt)
                             if (sparklineCategories.isNotEmpty()) {
                                 Text(
                                     "${sparklineCategories.first().takeLast(5)} – ${sparklineCategories.last().takeLast(5)}",
@@ -381,25 +424,23 @@ private fun StatsList(
 
         // ── 4. Detail cards: Panel, Nodes, System ─────────────────────────────
         item {
-            StatCard(title = "Panel", icon = Icons.Rounded.Public) {
-                StatRow("Version", stats.panelVersion)
-                StatRow("Uptime", formatUptime(stats.uptimeSeconds))
-                StatRow("Countries", stats.distinctCountries.toString())
+            StatCard(title = stringResource(Res.string.dashboard_panel), icon = Icons.Rounded.Public) {
+                StatRow(stringResource(Res.string.dashboard_version), stats.panelVersion)
+                StatRow(stringResource(Res.string.dashboard_uptime), uptimeParts(stats.uptimeSeconds).localized())
+                StatRow(stringResource(Res.string.dashboard_countries), stats.distinctCountries.toString())
             }
         }
         item {
-            StatCard(title = "Nodes", icon = Icons.Rounded.Dns) {
-                StatRow("Online", stats.onlineNodes.toString())
-                StatRow("Total", stats.totalNodes.toString())
-                StatRow("Lifetime traffic", formatBytesStr(stats.nodesBytesLifetime))
+            StatCard(title = stringResource(Res.string.dashboard_nodes), icon = Icons.Rounded.Dns) {
+                StatRow(stringResource(Res.string.dashboard_online), stats.onlineNodes.toString())
+                StatRow(stringResource(Res.string.dashboard_total), stats.totalNodes.toString())
+                StatRow(stringResource(Res.string.dashboard_lifetime_traffic), localizedBytes(stats.nodesBytesLifetime))
             }
         }
         item {
-            StatCard(title = "System", icon = Icons.Rounded.Computer) {
-                StatRow("CPU cores", stats.cpuCores.toString())
-                val usedGb  = stats.memoryUsedBytes / 1_073_741_824.0
-                val totalGb = stats.memoryTotalBytes / 1_073_741_824.0
-                StatRow("RAM", "%.1f / %.1f GB".format(usedGb, totalGb))
+            StatCard(title = stringResource(Res.string.dashboard_system), icon = Icons.Rounded.Computer) {
+                StatRow(stringResource(Res.string.dashboard_cpu_cores), stats.cpuCores.toString())
+                StatRow(stringResource(Res.string.dashboard_ram), "${localizedBytes(stats.memoryUsedBytes)} / ${localizedBytes(stats.memoryTotalBytes)}")
             }
         }
     }
@@ -449,7 +490,9 @@ private fun LiveTile(
                     text = label,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    letterSpacing = 0.5.sp
+                    letterSpacing = 0.5.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 badge?.invoke()
             }
@@ -496,7 +539,9 @@ private fun ActivityTile(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                letterSpacing = 0.5.sp
+                letterSpacing = 0.5.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -611,13 +656,13 @@ private fun StatRow(label: String, value: String) {
 }
 
 @Composable
-private fun ErrorState(error: String, onRetry: () -> Unit) {
+private fun ErrorState(error: UiText, onRetry: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
-        Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
+        Text(error.resolve(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+        Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
     }
 }

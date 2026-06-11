@@ -59,17 +59,53 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.NodeStatus
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.common_retry
+import freedomwave.composeapp.generated.resources.nodes_detail_address
+import freedomwave.composeapp.generated.resources.nodes_detail_country
+import freedomwave.composeapp.generated.resources.nodes_detail_cpus
+import freedomwave.composeapp.generated.resources.nodes_detail_hostname
+import freedomwave.composeapp.generated.resources.nodes_detail_info
+import freedomwave.composeapp.generated.resources.nodes_detail_limit
+import freedomwave.composeapp.generated.resources.nodes_detail_load
+import freedomwave.composeapp.generated.resources.nodes_detail_message
+import freedomwave.composeapp.generated.resources.nodes_detail_no_traffic_data
+import freedomwave.composeapp.generated.resources.nodes_detail_ram
+import freedomwave.composeapp.generated.resources.nodes_detail_status
+import freedomwave.composeapp.generated.resources.nodes_detail_system
+import freedomwave.composeapp.generated.resources.nodes_detail_tags
+import freedomwave.composeapp.generated.resources.nodes_detail_traffic
+import freedomwave.composeapp.generated.resources.nodes_detail_traffic_history
+import freedomwave.composeapp.generated.resources.nodes_detail_unlimited
+import freedomwave.composeapp.generated.resources.nodes_detail_uptime
+import freedomwave.composeapp.generated.resources.nodes_detail_used
+import freedomwave.composeapp.generated.resources.nodes_disable
+import freedomwave.composeapp.generated.resources.nodes_empty
+import freedomwave.composeapp.generated.resources.nodes_enable
+import freedomwave.composeapp.generated.resources.common_refresh
+import freedomwave.composeapp.generated.resources.nodes_reset_traffic
+import freedomwave.composeapp.generated.resources.nodes_restart
+import freedomwave.composeapp.generated.resources.nodes_status_connecting
+import freedomwave.composeapp.generated.resources.nodes_status_disabled
+import freedomwave.composeapp.generated.resources.nodes_status_offline
+import freedomwave.composeapp.generated.resources.nodes_status_online
+import freedomwave.composeapp.generated.resources.nodes_title_count
 import art.yniyniyni.freedomwave.ui.components.BandwidthChart
 import art.yniyniyni.freedomwave.ui.components.ChartSeries
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthUiState
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.TimeRange
+import art.yniyniyni.freedomwave.ui.feature.bandwidth.label
+import art.yniyniyni.freedomwave.ui.l10n.localized
+import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.countryFlag
-import art.yniyniyni.freedomwave.util.formatBytes
-import art.yniyniyni.freedomwave.util.formatUptime
+import art.yniyniyni.freedomwave.util.format2
+import art.yniyniyni.freedomwave.util.uptimeParts
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private sealed interface NodesNav {
@@ -88,8 +124,9 @@ fun NodesScreen(
     val snackbar = remember { SnackbarHostState() }
     var nav: NodesNav by remember { mutableStateOf(NodesNav.List) }
 
-    LaunchedEffect(state.actionError) {
-        state.actionError?.let { snackbar.showSnackbar(it); vm.clearActionError() }
+    val actionErrorText = state.actionError?.resolve()
+    LaunchedEffect(actionErrorText) {
+        actionErrorText?.let { snackbar.showSnackbar(it); vm.clearActionError() }
     }
 
     val isDetail = nav is NodesNav.Detail
@@ -139,8 +176,8 @@ fun NodesScreen(
                 snackbarHost = { SnackbarHost(snackbar) },
                 topBar = {
                     FwTopBar(
-                        title   = "Nodes (${state.nodes.size})",
-                        actions = { TextButton(onClick = vm::load) { Text("Refresh") } },
+                        title   = stringResource(Res.string.nodes_title_count, state.nodes.size),
+                        actions = { TextButton(onClick = vm::load) { Text(stringResource(Res.string.common_refresh)) } },
                     )
                 },
             ) { padding ->
@@ -154,8 +191,8 @@ fun NodesScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                         ) {
-                            Text(state.error!!, color = MaterialTheme.colorScheme.error)
-                            Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
+                            Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
+                            Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
                         }
 
                     else ->
@@ -166,7 +203,7 @@ fun NodesScreen(
                         ) {
                             if (state.nodes.isEmpty()) {
                                 Text(
-                                    "No nodes found",
+                                    stringResource(Res.string.nodes_empty),
                                     modifier = Modifier.align(Alignment.Center),
                                     color    = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -216,7 +253,7 @@ private fun NodeListItem(node: Node, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    formatBytes(node.trafficUsedBytes),
+                    localizedBytes(node.trafficUsedBytes),
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -229,6 +266,16 @@ private fun NodeListItem(node: Node, onClick: () -> Unit) {
         }
     }
 }
+
+@Composable
+private fun nodeStatusLabel(status: NodeStatus): String = stringResource(
+    when (status) {
+        NodeStatus.ONLINE     -> Res.string.nodes_status_online
+        NodeStatus.OFFLINE    -> Res.string.nodes_status_offline
+        NodeStatus.DISABLED   -> Res.string.nodes_status_disabled
+        NodeStatus.CONNECTING -> Res.string.nodes_status_connecting
+    }
+)
 
 @Composable
 private fun NodeStatusDot(status: NodeStatus) {
@@ -271,34 +318,34 @@ private fun NodeDetailScreen(
         ) {
             item {
                 FwDetailCard {
-                    DetailSectionTitle("Node Info")
-                    DetailRow("Status", node.status.name, monoFont)
-                    DetailRow("Address", "${node.address}${node.port?.let { ":$it" } ?: ""}", monoFont)
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_info))
+                    DetailRow(stringResource(Res.string.nodes_detail_status), nodeStatusLabel(node.status), monoFont)
+                    DetailRow(stringResource(Res.string.nodes_detail_address), "${node.address}${node.port?.let { ":$it" } ?: ""}", monoFont)
                     if (node.countryCode.isNotBlank()) {
-                        DetailRow("Country", "${node.countryCode} ${countryFlag(node.countryCode)}", monoFont)
+                        DetailRow(stringResource(Res.string.nodes_detail_country), "${node.countryCode} ${countryFlag(node.countryCode)}", monoFont)
                     }
-                    if (node.tags.isNotEmpty()) DetailRow("Tags", node.tags.joinToString(", "), monoFont)
-                    node.lastStatusMessage?.let { DetailRow("Message", it, monoFont) }
+                    if (node.tags.isNotEmpty()) DetailRow(stringResource(Res.string.nodes_detail_tags), node.tags.joinToString(", "), monoFont)
+                    node.lastStatusMessage?.let { DetailRow(stringResource(Res.string.nodes_detail_message), it, monoFont) }
                 }
             }
             item {
                 FwDetailCard {
-                    DetailSectionTitle("Traffic")
-                    DetailRow("Used", formatBytes(node.trafficUsedBytes), monoFont)
-                    DetailRow("Limit", node.trafficLimitBytes?.let { formatBytes(it) } ?: "Unlimited", monoFont)
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic))
+                    DetailRow(stringResource(Res.string.nodes_detail_used), localizedBytes(node.trafficUsedBytes), monoFont)
+                    DetailRow(stringResource(Res.string.nodes_detail_limit), node.trafficLimitBytes?.let { localizedBytes(it) } ?: stringResource(Res.string.nodes_detail_unlimited), monoFont)
                 }
             }
 
             item {
                 FwDetailCard {
-                    DetailSectionTitle("Traffic History")
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic_history))
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         TimeRange.entries.forEachIndexed { index, range ->
                             SegmentedButton(
                                 selected = bandwidthState.selectedRange == range,
                                 onClick  = { onRangeChange(range) },
                                 shape    = SegmentedButtonDefaults.itemShape(index, TimeRange.entries.size),
-                                label    = { Text(range.label) }
+                                label    = { Text(range.label()) }
                             )
                         }
                     }
@@ -311,7 +358,7 @@ private fun NodeDetailScreen(
 
                         nodeSeries.isEmpty() && bandwidthState.data != null ->
                             Text(
-                                "No traffic data for this node",
+                                stringResource(Res.string.nodes_detail_no_traffic_data),
                                 style    = MaterialTheme.typography.bodySmall,
                                 color    = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(vertical = 8.dp)
@@ -329,16 +376,16 @@ private fun NodeDetailScreen(
             node.hostname?.let { hostname ->
                 item {
                     FwDetailCard {
-                        DetailSectionTitle("System")
-                        DetailRow("Hostname", hostname, monoFont)
-                        node.cpus?.let { DetailRow("CPUs", it.toString(), monoFont) }
+                        DetailSectionTitle(stringResource(Res.string.nodes_detail_system))
+                        DetailRow(stringResource(Res.string.nodes_detail_hostname), hostname, monoFont)
+                        node.cpus?.let { DetailRow(stringResource(Res.string.nodes_detail_cpus), it.toString(), monoFont) }
                         node.memoryUsedBytes?.let { used ->
                             node.memoryTotalBytes?.let { total ->
-                                DetailRow("RAM", "${formatBytes(used)} / ${formatBytes(total)}", monoFont)
+                                DetailRow(stringResource(Res.string.nodes_detail_ram), "${localizedBytes(used)} / ${localizedBytes(total)}", monoFont)
                             }
                         }
-                        node.uptimeSeconds?.let { DetailRow("Uptime", formatUptime(it), monoFont) }
-                        node.loadAvg?.let { DetailRow("Load", "%.2f".format(it), monoFont) }
+                        node.uptimeSeconds?.let { DetailRow(stringResource(Res.string.nodes_detail_uptime), uptimeParts(it).localized(), monoFont) }
+                        node.loadAvg?.let { DetailRow(stringResource(Res.string.nodes_detail_load), it.toDouble().format2(), monoFont) }
                     }
                 }
             }
@@ -353,29 +400,29 @@ private fun NodeDetailScreen(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 contentColor   = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
-                        ) { Text("Disable Node") }
+                        ) { Text(stringResource(Res.string.nodes_disable)) }
                         Button(
                             onClick = onRestart,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(percent = 50),
-                        ) { Text("Restart Node") }
+                        ) { Text(stringResource(Res.string.nodes_restart)) }
                     } else if (node.isDisabled) {
                         Button(
                             onClick = onEnable,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(percent = 50),
-                        ) { Text("Enable Node") }
+                        ) { Text(stringResource(Res.string.nodes_enable)) }
                     } else {
                         Button(
                             onClick = onEnable,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(percent = 50),
-                        ) { Text("Enable Node") }
+                        ) { Text(stringResource(Res.string.nodes_enable)) }
                         Button(
                             onClick = onRestart,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(percent = 50),
-                        ) { Text("Restart Node") }
+                        ) { Text(stringResource(Res.string.nodes_restart)) }
                     }
                     Button(
                         onClick = onReset,
@@ -385,7 +432,7 @@ private fun NodeDetailScreen(
                             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                             contentColor   = MaterialTheme.colorScheme.onSurface,
                         )
-                    ) { Text("Reset Traffic") }
+                    ) { Text(stringResource(Res.string.nodes_reset_traffic)) }
                 }
             }
         }

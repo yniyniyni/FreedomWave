@@ -7,19 +7,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.common_cancel
+import freedomwave.composeapp.generated.resources.lock_biometric_subtitle
+import freedomwave.composeapp.generated.resources.lock_biometric_title
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.jetbrains.compose.resources.stringResource
 import kotlin.coroutines.resume
 
 @Composable
 actual fun rememberBiometricAuthenticator(): BiometricAuthenticator {
     val context = LocalContext.current
-    return remember(context) {
-        AndroidBiometricAuthenticator(context as FragmentActivity)
+    // CMP stringResource is composable-only; resolve prompt texts here and
+    // hand them to the non-composable authenticator.
+    val promptTitle    = stringResource(Res.string.lock_biometric_title)
+    val promptSubtitle = stringResource(Res.string.lock_biometric_subtitle)
+    val promptCancel   = stringResource(Res.string.common_cancel)
+    return remember(context, promptTitle, promptSubtitle, promptCancel) {
+        AndroidBiometricAuthenticator(
+            activity       = context as FragmentActivity,
+            promptTitle    = promptTitle,
+            promptSubtitle = promptSubtitle,
+            promptCancel   = promptCancel,
+        )
     }
 }
 
 private class AndroidBiometricAuthenticator(
-    private val activity: FragmentActivity
+    private val activity: FragmentActivity,
+    private val promptTitle: String,
+    private val promptSubtitle: String,
+    private val promptCancel: String,
 ) : BiometricAuthenticator {
 
     override fun isAvailable(): Boolean {
@@ -51,9 +69,9 @@ private class AndroidBiometricAuthenticator(
 
             val prompt = BiometricPrompt(activity, executor, callback)
             val promptInfo = BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Unlock FreedomWave")
-                .setSubtitle("Authenticate to continue")
-                .setNegativeButtonText("Cancel")
+                .setTitle(promptTitle)
+                .setSubtitle(promptSubtitle)
+                .setNegativeButtonText(promptCancel)
                 .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK)
                 .build()
 

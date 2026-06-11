@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.DashboardRepository
 import art.yniyniyni.freedomwave.domain.model.DashboardStats
+import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +16,7 @@ import kotlinx.datetime.Clock
 data class DashboardUiState(
     val isLoading: Boolean      = false,
     val stats: DashboardStats?  = null,
-    val error: String?          = null,
+    val error: UiText?          = null,
     val lastUpdatedAt: Long?    = null
 )
 
@@ -32,7 +34,7 @@ class DashboardViewModel(
             _state.update { it.copy(isLoading = true, error = null) }
             dashboardRepository.getStats()
                 .onSuccess { stats -> _state.update { it.copy(isLoading = false, stats = stats, lastUpdatedAt = Clock.System.now().toEpochMilliseconds()) } }
-                .onFailure { e   -> _state.update { it.copy(isLoading = false, error = e.message) } }
+                .onFailure { e   -> _state.update { it.copy(isLoading = false, error = e.toUiText()) } }
         }
     }
 }

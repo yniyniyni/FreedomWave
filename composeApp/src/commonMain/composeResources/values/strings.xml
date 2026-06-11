@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- common -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_close">Close</string>
+    <string name="common_save">Save</string>
+    <string name="common_create">Create</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_copy">Copy</string>
+    <string name="common_copied">Copied</string>
+    <string name="common_retry">Retry</string>
+    <string name="common_connect">Connect</string>
+    <string name="common_empty_dash">—</string>
+    <string name="common_ok">OK</string>
+    <string name="common_refresh">Refresh</string>
+    <!-- brand wordmark: never translated, identical in every locale (locale-invariant: keep out of values-* files) -->
+    <string name="common_brand_freedom">Freedom</string>
+    <string name="common_brand_wave">Wave</string>
+
+    <!-- settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_connection">Connection</string>
+    <string name="settings_server">Server</string>
+    <string name="settings_api_key">API key</string>
+    <string name="settings_copy_key">Copy key</string>
+    <string name="settings_change_key">Change key</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">System</string>
+    <string name="settings_security">Security</string>
+    <string name="settings_biometric_lock">Biometric lock</string>
+    <string name="settings_biometric_on_desc">Require authentication on launch</string>
+    <string name="settings_biometric_unavailable">No biometrics enrolled on this device</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_log_out">Log out</string>
+    <string name="settings_change_key_title">Change API key</string>
+    <string name="settings_server_url">Server URL</string>
+
+    <!-- login -->
+    <string name="login_subtitle">Remnawave Admin</string>
+    <string name="login_server_url">Server URL</string>
+    <string name="login_server_url_placeholder">https://panel.example.com</string>
+    <string name="login_api_key">API key</string>
+    <string name="login_api_key_hint">Generate an API key in your Remnawave panel under API Tokens</string>
+
+    <!-- lock -->
+    <string name="lock_locked">Locked</string>
+    <string name="lock_unlock">Unlock</string>
+    <string name="lock_biometric_title">Unlock FreedomWave</string>
+    <string name="lock_biometric_subtitle">Authenticate to continue</string>
+    <string name="lock_biometric_failed">Authentication failed</string>
+
+    <!-- errors -->
+    <string name="error_unauthorized">Session expired, please log in again</string>
+    <string name="error_not_found">Resource not found</string>
+    <string name="error_network">Network error, check your connection</string>
+    <string name="error_generic">Something went wrong</string>
+    <string name="error_fill_all_fields">Please fill in all fields</string>
+    <string name="error_request_failed_code">Request failed (%1$d)</string>
+
+    <!-- dashboard -->
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard_live">Live</string>
+    <string name="dashboard_online_users">Online users</string>
+    <string name="dashboard_online_nodes">Online nodes</string>
+    <string name="dashboard_today">Today</string>
+    <string name="dashboard_this_month">This month</string>
+    <string name="dashboard_online_activity">Online activity</string>
+    <string name="dashboard_last_24h">Last 24h</string>
+    <string name="dashboard_last_7d">Last 7d</string>
+    <string name="dashboard_never">Never</string>
+    <string name="dashboard_users_by_status">Users by status</string>
+    <string name="dashboard_total_count">Total: %1$d</string>
+    <string name="dashboard_status_active">Active</string>
+    <string name="dashboard_status_limited">Limited</string>
+    <string name="dashboard_status_expired">Expired</string>
+    <string name="dashboard_status_disabled">Disabled</string>
+    <string name="dashboard_traffic">Traffic</string>
+    <string name="dashboard_panel">Panel</string>
+    <string name="dashboard_version">Version</string>
+    <string name="dashboard_uptime">Uptime</string>
+    <string name="dashboard_countries">Countries</string>
+    <string name="dashboard_nodes">Nodes</string>
+    <string name="dashboard_online">Online</string>
+    <string name="dashboard_total">Total</string>
+    <string name="dashboard_lifetime_traffic">Lifetime traffic</string>
+    <string name="dashboard_system">System</string>
+    <string name="dashboard_cpu_cores">CPU cores</string>
+    <string name="dashboard_ram">RAM</string>
+
+    <!-- nodes -->
+    <string name="nodes_title_count">Nodes (%1$d)</string>
+    <string name="nodes_empty">No nodes found</string>
+    <string name="nodes_status_online">Online</string>
+    <string name="nodes_status_offline">Offline</string>
+    <string name="nodes_status_disabled">Disabled</string>
+    <string name="nodes_status_connecting">Connecting</string>
+    <string name="nodes_detail_info">Node info</string>
+    <string name="nodes_detail_status">Status</string>
+    <string name="nodes_detail_address">Address</string>
+    <string name="nodes_detail_country">Country</string>
+    <string name="nodes_detail_tags">Tags</string>
+    <string name="nodes_detail_message">Message</string>
+    <string name="nodes_detail_traffic">Traffic</string>
+    <string name="nodes_detail_used">Used</string>
+    <string name="nodes_detail_limit">Limit</string>
+    <string name="nodes_detail_unlimited">Unlimited</string>
+    <string name="nodes_detail_traffic_history">Traffic history</string>
+    <string name="nodes_detail_no_traffic_data">No traffic data for this node</string>
+    <string name="nodes_detail_system">System</string>
+    <string name="nodes_detail_hostname">Hostname</string>
+    <string name="nodes_detail_cpus">CPUs</string>
+    <string name="nodes_detail_ram">RAM</string>
+    <string name="nodes_detail_uptime">Uptime</string>
+    <string name="nodes_detail_load">Load</string>
+    <string name="nodes_disable">Disable node</string>
+    <string name="nodes_enable">Enable node</string>
+    <string name="nodes_restart">Restart node</string>
+    <string name="nodes_reset_traffic">Reset traffic</string>
+
+    <!-- bandwidth -->
+    <string name="bandwidth_range_7d">7d</string>
+    <string name="bandwidth_range_30d">30d</string>
+    <string name="bandwidth_range_90d">90d</string>
+
+    <!-- units & time -->
+    <string name="unit_b">B</string>
+    <string name="unit_kb">KB</string>
+    <string name="unit_mb">MB</string>
+    <string name="unit_gb">GB</string>
+    <string name="unit_tb">TB</string>
+    <string name="time_never">Never</string>
+    <string name="time_now">now</string>
+    <!-- locale-invariant: infinity symbol used for unlimited traffic/time — keep out of values-* files -->
+    <string name="symbol_infinity">∞</string>
+    <string name="time_expired">Expired</string>
+    <string name="time_ago_seconds">%1$ds ago</string>
+    <string name="time_ago_minutes">%1$dm ago</string>
+    <string name="time_ago_hours">%1$dh ago</string>
+    <string name="time_ago_days">%1$dd ago</string>
+    <string name="time_left_seconds">%1$ds left</string>
+    <string name="time_left_minutes">%1$dm left</string>
+    <string name="time_left_hours">%1$dh left</string>
+    <string name="time_left_days">%1$dd left</string>
+    <string name="uptime_days_hours">%1$dd %2$dh</string>
+    <string name="uptime_hours_minutes">%1$dh %2$dm</string>
+    <string name="uptime_minutes">%1$dm</string>
+
+    <!-- navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_users">Users</string>
+    <string name="nav_nodes">Nodes</string>
+    <string name="nav_hosts">Hosts</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- components -->
+    <string name="component_back">← Back</string>
+    <string name="component_donut_used">Used</string>
+    <string name="component_donut_limit">Limit</string>
+    <string name="component_donut_lifetime">Lifetime</string>
+
+    <!-- users -->
+    <string name="users_title_count">Users (%1$d)</string>
+    <!-- singular per-user status badges (feeds StatusBadge in user rows and user detail header) -->
+    <string name="users_status_active">Active</string>
+    <string name="users_status_limited">Limited</string>
+    <string name="users_status_expired">Expired</string>
+    <string name="users_status_disabled">Disabled</string>
+    <string name="users_sort">Sort</string>
+    <string name="users_new_user">New user</string>
+    <string name="users_search_placeholder">Search by username or tag</string>
+    <string name="users_empty">No users</string>
+    <string name="users_no_results">No results for \"%1$s\"</string>
+    <string name="users_never_connected">Never connected</string>
+    <string name="users_category_all">All</string>
+    <string name="users_category_online">Online</string>
+    <string name="users_category_never_online">Never online</string>
+    <string name="users_sort_username">Username</string>
+    <string name="users_sort_status">Status</string>
+    <string name="users_sort_online">Online</string>
+    <!-- identifier abbreviation: identical in every locale (locale-invariant: keep out of values-* files) -->
+    <string name="users_sort_id">ID</string>
+    <string name="users_delete_title">Delete %1$s</string>
+    <string name="users_delete_confirm">Delete \"%1$s\"? This cannot be undone.</string>
+    <string name="users_qr_code">QR code</string>
+    <string name="users_subscription_qr">Subscription QR</string>
+    <string name="users_detail_info">Info</string>
+    <string name="users_detail_last_seen">Last seen</string>
+    <string name="users_detail_expires">Expires</string>
+    <string name="users_detail_email">Email</string>
+    <string name="users_detail_tag">Tag</string>
+    <string name="users_detail_notes">Notes</string>
+    <string name="users_detail_traffic">Traffic</string>
+    <string name="users_detail_resets">Resets</string>
+    <string name="users_detail_subscription">Subscription</string>
+    <string name="users_detail_squads">Squads</string>
+    <string name="users_detail_devices">Devices</string>
+    <string name="users_detail_ip_addresses">IP addresses</string>
+    <string name="users_collapse">Collapse</string>
+    <string name="users_expand">Expand</string>
+    <string name="users_no_devices">No registered devices</string>
+    <string name="users_no_sub_requests">No subscription requests recorded</string>
+    <string name="users_manage">Manage</string>
+    <string name="users_manage_status">Status</string>
+    <string name="users_enable">Enable</string>
+    <string name="users_disable">Disable</string>
+    <string name="users_revoke_sub">Revoke sub</string>
+    <string name="users_manage_traffic_expiry">Traffic &amp; expiry</string>
+    <string name="users_reset_traffic">Reset traffic</string>
+    <string name="users_set_limit">Set limit</string>
+    <string name="users_set_expiry">Set expiry</string>
+    <string name="users_device_limit">Device limit</string>
+    <string name="users_device_limit_fallback">Fallback</string>
+    <string name="users_edit">Edit</string>
+    <string name="users_edit_user">Edit user</string>
+    <string name="users_danger_zone">Danger zone</string>
+    <string name="users_delete_user">Delete user</string>
+    <string name="users_set_traffic_limit_title">Set traffic limit</string>
+    <string name="users_set_device_limit_title">Set device limit</string>
+    <string name="users_limit_gb">Limit (GB)</string>
+    <string name="users_zero_unlimited">0 = unlimited</string>
+    <string name="users_blank_zero_unlimited">Blank or 0 = unlimited</string>
+    <string name="users_set">Set</string>
+    <string name="users_edit_title">Edit %1$s</string>
+    <string name="users_form_identity">Identity</string>
+    <string name="users_username">Username</string>
+    <string name="users_username_required">Username *</string>
+    <string name="users_form_description">Description</string>
+    <string name="users_form_access">Access</string>
+    <string name="users_form_enabled">Enabled</string>
+    <string name="users_form_enabled_desc">Off adds the user without granting access</string>
+    <string name="users_reset_strategy">Reset strategy</string>
+    <string name="users_form_expiry">Expiry</string>
+    <string name="users_hwid_limit">HWID device limit</string>
+    <string name="users_save_changes">Save changes</string>
+    <string name="users_date">Date</string>
+    <string name="users_time">Time</string>
+    <string name="users_strategy_no_reset">No reset</string>
+    <string name="users_strategy_day">Day</string>
+    <string name="users_strategy_week">Week</string>
+    <string name="users_strategy_month">Month</string>
+    <string name="users_strategy_month_rolling">Month rolling</string>
+    <string name="users_preset_day">Day</string>
+    <string name="users_preset_week">Week</string>
+    <string name="users_preset_month">Month</string>
+    <string name="users_preset_3m">3M</string>
+    <string name="users_preset_6m">6M</string>
+    <string name="users_preset_year">Year</string>
+    <string name="users_preset_forever">Forever</string>
+    <string name="users_username_error">3-36 chars, letters, digits, dash or underscore</string>
+    <string name="users_tag_error">Tag: up to 16 uppercase letters, digits or underscore</string>
+    <string name="users_email_error">Enter a valid email address</string>
+    <string name="users_traffic_limit_invalid">Traffic limit must be a number ≥ 0</string>
+    <string name="users_device_limit_invalid">Device limit must be a whole number ≥ 0</string>
+    <string name="users_enter_number">Enter a number ≥ 0</string>
+    <string name="users_enter_whole_number">Enter a whole number ≥ 0</string>
+    <string name="users_subscription_revoked">Subscription revoked</string>
+    <string name="users_traffic_limit_updated">Traffic limit updated</string>
+    <string name="users_expiry_updated">Expiry updated</string>
+    <string name="users_device_limit_set">Device limit set to %1$d</string>
+
+    <!-- hosts -->
+    <string name="hosts_title_count">Hosts (%1$d)</string>
+    <string name="hosts_empty">No hosts</string>
+    <string name="hosts_delete_title">Delete host</string>
+    <string name="hosts_delete_confirm">Delete \"%1$s\"? This cannot be undone.</string>
+    <string name="hosts_detail_connection">Connection</string>
+    <string name="hosts_detail_address">Address</string>
+    <string name="hosts_detail_security">Security</string>
+    <!-- protocol acronyms: identical in every locale (locale-invariant: keep out of values-* files) -->
+    <string name="hosts_detail_sni">SNI</string>
+    <string name="hosts_detail_alpn">ALPN</string>
+    <string name="hosts_detail_path">Path</string>
+    <string name="hosts_detail_host_header">Host header</string>
+    <string name="hosts_detail_fingerprint">Fingerprint</string>
+    <string name="hosts_detail_insecure_tls">Insecure TLS</string>
+    <string name="hosts_detail_allowed">Allowed</string>
+    <string name="hosts_detail_details">Details</string>
+    <string name="hosts_detail_status">Status</string>
+    <string name="hosts_status_enabled">Enabled</string>
+    <string name="hosts_status_disabled">Disabled</string>
+    <string name="hosts_detail_tag">Tag</string>
+    <string name="hosts_detail_description">Description</string>
+    <string name="hosts_detail_visibility">Visibility</string>
+    <string name="hosts_detail_hidden">Hidden</string>
+    <string name="hosts_detail_shuffle">Shuffle host</string>
+    <string name="hosts_detail_yes">Yes</string>
+    <string name="hosts_detail_nodes">Nodes</string>
+    <string name="hosts_enable">Enable</string>
+    <string name="hosts_disable">Disable</string>
+
+    <!-- squads -->
+    <string name="squads_title">Squads</string>
+    <string name="squads_new_squad">New squad</string>
+    <string name="squads_rename_title">Rename squad</string>
+    <string name="squads_name">Name</string>
+    <string name="squads_name_required">Name is required</string>
+    <string name="squads_inbound_hint">Inbound configuration can be set in the web panel after creation.</string>
+    <string name="squads_internal_count">Internal (%1$d)</string>
+    <string name="squads_external_count">External (%1$d)</string>
+    <string name="squads_empty">No squads. Tap + to create one.</string>
+    <string name="squads_delete_title">Delete squad</string>
+    <string name="squads_delete_confirm">Delete \"%1$s\"? This cannot be undone.</string>
+    <string name="squads_detail_info">Info</string>
+    <string name="squads_detail_type">Type</string>
+    <string name="squads_type_internal">Internal</string>
+    <string name="squads_type_external">External</string>
+    <string name="squads_detail_members">Members</string>
+    <string name="squads_detail_inbounds">Inbounds</string>
+    <string name="squads_detail_created">Created</string>
+    <string name="squads_rename">Rename</string>
+
+    <plurals name="users_ip_unique">
+        <item quantity="one">%1$d unique</item>
+        <item quantity="other">%1$d unique</item>
+    </plurals>
+    <plurals name="squads_members">
+        <item quantity="one">%1$d member</item>
+        <item quantity="other">%1$d members</item>
+    </plurals>
+    <plurals name="squads_inbounds">
+        <item quantity="one">%1$d inbound</item>
+        <item quantity="other">%1$d inbounds</item>
+    </plurals>
+
+    <!-- language endonyms: never translated, identical in every locale (locale-invariant: keep out of values-* files) -->
+    <string name="language_english">English</string>
+    <string name="language_russian">Русский</string>
+</resources>

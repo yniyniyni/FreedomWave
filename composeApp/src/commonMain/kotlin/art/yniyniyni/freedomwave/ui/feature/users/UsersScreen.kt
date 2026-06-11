@@ -94,14 +94,75 @@ import art.yniyniyni.freedomwave.domain.model.IpRow
 import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.User
 import art.yniyniyni.freedomwave.domain.model.UserStatus
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.common_cancel
+import freedomwave.composeapp.generated.resources.common_close
+import freedomwave.composeapp.generated.resources.common_copied
+import freedomwave.composeapp.generated.resources.common_copy
+import freedomwave.composeapp.generated.resources.common_delete
+import freedomwave.composeapp.generated.resources.common_retry
+import freedomwave.composeapp.generated.resources.symbol_infinity
+import freedomwave.composeapp.generated.resources.users_collapse
+import freedomwave.composeapp.generated.resources.users_danger_zone
+import freedomwave.composeapp.generated.resources.users_delete_confirm
+import freedomwave.composeapp.generated.resources.users_delete_title
+import freedomwave.composeapp.generated.resources.users_delete_user
+import freedomwave.composeapp.generated.resources.users_detail_devices
+import freedomwave.composeapp.generated.resources.users_detail_email
+import freedomwave.composeapp.generated.resources.users_detail_expires
+import freedomwave.composeapp.generated.resources.users_detail_info
+import freedomwave.composeapp.generated.resources.users_detail_ip_addresses
+import freedomwave.composeapp.generated.resources.users_detail_last_seen
+import freedomwave.composeapp.generated.resources.users_detail_notes
+import freedomwave.composeapp.generated.resources.users_detail_resets
+import freedomwave.composeapp.generated.resources.users_detail_squads
+import freedomwave.composeapp.generated.resources.users_detail_subscription
+import freedomwave.composeapp.generated.resources.users_detail_tag
+import freedomwave.composeapp.generated.resources.users_detail_traffic
+import freedomwave.composeapp.generated.resources.users_device_limit
+import freedomwave.composeapp.generated.resources.users_device_limit_fallback
+import freedomwave.composeapp.generated.resources.users_disable
+import freedomwave.composeapp.generated.resources.users_edit
+import freedomwave.composeapp.generated.resources.users_edit_user
+import freedomwave.composeapp.generated.resources.users_empty
+import freedomwave.composeapp.generated.resources.users_enable
+import freedomwave.composeapp.generated.resources.users_expand
+import freedomwave.composeapp.generated.resources.users_ip_unique
+import freedomwave.composeapp.generated.resources.users_limit_gb
+import freedomwave.composeapp.generated.resources.users_manage
+import freedomwave.composeapp.generated.resources.users_manage_status
+import freedomwave.composeapp.generated.resources.users_manage_traffic_expiry
+import freedomwave.composeapp.generated.resources.users_never_connected
+import freedomwave.composeapp.generated.resources.users_new_user
+import freedomwave.composeapp.generated.resources.users_no_devices
+import freedomwave.composeapp.generated.resources.users_no_results
+import freedomwave.composeapp.generated.resources.users_no_sub_requests
+import freedomwave.composeapp.generated.resources.users_qr_code
+import freedomwave.composeapp.generated.resources.common_refresh
+import freedomwave.composeapp.generated.resources.users_reset_traffic
+import freedomwave.composeapp.generated.resources.users_revoke_sub
+import freedomwave.composeapp.generated.resources.users_search_placeholder
+import freedomwave.composeapp.generated.resources.users_set
+import freedomwave.composeapp.generated.resources.users_set_device_limit_title
+import freedomwave.composeapp.generated.resources.users_set_expiry
+import freedomwave.composeapp.generated.resources.users_set_limit
+import freedomwave.composeapp.generated.resources.users_set_traffic_limit_title
+import freedomwave.composeapp.generated.resources.users_sort
+import freedomwave.composeapp.generated.resources.users_subscription_qr
+import freedomwave.composeapp.generated.resources.users_title_count
+import freedomwave.composeapp.generated.resources.users_zero_unlimited
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
+import art.yniyniyni.freedomwave.ui.l10n.localized
+import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
+import art.yniyniyni.freedomwave.ui.l10n.resolve
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.countryFlag
-import art.yniyniyni.freedomwave.util.formatBytes
-import art.yniyniyni.freedomwave.util.formatExpiryRemaining
-import art.yniyniyni.freedomwave.util.formatRelativePast
+import art.yniyniyni.freedomwave.util.expiryRemaining
 import art.yniyniyni.freedomwave.util.parseInstant
+import art.yniyniyni.freedomwave.util.relativePast
 import androidx.compose.foundation.Image
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import kotlinx.datetime.Clock
@@ -135,8 +196,9 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
     val top = stack.last()
     val canGoBack = stack.size > 1
 
-    LaunchedEffect(state.actionError) {
-        state.actionError?.let {
+    val actionErrorText = state.actionError?.resolve()
+    LaunchedEffect(actionErrorText) {
+        actionErrorText?.let {
             snackbar.showSnackbar(it)
             vm.clearActionError()
         }
@@ -229,16 +291,16 @@ private fun UsersListContent(
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             FwTopBar(
-                title = "Users (${state.visible.size})",
+                title = stringResource(Res.string.users_title_count, state.visible.size),
                 actions = {
                     IconButton(onClick = { sortMenuOpen = true }) {
-                        Icon(Icons.Rounded.SwapVert, contentDescription = "Sort")
+                        Icon(Icons.Rounded.SwapVert, contentDescription = stringResource(Res.string.users_sort))
                     }
                     DropdownMenu(expanded = sortMenuOpen, onDismissRequest = { sortMenuOpen = false }) {
                         UserSortField.entries.forEach { field ->
                             val active = state.sortField == field
                             DropdownMenuItem(
-                                text = { Text(field.label) },
+                                text = { Text(field.label()) },
                                 onClick = { vm.onSortSelected(field) },
                                 trailingIcon = {
                                     if (active) Icon(
@@ -250,7 +312,7 @@ private fun UsersListContent(
                             )
                         }
                     }
-                    TextButton(onClick = vm::load) { Text("Refresh") }
+                    TextButton(onClick = vm::load) { Text(stringResource(Res.string.common_refresh)) }
                 },
             )
         },
@@ -262,7 +324,7 @@ private fun UsersListContent(
                 contentColor   = MaterialTheme.colorScheme.onPrimary,
                 elevation      = FloatingActionButtonDefaults.elevation(0.dp),
             ) {
-                Icon(Icons.Rounded.Add, contentDescription = "New user", modifier = Modifier.size(28.dp))
+                Icon(Icons.Rounded.Add, contentDescription = stringResource(Res.string.users_new_user), modifier = Modifier.size(28.dp))
             }
         },
     ) { padding ->
@@ -270,7 +332,7 @@ private fun UsersListContent(
             OutlinedTextField(
                 value         = state.query,
                 onValueChange = vm::onQueryChange,
-                placeholder   = { Text("Search by username or tag") },
+                placeholder   = { Text(stringResource(Res.string.users_search_placeholder)) },
                 leadingIcon   = { Icon(Icons.Rounded.Search, contentDescription = null) },
                 singleLine    = true,
                 shape         = MaterialTheme.shapes.medium,
@@ -285,7 +347,7 @@ private fun UsersListContent(
                     FilterChip(
                         selected = state.category == cat,
                         onClick  = { vm.onCategorySelected(cat) },
-                        label    = { Text(cat.label) },
+                        label    = { Text(cat.label()) },
                     )
                 }
             }
@@ -294,8 +356,8 @@ private fun UsersListContent(
                 state.error != null && state.users.isEmpty() ->
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(state.error!!, color = MaterialTheme.colorScheme.error)
-                            Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
+                            Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
+                            Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
                         }
                     }
                 else ->
@@ -306,7 +368,8 @@ private fun UsersListContent(
                         if (state.visible.isEmpty()) {
                             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Text(
-                                    if (state.query.isBlank()) "No users" else "No results for \"${state.query}\"",
+                                    if (state.query.isBlank()) stringResource(Res.string.users_empty)
+                                    else stringResource(Res.string.users_no_results, state.query),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
@@ -362,8 +425,9 @@ private fun UserListItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                val usedStr  = formatBytes(user.usedTrafficBytes)
-                val limitStr = if (user.trafficLimitBytes > 0) formatBytes(user.trafficLimitBytes) else "∞"
+                val usedStr  = localizedBytes(user.usedTrafficBytes)
+                val limitStr = if (user.trafficLimitBytes > 0) localizedBytes(user.trafficLimitBytes)
+                    else stringResource(Res.string.symbol_infinity)
                 Text(
                     "$usedStr / $limitStr",
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
@@ -383,21 +447,22 @@ private fun UserListItem(
                 }
                 // Last connection: 🇩🇪 DE · node · 5m ago
                 val node = user.lastConnectedNodeUuid?.let { nodesByUuid[it] }
+                val lastSeen = relativePast(user.onlineAt).localized()
                 val lastConn = buildString {
                     if (node != null && node.countryCode.isNotBlank()) {
                         append("${node.countryCode} ${countryFlag(node.countryCode)} · ")
                     }
                     if (node != null) append("${node.name} · ")
-                    append(formatRelativePast(user.onlineAt))
+                    append(lastSeen)
                 }
                 Text(
-                    if (user.onlineAt == null) "Never connected" else lastConn,
+                    if (user.onlineAt == null) stringResource(Res.string.users_never_connected) else lastConn,
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 // Expiry remaining
                 Text(
-                    formatExpiryRemaining(user.expireAt),
+                    expiryRemaining(user.expireAt).localized(),
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -427,7 +492,7 @@ private fun StatusBadge(status: UserStatus) {
         modifier = Modifier.padding(0.dp),
     ) {
         Text(
-            status.label.uppercase(),
+            status.localized().uppercase(),
             style = MaterialTheme.typography.labelSmall,
         )
     }
@@ -457,11 +522,13 @@ private fun UserDetailScreen(
     val snackbar = remember { SnackbarHostState() }
 
     // Feedback snackbars
-    LaunchedEffect(detailState.actionError) {
-        detailState.actionError?.let { snackbar.showSnackbar(it); detailVm.clearMessages() }
+    val detailActionErrorText = detailState.actionError?.resolve()
+    LaunchedEffect(detailActionErrorText) {
+        detailActionErrorText?.let { snackbar.showSnackbar(it); detailVm.clearMessages() }
     }
-    LaunchedEffect(detailState.actionSuccess) {
-        detailState.actionSuccess?.let { snackbar.showSnackbar(it); detailVm.clearMessages() }
+    val detailActionSuccessText = detailState.actionSuccess?.resolve()
+    LaunchedEffect(detailActionSuccessText) {
+        detailActionSuccessText?.let { snackbar.showSnackbar(it); detailVm.clearMessages() }
     }
 
     // ── Dialogs ────────────────────────────────────────────────────────────────
@@ -469,23 +536,24 @@ private fun UserDetailScreen(
     var showQrDialog       by remember { mutableStateOf(false) }
     var showCopiedSnackbar by remember { mutableStateOf(false) }
 
+    val copiedText = stringResource(Res.string.common_copied)
     LaunchedEffect(showCopiedSnackbar) {
-        if (showCopiedSnackbar) { snackbar.showSnackbar("Copied"); showCopiedSnackbar = false }
+        if (showCopiedSnackbar) { snackbar.showSnackbar(copiedText); showCopiedSnackbar = false }
     }
 
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Delete ${user.username}") },
-            text  = { Text("Delete ${user.username}? This action cannot be undone.") },
+            title = { Text(stringResource(Res.string.users_delete_title, user.username)) },
+            text  = { Text(stringResource(Res.string.users_delete_confirm, user.username)) },
             confirmButton = {
                 TextButton(
                     onClick = { showDeleteConfirm = false; onDelete() },
                     colors  = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete") }
+                ) { Text(stringResource(Res.string.common_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(Res.string.common_cancel)) }
             }
         )
     }
@@ -532,7 +600,7 @@ private fun UserDetailScreen(
                 onBack = onBack,
                 actions = {
                     IconButton(onClick = { showQrDialog = true }) {
-                        Icon(Icons.Rounded.QrCode, contentDescription = "QR Code")
+                        Icon(Icons.Rounded.QrCode, contentDescription = stringResource(Res.string.users_qr_code))
                     }
                 }
             )
@@ -553,30 +621,35 @@ private fun UserDetailScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        DetailSectionTitle("Info")
+                        DetailSectionTitle(stringResource(Res.string.users_detail_info))
                         StatusBadge(user.status)
                     }
                     // Last connection, formatted like the user list: 🇩🇪 DE · node · 5m ago
                     val node = user.lastConnectedNodeUuid?.let { nodesByUuid[it] }
+                    val lastSeen = relativePast(user.onlineAt).localized()
                     val lastConn = buildString {
                         if (node != null && node.countryCode.isNotBlank()) {
                             append("${node.countryCode} ${countryFlag(node.countryCode)} · ")
                         }
                         if (node != null) append("${node.name} · ")
-                        append(formatRelativePast(user.onlineAt))
+                        append(lastSeen)
                     }
-                    DetailRow("Last seen", if (user.onlineAt == null) "Never connected" else lastConn, monoFont)
-                    DetailRow("Expires",  formatExpiryRemaining(user.expireAt), monoFont)
-                    user.email?.let { DetailRow("Email", it, monoFont) }
-                    user.tag?.let   { DetailRow("Tag",   it, monoFont) }
-                    user.description?.let { DetailRow("Notes", it, monoFont) }
+                    DetailRow(
+                        stringResource(Res.string.users_detail_last_seen),
+                        if (user.onlineAt == null) stringResource(Res.string.users_never_connected) else lastConn,
+                        monoFont,
+                    )
+                    DetailRow(stringResource(Res.string.users_detail_expires), expiryRemaining(user.expireAt).localized(), monoFont)
+                    user.email?.let { DetailRow(stringResource(Res.string.users_detail_email), it, monoFont) }
+                    user.tag?.let   { DetailRow(stringResource(Res.string.users_detail_tag),   it, monoFont) }
+                    user.description?.let { DetailRow(stringResource(Res.string.users_detail_notes), it, monoFont) }
                 }
             }
 
             // ── Traffic donut ─────────────────────────────────────────────────
             item {
                 FwDetailCard {
-                    DetailSectionTitle("Traffic")
+                    DetailSectionTitle(stringResource(Res.string.users_detail_traffic))
                     Spacer(Modifier.height(8.dp))
                     TrafficDonut(
                         usedBytes     = user.usedTrafficBytes,
@@ -587,9 +660,8 @@ private fun UserDetailScreen(
                     if (user.trafficLimitStrategy.isNotBlank() && user.trafficLimitStrategy != "NO_RESET") {
                         Spacer(Modifier.height(8.dp))
                         DetailRow(
-                            "Resets",
-                            user.trafficLimitStrategy.lowercase().replace('_', ' ')
-                                .replaceFirstChar { it.uppercase() },
+                            stringResource(Res.string.users_detail_resets),
+                            trafficStrategyLabel(user.trafficLimitStrategy),
                             monoFont,
                         )
                     }
@@ -600,7 +672,7 @@ private fun UserDetailScreen(
             if (user.subscriptionUrl.isNotBlank()) {
                 item {
                     FwDetailCard {
-                        DetailSectionTitle("Subscription")
+                        DetailSectionTitle(stringResource(Res.string.users_detail_subscription))
                         Spacer(Modifier.height(4.dp))
                         Row(
                             modifier = Modifier
@@ -622,7 +694,7 @@ private fun UserDetailScreen(
                             )
                             Icon(
                                 Icons.Rounded.ContentCopy,
-                                contentDescription = "Copy",
+                                contentDescription = stringResource(Res.string.common_copy),
                                 tint     = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp),
                             )
@@ -635,7 +707,7 @@ private fun UserDetailScreen(
             if (user.activeSquads.isNotEmpty()) {
                 item {
                     FwDetailCard {
-                        DetailSectionTitle("Squads")
+                        DetailSectionTitle(stringResource(Res.string.users_detail_squads))
                         user.activeSquads.forEach {
                             Text(it, style = MaterialTheme.typography.bodyMedium)
                         }
@@ -655,14 +727,16 @@ private fun UserDetailScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            DetailSectionTitle("Devices")
+                            DetailSectionTitle(stringResource(Res.string.users_detail_devices))
                             if (!detailState.devicesLoading) {
                                 Badge { Text("${detailState.devices.size}") }
                             }
                         }
                         Icon(
                             if (detailState.devicesExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                            contentDescription = if (detailState.devicesExpanded) "Collapse" else "Expand",
+                            contentDescription = stringResource(
+                                if (detailState.devicesExpanded) Res.string.users_collapse else Res.string.users_expand
+                            ),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -679,13 +753,13 @@ private fun UserDetailScreen(
                                 }
                             detailState.devicesError != null ->
                                 Text(
-                                    detailState.devicesError!!,
+                                    detailState.devicesError!!.resolve(),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.error,
                                 )
                             detailState.devices.isEmpty() ->
                                 Text(
-                                    "No registered devices",
+                                    stringResource(Res.string.users_no_devices),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -709,14 +783,24 @@ private fun UserDetailScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            DetailSectionTitle("IP Addresses")
+                            DetailSectionTitle(stringResource(Res.string.users_detail_ip_addresses))
                             if (!detailState.ipLoading) {
-                                Badge { Text("${detailState.ipRows.size} unique") }
+                                Badge {
+                                    Text(
+                                        pluralStringResource(
+                                            Res.plurals.users_ip_unique,
+                                            detailState.ipRows.size,
+                                            detailState.ipRows.size,
+                                        )
+                                    )
+                                }
                             }
                         }
                         Icon(
                             if (detailState.ipExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                            contentDescription = if (detailState.ipExpanded) "Collapse" else "Expand",
+                            contentDescription = stringResource(
+                                if (detailState.ipExpanded) Res.string.users_collapse else Res.string.users_expand
+                            ),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -733,13 +817,13 @@ private fun UserDetailScreen(
                                 }
                             detailState.ipError != null ->
                                 Text(
-                                    detailState.ipError!!,
+                                    detailState.ipError!!.resolve(),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.error,
                                 )
                             detailState.ipRows.isEmpty() ->
                                 Text(
-                                    "No subscription requests recorded",
+                                    stringResource(Res.string.users_no_sub_requests),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -786,11 +870,11 @@ private fun ManageCard(
     onApplyUpdate: (User) -> Unit,
 ) {
     FwDetailCard {
-        DetailSectionTitle("Manage")
+        DetailSectionTitle(stringResource(Res.string.users_manage))
         Spacer(Modifier.height(4.dp))
 
         // Status row
-        ManageSectionLabel("Status")
+        ManageSectionLabel(stringResource(Res.string.users_manage_status))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -804,25 +888,25 @@ private fun ManageCard(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         contentColor   = MaterialTheme.colorScheme.onSecondaryContainer,
                     ),
-                ) { Text("Disable") }
+                ) { Text(stringResource(Res.string.users_disable)) }
             } else {
                 Button(
                     onClick = onEnable,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(percent = 50),
-                ) { Text("Enable") }
+                ) { Text(stringResource(Res.string.users_enable)) }
             }
             OutlinedButton(
                 onClick = { detailVm.revokeSubscription(onApplyUpdate) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(percent = 50),
-            ) { Text("Revoke Sub") }
+            ) { Text(stringResource(Res.string.users_revoke_sub)) }
         }
 
         Spacer(Modifier.height(4.dp))
 
         // Traffic & Expiration
-        ManageSectionLabel("Traffic & Expiration")
+        ManageSectionLabel(stringResource(Res.string.users_manage_traffic_expiry))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -831,14 +915,14 @@ private fun ManageCard(
                 onClick = onResetTraffic,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(percent = 50),
-            ) { Text("Reset Traffic") }
+            ) { Text(stringResource(Res.string.users_reset_traffic)) }
             OutlinedButton(
                 onClick = {
                     detailVm.openSetLimitDialog(user.trafficLimitBytes)
                 },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(percent = 50),
-            ) { Text("Set Limit") }
+            ) { Text(stringResource(Res.string.users_set_limit)) }
             OutlinedButton(
                 onClick = {
                     val millis = parseInstant(user.expireAt)?.toEpochMilliseconds()
@@ -847,19 +931,20 @@ private fun ManageCard(
                 },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(percent = 50),
-            ) { Text("Set Expiry") }
+            ) { Text(stringResource(Res.string.users_set_expiry)) }
         }
 
         Spacer(Modifier.height(4.dp))
 
         // Device limit stepper
-        ManageSectionLabel("Device Limit")
+        ManageSectionLabel(stringResource(Res.string.users_device_limit))
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            val limitLabel = user.hwidDeviceLimit?.toString() ?: "Fallback"
+            val limitLabel = user.hwidDeviceLimit?.toString()
+                ?: stringResource(Res.string.users_device_limit_fallback)
             Text(
                 limitLabel,
                 style = MaterialTheme.typography.bodyMedium.copy(fontFamily = LocalFwMonoFont.current),
@@ -870,7 +955,7 @@ private fun ManageCard(
                 onClick = { detailVm.openDeviceLimitDialog(user.hwidDeviceLimit) },
                 shape = RoundedCornerShape(percent = 50),
                 contentPadding = PaddingValues(horizontal = 16.dp),
-            ) { Text("Edit") }
+            ) { Text(stringResource(Res.string.users_edit)) }
             OutlinedButton(
                 onClick = { detailVm.adjustDeviceLimit(user.hwidDeviceLimit, -1, onApplyUpdate) },
                 shape = RoundedCornerShape(percent = 50),
@@ -892,12 +977,12 @@ private fun ManageCard(
             onClick = onEdit,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(percent = 50),
-        ) { Text("Edit User") }
+        ) { Text(stringResource(Res.string.users_edit_user)) }
 
         Spacer(Modifier.height(4.dp))
 
         // Danger zone
-        ManageSectionLabel("Danger Zone")
+        ManageSectionLabel(stringResource(Res.string.users_danger_zone))
         Button(
             onClick = onDelete,
             modifier = Modifier.fillMaxWidth(),
@@ -906,7 +991,7 @@ private fun ManageCard(
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor   = MaterialTheme.colorScheme.onError,
             ),
-        ) { Text("Delete User") }
+        ) { Text(stringResource(Res.string.users_delete_user)) }
     }
 }
 
@@ -964,7 +1049,7 @@ private fun DeviceRow(device: HwidDevice, monoFont: FontFamily) {
             }
         }
         Text(
-            formatRelativePast(device.updatedAt),
+            relativePast(device.updatedAt).localized(),
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -1022,7 +1107,7 @@ private fun IpAddressRow(row: IpRow, monoFont: FontFamily) {
             }
         }
         Text(
-            formatRelativePast(row.lastSeenAt),
+            relativePast(row.lastSeenAt).localized(),
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -1045,7 +1130,7 @@ private fun QrDialog(url: String, onDismiss: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Text("Subscription QR", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.users_subscription_qr), style = MaterialTheme.typography.titleMedium)
                 val painter = rememberQrCodePainter(url)
                 // qrose draws dark cells on a transparent background, so on a dark-theme dialog the
                 // code would vanish. Render it on a fixed white quiet zone — scannable in any theme.
@@ -1056,11 +1141,11 @@ private fun QrDialog(url: String, onDismiss: () -> Unit) {
                 ) {
                     Image(
                         painter     = painter,
-                        contentDescription = "QR code",
+                        contentDescription = stringResource(Res.string.users_qr_code),
                         modifier    = Modifier.size(220.dp),
                     )
                 }
-                TextButton(onClick = onDismiss) { Text("Close") }
+                TextButton(onClick = onDismiss) { Text(stringResource(Res.string.common_close)) }
             }
         }
     }
@@ -1079,20 +1164,20 @@ private fun SetLimitDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title  = { Text("Set Traffic Limit") },
+        title  = { Text(stringResource(Res.string.users_set_traffic_limit_title)) },
         text   = {
             OutlinedTextField(
                 value         = input,
                 onValueChange = onInput,
-                label         = { Text("Limit (GB)") },
-                supportingText = { Text("0 = unlimited") },
+                label         = { Text(stringResource(Res.string.users_limit_gb)) },
+                supportingText = { Text(stringResource(Res.string.users_zero_unlimited)) },
                 singleLine    = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
             )
         },
-        confirmButton = { TextButton(onClick = onConfirm) { Text("Set") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(Res.string.users_set)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(Res.string.common_cancel)) } },
     )
 }
 
@@ -1105,20 +1190,20 @@ private fun DeviceLimitDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title  = { Text("Set Device Limit") },
+        title  = { Text(stringResource(Res.string.users_set_device_limit_title)) },
         text   = {
             OutlinedTextField(
                 value         = input,
                 onValueChange = onInput,
-                label         = { Text("Devices") },
-                supportingText = { Text("0 = unlimited") },
+                label         = { Text(stringResource(Res.string.users_detail_devices)) },
+                supportingText = { Text(stringResource(Res.string.users_zero_unlimited)) },
                 singleLine    = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
             )
         },
-        confirmButton = { TextButton(onClick = onConfirm) { Text("Set") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(Res.string.users_set)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(Res.string.common_cancel)) } },
     )
 }
 
@@ -1136,15 +1221,15 @@ private fun SetExpiryDialog(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text("Set Expiry", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.users_set_expiry), style = MaterialTheme.typography.titleMedium)
                 ExpiryEditor(expireMillis = millis, enabled = true, onChange = onChange)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    TextButton(onClick = onDismiss)  { Text("Cancel") }
+                    TextButton(onClick = onDismiss)  { Text(stringResource(Res.string.common_cancel)) }
                     Spacer(Modifier.width(8.dp))
-                    TextButton(onClick = onConfirm) { Text("Set") }
+                    TextButton(onClick = onConfirm) { Text(stringResource(Res.string.users_set)) }
                 }
             }
         }

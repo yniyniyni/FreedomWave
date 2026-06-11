@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.HostRepository
 import art.yniyniyni.freedomwave.domain.model.Host
+import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,8 +15,8 @@ import kotlinx.coroutines.launch
 data class HostsUiState(
     val isLoading: Boolean = false,
     val hosts: List<Host> = emptyList(),
-    val error: String? = null,
-    val actionError: String? = null,
+    val error: UiText? = null,
+    val actionError: UiText? = null,
     val selected: Host? = null,
     val actionInProgress: Boolean = false
 )
@@ -31,7 +33,7 @@ class HostsViewModel(private val repo: HostRepository) : ViewModel() {
             _state.update { it.copy(isLoading = true, error = null) }
             repo.getHosts()
                 .onSuccess { hosts -> _state.update { it.copy(isLoading = false, hosts = hosts) } }
-                .onFailure { e -> _state.update { it.copy(isLoading = false, error = e.message) } }
+                .onFailure { e -> _state.update { it.copy(isLoading = false, error = e.toUiText()) } }
         }
     }
 
@@ -55,7 +57,7 @@ class HostsViewModel(private val repo: HostRepository) : ViewModel() {
                     }
                 }
                 .onFailure { e ->
-                    _state.update { it.copy(actionInProgress = false, actionError = e.message) }
+                    _state.update { it.copy(actionInProgress = false, actionError = e.toUiText()) }
                 }
         }
     }
@@ -74,7 +76,7 @@ class HostsViewModel(private val repo: HostRepository) : ViewModel() {
                     }
                 }
                 .onFailure { e ->
-                    _state.update { it.copy(actionInProgress = false, actionError = e.message) }
+                    _state.update { it.copy(actionInProgress = false, actionError = e.toUiText()) }
                 }
         }
     }

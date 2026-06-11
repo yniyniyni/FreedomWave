@@ -30,6 +30,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.common_brand_freedom
+import freedomwave.composeapp.generated.resources.common_brand_wave
+import freedomwave.composeapp.generated.resources.common_connect
+import freedomwave.composeapp.generated.resources.login_api_key
+import freedomwave.composeapp.generated.resources.login_api_key_hint
+import freedomwave.composeapp.generated.resources.login_server_url
+import freedomwave.composeapp.generated.resources.login_server_url_placeholder
+import freedomwave.composeapp.generated.resources.login_subtitle
+import art.yniyniyni.freedomwave.ui.l10n.resolve
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -55,18 +66,18 @@ fun LoginScreen(vm: LoginViewModel = koinViewModel()) {
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    text = "Freedom",
+                    text = stringResource(Res.string.common_brand_freedom),
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = "Wave",
+                    text = stringResource(Res.string.common_brand_wave),
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
             Text(
-                text = "Remnawave Admin",
+                text = stringResource(Res.string.login_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -76,8 +87,8 @@ fun LoginScreen(vm: LoginViewModel = koinViewModel()) {
             OutlinedTextField(
                 value = state.serverUrl,
                 onValueChange = vm::onServerUrlChange,
-                label = { Text("Server URL") },
-                placeholder = { Text("https://panel.example.com") },
+                label = { Text(stringResource(Res.string.login_server_url)) },
+                placeholder = { Text(stringResource(Res.string.login_server_url_placeholder)) },
                 shape = MaterialTheme.shapes.medium,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Uri,
@@ -91,7 +102,7 @@ fun LoginScreen(vm: LoginViewModel = koinViewModel()) {
             OutlinedTextField(
                 value = state.apiKey,
                 onValueChange = vm::onApiKeyChange,
-                label = { Text("API Key") },
+                label = { Text(stringResource(Res.string.login_api_key)) },
                 shape = MaterialTheme.shapes.medium,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
@@ -105,7 +116,7 @@ fun LoginScreen(vm: LoginViewModel = koinViewModel()) {
             )
 
             Text(
-                text = "Generate an API key in your Remnawave panel under API Tokens",
+                text = stringResource(Res.string.login_api_key_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
@@ -113,7 +124,7 @@ fun LoginScreen(vm: LoginViewModel = koinViewModel()) {
 
             state.error?.let { error ->
                 Text(
-                    text = error,
+                    text = error.resolve(),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.fillMaxWidth(),
@@ -135,7 +146,7 @@ fun LoginScreen(vm: LoginViewModel = koinViewModel()) {
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
-                    Text("Connect")
+                    Text(stringResource(Res.string.common_connect))
                 }
             }
         }

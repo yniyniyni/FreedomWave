@@ -3,6 +3,10 @@ package art.yniyniyni.freedomwave.ui.feature.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.AuthRepository
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.error_fill_all_fields
+import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +17,7 @@ data class LoginUiState(
     val serverUrl: String  = "",
     val apiKey: String     = "",
     val isLoading: Boolean = false,
-    val error: String?     = null
+    val error: UiText?     = null
 )
 
 class LoginViewModel(
@@ -29,7 +33,7 @@ class LoginViewModel(
     fun save() {
         val s = _state.value
         if (s.serverUrl.isBlank() || s.apiKey.isBlank()) {
-            _state.update { it.copy(error = "Please fill in all fields") }
+            _state.update { it.copy(error = UiText.Res(Res.string.error_fill_all_fields)) }
             return
         }
 
@@ -37,7 +41,7 @@ class LoginViewModel(
             _state.update { it.copy(isLoading = true, error = null) }
             authRepository.saveApiKey(s.serverUrl.trim(), s.apiKey.trim())
                 .onFailure { e ->
-                    _state.update { it.copy(isLoading = false, error = e.message ?: "Connection failed") }
+                    _state.update { it.copy(isLoading = false, error = e.toUiText()) }
                 }
                 .onSuccess {
                     _state.update { it.copy(isLoading = false) }

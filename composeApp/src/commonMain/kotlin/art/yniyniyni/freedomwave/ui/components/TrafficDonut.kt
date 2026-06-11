@@ -25,9 +25,15 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.component_donut_lifetime
+import freedomwave.composeapp.generated.resources.component_donut_limit
+import freedomwave.composeapp.generated.resources.component_donut_used
+import freedomwave.composeapp.generated.resources.symbol_infinity
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
-import art.yniyniyni.freedomwave.util.formatBytes
+import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Circular donut chart for traffic usage.
@@ -63,7 +69,10 @@ fun TrafficDonut(
         else              -> primary
     }
 
-    val pctLabel = if (isUnlimited) "∞" else "${(fraction * 100).toInt()}%"
+    // Resolve all localized labels in composable scope — not inside the Canvas draw lambda.
+    val pctLabel = if (isUnlimited) stringResource(Res.string.symbol_infinity)
+        else "${(fraction * 100).toInt()}%"
+    val usedLabel = stringResource(Res.string.component_donut_used)
 
     val textMeasurer = rememberTextMeasurer()
 
@@ -124,7 +133,7 @@ fun TrafficDonut(
 
                 // "Used" sub-label
                 val subStyle = TextStyle(fontSize = 10.sp, color = onVariant)
-                val measuredSub = textMeasurer.measure("Used", subStyle)
+                val measuredSub = textMeasurer.measure(usedLabel, subStyle)
                 drawText(
                     measuredSub,
                     topLeft = Offset(
@@ -138,14 +147,14 @@ fun TrafficDonut(
         Spacer(Modifier.height(0.dp))
 
         // Three-column stats below the donut
-        val limitStr = if (isUnlimited) "∞" else formatBytes(limitBytes)
+        val limitStr = if (isUnlimited) stringResource(Res.string.symbol_infinity) else localizedBytes(limitBytes)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            DonutStatColumn("Used",     formatBytes(usedBytes),   monoFont)
-            DonutStatColumn("Limit",    limitStr,                  monoFont)
-            DonutStatColumn("Lifetime", formatBytes(lifetimeBytes), monoFont)
+            DonutStatColumn(usedLabel, localizedBytes(usedBytes), monoFont)
+            DonutStatColumn(stringResource(Res.string.component_donut_limit), limitStr, monoFont)
+            DonutStatColumn(stringResource(Res.string.component_donut_lifetime), localizedBytes(lifetimeBytes), monoFont)
         }
     }
 }

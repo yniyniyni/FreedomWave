@@ -4,6 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.SquadRepository
 import art.yniyniyni.freedomwave.domain.model.Squad
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.squads_name_required
+import art.yniyniyni.freedomwave.ui.l10n.UiText
+import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,15 +21,15 @@ data class SquadsUiState(
     val internalSquads: List<Squad> = emptyList(),
     val externalSquads: List<Squad> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText? = null,
     val selected: Squad? = null,
     val actionInProgress: Boolean = false,
-    val actionError: String? = null,
+    val actionError: UiText? = null,
     val showCreateDialog: Boolean = false,
     val showEditDialog: Boolean = false,
     val dialogName: String = "",
     val dialogIsLoading: Boolean = false,
-    val dialogError: String? = null
+    val dialogError: UiText? = null
 )
 
 class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
@@ -50,11 +54,11 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
                         isLoading = false,
                         internalSquads = internalResult.getOrDefault(emptyList()),
                         externalSquads = externalResult.getOrDefault(emptyList()),
-                        error = (internalResult.exceptionOrNull() ?: externalResult.exceptionOrNull())?.message
+                        error = (internalResult.exceptionOrNull() ?: externalResult.exceptionOrNull())?.toUiText()
                     )
                 }
             }.onFailure { e ->
-                _state.update { it.copy(isLoading = false, error = e.message) }
+                _state.update { it.copy(isLoading = false, error = e.toUiText()) }
             }
         }
     }
@@ -71,7 +75,7 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
 
     fun createSquad() {
         val s = _state.value
-        if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = "Name is required") }; return }
+        if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = UiText.Res(Res.string.squads_name_required)) }; return }
         viewModelScope.launch {
             _state.update { it.copy(dialogIsLoading = true, dialogError = null) }
             val result = if (s.activeTab == 0) repo.createInternalSquad(s.dialogName.trim())
@@ -85,14 +89,14 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
                         else st.copy(dialogIsLoading = false, showCreateDialog = false, externalSquads = list)
                     }
                 }
-                .onFailure { e -> _state.update { it.copy(dialogIsLoading = false, dialogError = e.message) } }
+                .onFailure { e -> _state.update { it.copy(dialogIsLoading = false, dialogError = e.toUiText()) } }
         }
     }
 
     fun updateSquad() {
         val s = _state.value
         val squad = s.selected ?: return
-        if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = "Name is required") }; return }
+        if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = UiText.Res(Res.string.squads_name_required)) }; return }
         viewModelScope.launch {
             _state.update { it.copy(dialogIsLoading = true, dialogError = null) }
             val result = if (squad.type == Squad.Type.INTERNAL) repo.updateInternalSquad(squad.uuid, s.dialogName.trim())
@@ -108,7 +112,7 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
                                 externalSquads = st.externalSquads.map { if (it.uuid == updated.uuid) updated else it })
                     }
                 }
-                .onFailure { e -> _state.update { it.copy(dialogIsLoading = false, dialogError = e.message) } }
+                .onFailure { e -> _state.update { it.copy(dialogIsLoading = false, dialogError = e.toUiText()) } }
         }
     }
 
@@ -128,7 +132,7 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
                                 externalSquads = s.externalSquads.filter { it.uuid != squad.uuid })
                     }
                 }
-                .onFailure { e -> _state.update { it.copy(actionInProgress = false, actionError = e.message) } }
+                .onFailure { e -> _state.update { it.copy(actionInProgress = false, actionError = e.toUiText()) } }
         }
     }
 }

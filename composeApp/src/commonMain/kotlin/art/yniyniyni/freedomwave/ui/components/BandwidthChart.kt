@@ -17,7 +17,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import art.yniyniyni.freedomwave.util.formatBytes
+import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
 
 data class ChartSeries(
     val name: String,
@@ -40,14 +40,17 @@ fun BandwidthChart(
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
     val labelStyle = TextStyle(fontSize = 9.sp, color = labelColor)
 
+    // Y-axis labels must be localized in composable scope (not inside the draw lambda)
+    val maxValue = series.flatMap { it.data }.maxOrNull()?.takeIf { it > 0 }
+    val axisLabels = (0..4).map { i -> localizedBytes(((maxValue ?: 0.0) * (i.toFloat() / 4f)).toLong()) }
+
     Canvas(modifier = modifier) {
         val leftPad   = 52.dp.toPx()
         val bottomPad = 22.dp.toPx()
         val chartW    = size.width - leftPad
         val chartH    = size.height - bottomPad
 
-        val allValues = series.flatMap { it.data }
-        val maxVal = allValues.maxOrNull()?.takeIf { it > 0 } ?: return@Canvas
+        val maxVal = maxValue ?: return@Canvas
 
         val n = categories.size
         val xStep = if (n > 1) chartW / (n - 1).toFloat() else chartW
@@ -58,8 +61,7 @@ fun BandwidthChart(
             val y = chartH * (1f - fraction)
             drawLine(gridColor, Offset(leftPad, y), Offset(size.width, y), strokeWidth = 0.5.dp.toPx())
 
-            val label = formatBytes((maxVal * fraction).toLong())
-            val measured = textMeasurer.measure(label, labelStyle)
+            val measured = textMeasurer.measure(axisLabels[i], labelStyle)
             drawText(
                 measured,
                 topLeft = Offset(

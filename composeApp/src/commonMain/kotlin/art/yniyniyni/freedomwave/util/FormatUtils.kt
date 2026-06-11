@@ -4,6 +4,8 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.abs
+import kotlin.math.roundToLong
 
 const val FOREVER_DATE = "2099-12-31T23:59:59.000Z"
 
@@ -35,42 +37,70 @@ private fun StringBuilder.appendCodePoint(codePoint: Int) {
     }
 }
 
-/** "5m ago" / "2h ago" / "3d ago" for a past instant; "Never" when null/invalid. */
-fun formatRelativePast(iso: String?, now: Instant = Clock.System.now()): String {
-    val instant = parseInstant(iso) ?: return "Never"
+enum class DurationUnit { SECONDS, MINUTES, HOURS, DAYS }
+
+sealed interface RelativePast {
+    data object Never : RelativePast
+    data object Now : RelativePast
+    data class Ago(val value: Long, val unit: DurationUnit) : RelativePast
+}
+
+sealed interface ExpiryRemaining {
+    data object Infinite : ExpiryRemaining
+    data object Expired : ExpiryRemaining
+    data class Left(val value: Long, val unit: DurationUnit) : ExpiryRemaining
+}
+
+private fun durationOf(seconds: Long): Pair<Long, DurationUnit> = when {
+    seconds < 60     -> seconds to DurationUnit.SECONDS
+    seconds < 3600   -> seconds / 60 to DurationUnit.MINUTES
+    seconds < 86_400 -> seconds / 3600 to DurationUnit.HOURS
+    else             -> seconds / 86_400 to DurationUnit.DAYS
+}
+
+/** Structured "time since" for a past instant; [RelativePast.Never] when null/invalid. */
+fun relativePast(iso: String?, now: Instant = Clock.System.now()): RelativePast {
+    val instant = parseInstant(iso) ?: return RelativePast.Never
     val seconds = (now - instant).inWholeSeconds
-    if (seconds < 0) return "now"
-    return when {
-        seconds < 60     -> "${seconds}s ago"
-        seconds < 3600   -> "${seconds / 60}m ago"
-        seconds < 86_400 -> "${seconds / 3600}h ago"
-        else             -> "${seconds / 86_400}d ago"
-    }
+    if (seconds < 0) return RelativePast.Now
+    val (value, unit) = durationOf(seconds)
+    return RelativePast.Ago(value, unit)
 }
 
-/** "12d left" / "3h left" / "Expired"; "∞" for no expiry or the Forever sentinel (year >= 2099). */
-fun formatExpiryRemaining(iso: String?, now: Instant = Clock.System.now()): String {
-    val instant = parseInstant(iso) ?: return "∞"
-    if (instant.toLocalDateTime(TimeZone.UTC).year >= 2099) return "∞"
+/** Structured "time left"; [ExpiryRemaining.Infinite] for no expiry or the Forever sentinel (year >= 2099). */
+fun expiryRemaining(iso: String?, now: Instant = Clock.System.now()): ExpiryRemaining {
+    val instant = parseInstant(iso) ?: return ExpiryRemaining.Infinite
+    if (instant.toLocalDateTime(TimeZone.UTC).year >= 2099) return ExpiryRemaining.Infinite
     val seconds = (instant - now).inWholeSeconds
-    if (seconds <= 0) return "Expired"
-    return when {
-        seconds < 60     -> "${seconds}s left"
-        seconds < 3600   -> "${seconds / 60}m left"
-        seconds < 86_400 -> "${seconds / 3600}h left"
-        else             -> "${seconds / 86_400}d left"
-    }
+    if (seconds <= 0) return ExpiryRemaining.Expired
+    val (value, unit) = durationOf(seconds)
+    return ExpiryRemaining.Left(value, unit)
 }
 
-fun formatBytes(bytes: Long): String = when {
-    bytes >= 1_099_511_627_776L -> "%.2f TB".format(bytes / 1_099_511_627_776.0)
-    bytes >= 1_073_741_824L     -> "%.2f GB".format(bytes / 1_073_741_824.0)
-    bytes >= 1_048_576L         -> "%.2f MB".format(bytes / 1_048_576.0)
-    bytes >= 1_024L             -> "%.2f KB".format(bytes / 1_024.0)
-    else                        -> "$bytes B"
+enum class ByteUnit(val factor: Double) {
+    B(1.0), KB(1_024.0), MB(1_048_576.0), GB(1_073_741_824.0), TB(1_099_511_627_776.0)
 }
 
-fun formatBytesStr(bytesStr: String): String = formatBytes(bytesStr.toLongOrNull() ?: 0L)
+data class ByteValue(val value: Double, val unit: ByteUnit)
+
+/** Scales a raw byte count into the largest fitting unit. */
+fun byteValue(bytes: Long): ByteValue {
+    val unit = ByteUnit.entries.last { bytes >= it.factor || it == ByteUnit.B }
+    return ByteValue(bytes / unit.factor, unit)
+}
+
+data class UptimeParts(val days: Long, val hours: Long, val minutes: Long)
+
+fun uptimeParts(seconds: Long): UptimeParts =
+    UptimeParts(seconds / 86_400, (seconds % 86_400) / 3_600, (seconds % 3_600) / 60)
+
+/** KMP-safe "%.2f" replacement (String.format is JVM-only). */
+fun Double.format2(): String {
+    // TODO(fa): digits + decimal separator localization when Farsi lands
+    val scaled = (this * 100).roundToLong()
+    val abs = abs(scaled)
+    return "${if (scaled < 0) "-" else ""}${abs / 100}.${(abs % 100).toString().padStart(2, '0')}"
+}
 
 /**
  * Parses a humanized byte string as produced by the Remnawave backend
@@ -92,15 +122,4 @@ fun parsePrettyBytes(pretty: String): Long {
         else           -> 1.0
     }
     return (value * multiplier).toLong()
-}
-
-fun formatUptime(seconds: Long): String {
-    val days = seconds / 86_400
-    val hours = (seconds % 86_400) / 3_600
-    val minutes = (seconds % 3_600) / 60
-    return when {
-        days > 0  -> "${days}d ${hours}h"
-        hours > 0 -> "${hours}h ${minutes}m"
-        else      -> "${minutes}m"
-    }
 }

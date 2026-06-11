@@ -67,6 +67,7 @@ kotlin {
             implementation(libs.datastore.preferences)
             implementation(libs.koin.androidx.compose)
             implementation("androidx.biometric:biometric:1.1.0")
+            implementation("androidx.appcompat:appcompat:1.7.0")
         }
 
         iosMain.dependencies {

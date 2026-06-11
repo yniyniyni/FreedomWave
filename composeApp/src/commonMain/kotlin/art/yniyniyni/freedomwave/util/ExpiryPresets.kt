@@ -6,14 +6,14 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 
-enum class ExpiryPreset(val label: String) {
-    DAY("Day"),
-    WEEK("Week"),
-    MONTH("Month"),
-    MONTHS_3("3M"),
-    MONTHS_6("6M"),
-    YEAR("Year"),
-    FOREVER("Forever"),
+enum class ExpiryPreset {
+    DAY,
+    WEEK,
+    MONTH,
+    MONTHS_3,
+    MONTHS_6,
+    YEAR,
+    FOREVER,
 }
 
 /** Epoch-millis expiry for a preset, relative to [now]. FOREVER returns the 2099 sentinel. */

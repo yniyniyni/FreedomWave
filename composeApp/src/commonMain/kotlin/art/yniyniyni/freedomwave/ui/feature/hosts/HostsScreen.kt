@@ -57,8 +57,42 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Host
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.common_cancel
+import freedomwave.composeapp.generated.resources.common_delete
+import freedomwave.composeapp.generated.resources.common_retry
+import freedomwave.composeapp.generated.resources.hosts_delete_confirm
+import freedomwave.composeapp.generated.resources.hosts_delete_title
+import freedomwave.composeapp.generated.resources.hosts_detail_address
+import freedomwave.composeapp.generated.resources.hosts_detail_allowed
+import freedomwave.composeapp.generated.resources.hosts_detail_alpn
+import freedomwave.composeapp.generated.resources.hosts_detail_connection
+import freedomwave.composeapp.generated.resources.hosts_detail_description
+import freedomwave.composeapp.generated.resources.hosts_detail_details
+import freedomwave.composeapp.generated.resources.hosts_detail_fingerprint
+import freedomwave.composeapp.generated.resources.hosts_detail_hidden
+import freedomwave.composeapp.generated.resources.hosts_detail_host_header
+import freedomwave.composeapp.generated.resources.hosts_detail_insecure_tls
+import freedomwave.composeapp.generated.resources.hosts_detail_nodes
+import freedomwave.composeapp.generated.resources.hosts_detail_path
+import freedomwave.composeapp.generated.resources.hosts_detail_security
+import freedomwave.composeapp.generated.resources.hosts_detail_shuffle
+import freedomwave.composeapp.generated.resources.hosts_detail_sni
+import freedomwave.composeapp.generated.resources.hosts_detail_status
+import freedomwave.composeapp.generated.resources.hosts_detail_tag
+import freedomwave.composeapp.generated.resources.hosts_detail_visibility
+import freedomwave.composeapp.generated.resources.hosts_detail_yes
+import freedomwave.composeapp.generated.resources.hosts_disable
+import freedomwave.composeapp.generated.resources.hosts_empty
+import freedomwave.composeapp.generated.resources.hosts_enable
+import freedomwave.composeapp.generated.resources.common_refresh
+import freedomwave.composeapp.generated.resources.hosts_status_disabled
+import freedomwave.composeapp.generated.resources.hosts_status_enabled
+import freedomwave.composeapp.generated.resources.hosts_title_count
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
+import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,8 +101,9 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
-    LaunchedEffect(state.actionError) {
-        state.actionError?.let {
+    val actionErrorText = state.actionError?.resolve()
+    LaunchedEffect(actionErrorText) {
+        actionErrorText?.let {
             snackbar.showSnackbar(it)
             vm.clearActionError()
         }
@@ -118,8 +153,8 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
                 contentWindowInsets = WindowInsets(0),
                 topBar = {
                     FwTopBar(
-                        title   = "Hosts (${state.hosts.size})",
-                        actions = { TextButton(onClick = vm::load) { Text("Refresh") } },
+                        title   = stringResource(Res.string.hosts_title_count, state.hosts.size),
+                        actions = { TextButton(onClick = vm::load) { Text(stringResource(Res.string.common_refresh)) } },
                     )
                 },
                 snackbarHost = { SnackbarHost(snackbar) },
@@ -134,8 +169,8 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
                                 modifier = Modifier.align(Alignment.Center).padding(32.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
-                                Text(state.error!!, color = MaterialTheme.colorScheme.error)
-                                Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
+                                Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
+                                Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
                             }
                         }
 
@@ -147,7 +182,7 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
                         ) {
                             if (state.hosts.isEmpty()) {
                                 Text(
-                                    "No hosts",
+                                    stringResource(Res.string.hosts_empty),
                                     modifier = Modifier.align(Alignment.Center),
                                     color    = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -195,7 +230,7 @@ private fun HostItem(host: Host, onClick: () -> Unit) {
                     FwChip(host.securityLayer)
                     host.tag?.let { FwTagChip(it) }
                     if (host.isDisabled) {
-                        FwChip("DISABLED")
+                        FwChip(stringResource(Res.string.hosts_status_disabled).uppercase())
                     }
                 }
             }
@@ -252,17 +287,17 @@ private fun HostDetailScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete host") },
-            text  = { Text("Delete \"${host.remark}\"? This cannot be undone.") },
+            title = { Text(stringResource(Res.string.hosts_delete_title)) },
+            text  = { Text(stringResource(Res.string.hosts_delete_confirm, host.remark)) },
             confirmButton = {
                 Button(
                     onClick = { showDeleteDialog = false; onDelete() },
                     shape   = RoundedCornerShape(percent = 50),
                     colors  = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete") }
+                ) { Text(stringResource(Res.string.common_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(Res.string.common_cancel)) }
             }
         )
     }
@@ -278,27 +313,45 @@ private fun HostDetailScreen(
         ) {
             item {
                 FwDetailCard {
-                    DetailSectionTitle("Connection")
-                    DetailRow("Address", "${host.address}:${host.port}", monoFont)
-                    DetailRow("Security", host.securityLayer, monoFont)
-                    host.sni?.let { DetailRow("SNI", it, monoFont) }
-                    host.path?.let { DetailRow("Path", it, monoFont) }
-                    host.host?.let { DetailRow("Host header", it, monoFont) }
-                    host.alpn?.let { DetailRow("ALPN", it, monoFont) }
-                    host.fingerprint?.let { DetailRow("Fingerprint", it, monoFont) }
-                    if (host.allowInsecure) DetailRow("Insecure TLS", "Allowed", monoFont)
+                    DetailSectionTitle(stringResource(Res.string.hosts_detail_connection))
+                    DetailRow(stringResource(Res.string.hosts_detail_address), "${host.address}:${host.port}", monoFont)
+                    DetailRow(stringResource(Res.string.hosts_detail_security), host.securityLayer, monoFont)
+                    host.sni?.let { DetailRow(stringResource(Res.string.hosts_detail_sni), it, monoFont) }
+                    host.path?.let { DetailRow(stringResource(Res.string.hosts_detail_path), it, monoFont) }
+                    host.host?.let { DetailRow(stringResource(Res.string.hosts_detail_host_header), it, monoFont) }
+                    host.alpn?.let { DetailRow(stringResource(Res.string.hosts_detail_alpn), it, monoFont) }
+                    host.fingerprint?.let { DetailRow(stringResource(Res.string.hosts_detail_fingerprint), it, monoFont) }
+                    if (host.allowInsecure) DetailRow(
+                        stringResource(Res.string.hosts_detail_insecure_tls),
+                        stringResource(Res.string.hosts_detail_allowed),
+                        monoFont,
+                    )
                 }
             }
 
             item {
                 FwDetailCard {
-                    DetailSectionTitle("Details")
-                    DetailRow("Status", if (host.isDisabled) "Disabled" else "Enabled", monoFont)
-                    host.tag?.let { DetailRow("Tag", it, monoFont) }
-                    host.serverDescription?.let { DetailRow("Description", it, monoFont) }
-                    if (host.isHidden) DetailRow("Visibility", "Hidden", monoFont)
-                    if (host.shuffleHost) DetailRow("Shuffle host", "Yes", monoFont)
-                    if (host.nodes.isNotEmpty()) DetailRow("Nodes", "${host.nodes.size}", monoFont)
+                    DetailSectionTitle(stringResource(Res.string.hosts_detail_details))
+                    DetailRow(
+                        stringResource(Res.string.hosts_detail_status),
+                        stringResource(
+                            if (host.isDisabled) Res.string.hosts_status_disabled else Res.string.hosts_status_enabled
+                        ),
+                        monoFont,
+                    )
+                    host.tag?.let { DetailRow(stringResource(Res.string.hosts_detail_tag), it, monoFont) }
+                    host.serverDescription?.let { DetailRow(stringResource(Res.string.hosts_detail_description), it, monoFont) }
+                    if (host.isHidden) DetailRow(
+                        stringResource(Res.string.hosts_detail_visibility),
+                        stringResource(Res.string.hosts_detail_hidden),
+                        monoFont,
+                    )
+                    if (host.shuffleHost) DetailRow(
+                        stringResource(Res.string.hosts_detail_shuffle),
+                        stringResource(Res.string.hosts_detail_yes),
+                        monoFont,
+                    )
+                    if (host.nodes.isNotEmpty()) DetailRow(stringResource(Res.string.hosts_detail_nodes), "${host.nodes.size}", monoFont)
                 }
             }
 
@@ -310,7 +363,11 @@ private fun HostDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape    = RoundedCornerShape(percent = 50),
                     ) {
-                        Text(if (host.isDisabled) "Enable" else "Disable")
+                        Text(
+                            stringResource(
+                                if (host.isDisabled) Res.string.hosts_enable else Res.string.hosts_disable
+                            )
+                        )
                     }
 
                     Spacer(Modifier.height(4.dp))
@@ -322,7 +379,7 @@ private fun HostDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape    = RoundedCornerShape(percent = 50),
                     ) {
-                        Text("Delete")
+                        Text(stringResource(Res.string.common_delete))
                     }
                 }
             }
