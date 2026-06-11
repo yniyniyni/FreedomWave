@@ -11,6 +11,8 @@
     <string name="common_retry">Retry</string>
     <string name="common_connect">Connect</string>
     <string name="common_empty_dash">—</string>
+    <string name="common_ok">OK</string>
+    <string name="common_refresh">Refresh</string>
     <!-- brand wordmark: never translated, identical in every locale (locale-invariant: keep out of values-* files) -->
     <string name="common_brand_freedom">Freedom</string>
     <string name="common_brand_wave">Wave</string>
@@ -62,7 +64,6 @@
 
     <!-- dashboard -->
     <string name="dashboard_title">Dashboard</string>
-    <string name="dashboard_refresh">Refresh</string>
     <string name="dashboard_live">Live</string>
     <string name="dashboard_online_users">Online users</string>
     <string name="dashboard_online_nodes">Online nodes</string>
@@ -93,7 +94,6 @@
 
     <!-- nodes -->
     <string name="nodes_title_count">Nodes (%1$d)</string>
-    <string name="nodes_refresh">Refresh</string>
     <string name="nodes_empty">No nodes found</string>
     <string name="nodes_status_online">Online</string>
     <string name="nodes_status_offline">Offline</string>
@@ -135,7 +135,8 @@
     <string name="unit_tb">TB</string>
     <string name="time_never">Never</string>
     <string name="time_now">now</string>
-    <string name="time_infinite">∞</string>
+    <!-- locale-invariant: infinity symbol used for unlimited traffic/time — keep out of values-* files -->
+    <string name="symbol_infinity">∞</string>
     <string name="time_expired">Expired</string>
     <string name="time_ago_seconds">%1$ds ago</string>
     <string name="time_ago_minutes">%1$dm ago</string>
@@ -164,7 +165,11 @@
 
     <!-- users -->
     <string name="users_title_count">Users (%1$d)</string>
-    <string name="users_refresh">Refresh</string>
+    <!-- singular per-user status badges (feeds StatusBadge in user rows and user detail header) -->
+    <string name="users_status_active">Active</string>
+    <string name="users_status_limited">Limited</string>
+    <string name="users_status_expired">Expired</string>
+    <string name="users_status_disabled">Disabled</string>
     <string name="users_sort">Sort</string>
     <string name="users_new_user">New user</string>
     <string name="users_search_placeholder">Search by username or tag</string>
@@ -220,7 +225,6 @@
     <string name="users_zero_unlimited">0 = unlimited</string>
     <string name="users_blank_zero_unlimited">Blank or 0 = unlimited</string>
     <string name="users_set">Set</string>
-    <string name="users_ok">OK</string>
     <string name="users_edit_title">Edit %1$s</string>
     <string name="users_form_identity">Identity</string>
     <string name="users_username">Username</string>
@@ -261,7 +265,6 @@
 
     <!-- hosts -->
     <string name="hosts_title_count">Hosts (%1$d)</string>
-    <string name="hosts_refresh">Refresh</string>
     <string name="hosts_empty">No hosts</string>
     <string name="hosts_delete_title">Delete host</string>
     <string name="hosts_delete_confirm">Delete \"%1$s\"? This cannot be undone.</string>
@@ -292,7 +295,6 @@
 
     <!-- squads -->
     <string name="squads_title">Squads</string>
-    <string name="squads_refresh">Refresh</string>
     <string name="squads_new_squad">New squad</string>
     <string name="squads_rename_title">Rename squad</string>
     <string name="squads_name">Name</string>

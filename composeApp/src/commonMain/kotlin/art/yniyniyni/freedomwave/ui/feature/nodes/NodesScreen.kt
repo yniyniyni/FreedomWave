@@ -82,7 +82,7 @@ import art.yniyniyni.freedomwave.resources.nodes_detail_used
 import art.yniyniyni.freedomwave.resources.nodes_disable
 import art.yniyniyni.freedomwave.resources.nodes_empty
 import art.yniyniyni.freedomwave.resources.nodes_enable
-import art.yniyniyni.freedomwave.resources.nodes_refresh
+import art.yniyniyni.freedomwave.resources.common_refresh
 import art.yniyniyni.freedomwave.resources.nodes_reset_traffic
 import art.yniyniyni.freedomwave.resources.nodes_restart
 import art.yniyniyni.freedomwave.resources.nodes_status_connecting
@@ -177,7 +177,7 @@ fun NodesScreen(
                 topBar = {
                     FwTopBar(
                         title   = stringResource(Res.string.nodes_title_count, state.nodes.size),
-                        actions = { TextButton(onClick = vm::load) { Text(stringResource(Res.string.nodes_refresh)) } },
+                        actions = { TextButton(onClick = vm::load) { Text(stringResource(Res.string.common_refresh)) } },
                     )
                 },
             ) { padding ->

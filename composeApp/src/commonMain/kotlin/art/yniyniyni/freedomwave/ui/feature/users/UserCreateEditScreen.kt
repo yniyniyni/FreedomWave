@@ -70,7 +70,7 @@ import art.yniyniyni.freedomwave.resources.users_form_identity
 import art.yniyniyni.freedomwave.resources.users_hwid_limit
 import art.yniyniyni.freedomwave.resources.users_limit_gb
 import art.yniyniyni.freedomwave.resources.users_new_user
-import art.yniyniyni.freedomwave.resources.users_ok
+import art.yniyniyni.freedomwave.resources.common_ok
 import art.yniyniyni.freedomwave.resources.users_reset_strategy
 import art.yniyniyni.freedomwave.resources.users_save_changes
 import art.yniyniyni.freedomwave.resources.users_time
@@ -411,7 +411,7 @@ internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long)
                         onChange(merged.toInstant(tz).toEpochMilliseconds())
                     }
                     showDate = false
-                }) { Text(stringResource(Res.string.users_ok)) }
+                }) { Text(stringResource(Res.string.common_ok)) }
             },
             dismissButton = { TextButton(onClick = { showDate = false }) { Text(stringResource(Res.string.common_cancel)) } },
         ) { DatePicker(state = pickerState) }
@@ -437,7 +437,7 @@ internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long)
                             )
                             onChange(merged.toInstant(tz).toEpochMilliseconds())
                             showTime = false
-                        }) { Text(stringResource(Res.string.users_ok)) }
+                        }) { Text(stringResource(Res.string.common_ok)) }
                     }
                 }
             }

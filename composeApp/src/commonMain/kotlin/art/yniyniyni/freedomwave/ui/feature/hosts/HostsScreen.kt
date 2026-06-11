@@ -85,7 +85,7 @@ import art.yniyniyni.freedomwave.resources.hosts_detail_yes
 import art.yniyniyni.freedomwave.resources.hosts_disable
 import art.yniyniyni.freedomwave.resources.hosts_empty
 import art.yniyniyni.freedomwave.resources.hosts_enable
-import art.yniyniyni.freedomwave.resources.hosts_refresh
+import art.yniyniyni.freedomwave.resources.common_refresh
 import art.yniyniyni.freedomwave.resources.hosts_status_disabled
 import art.yniyniyni.freedomwave.resources.hosts_status_enabled
 import art.yniyniyni.freedomwave.resources.hosts_title_count
@@ -154,7 +154,7 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
                 topBar = {
                     FwTopBar(
                         title   = stringResource(Res.string.hosts_title_count, state.hosts.size),
-                        actions = { TextButton(onClick = vm::load) { Text(stringResource(Res.string.hosts_refresh)) } },
+                        actions = { TextButton(onClick = vm::load) { Text(stringResource(Res.string.common_refresh)) } },
                     )
                 },
                 snackbarHost = { SnackbarHost(snackbar) },

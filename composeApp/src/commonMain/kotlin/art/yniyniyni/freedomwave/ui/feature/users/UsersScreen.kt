@@ -101,7 +101,7 @@ import art.yniyniyni.freedomwave.resources.common_copied
 import art.yniyniyni.freedomwave.resources.common_copy
 import art.yniyniyni.freedomwave.resources.common_delete
 import art.yniyniyni.freedomwave.resources.common_retry
-import art.yniyniyni.freedomwave.resources.time_infinite
+import art.yniyniyni.freedomwave.resources.symbol_infinity
 import art.yniyniyni.freedomwave.resources.users_collapse
 import art.yniyniyni.freedomwave.resources.users_danger_zone
 import art.yniyniyni.freedomwave.resources.users_delete_confirm
@@ -138,7 +138,7 @@ import art.yniyniyni.freedomwave.resources.users_no_devices
 import art.yniyniyni.freedomwave.resources.users_no_results
 import art.yniyniyni.freedomwave.resources.users_no_sub_requests
 import art.yniyniyni.freedomwave.resources.users_qr_code
-import art.yniyniyni.freedomwave.resources.users_refresh
+import art.yniyniyni.freedomwave.resources.common_refresh
 import art.yniyniyni.freedomwave.resources.users_reset_traffic
 import art.yniyniyni.freedomwave.resources.users_revoke_sub
 import art.yniyniyni.freedomwave.resources.users_search_placeholder
@@ -312,7 +312,7 @@ private fun UsersListContent(
                             )
                         }
                     }
-                    TextButton(onClick = vm::load) { Text(stringResource(Res.string.users_refresh)) }
+                    TextButton(onClick = vm::load) { Text(stringResource(Res.string.common_refresh)) }
                 },
             )
         },
@@ -427,7 +427,7 @@ private fun UserListItem(
                 }
                 val usedStr  = localizedBytes(user.usedTrafficBytes)
                 val limitStr = if (user.trafficLimitBytes > 0) localizedBytes(user.trafficLimitBytes)
-                    else stringResource(Res.string.time_infinite)
+                    else stringResource(Res.string.symbol_infinity)
                 Text(
                     "$usedStr / $limitStr",
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),

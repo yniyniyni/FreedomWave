@@ -7,7 +7,7 @@ import art.yniyniyni.freedomwave.resources.time_ago_hours
 import art.yniyniyni.freedomwave.resources.time_ago_minutes
 import art.yniyniyni.freedomwave.resources.time_ago_seconds
 import art.yniyniyni.freedomwave.resources.time_expired
-import art.yniyniyni.freedomwave.resources.time_infinite
+import art.yniyniyni.freedomwave.resources.symbol_infinity
 import art.yniyniyni.freedomwave.resources.time_left_days
 import art.yniyniyni.freedomwave.resources.time_left_hours
 import art.yniyniyni.freedomwave.resources.time_left_minutes
@@ -47,7 +47,7 @@ fun RelativePast.localized(): String = when (this) {
 
 @Composable
 fun ExpiryRemaining.localized(): String = when (this) {
-    ExpiryRemaining.Infinite -> stringResource(Res.string.time_infinite)
+    ExpiryRemaining.Infinite -> stringResource(Res.string.symbol_infinity)
     ExpiryRemaining.Expired  -> stringResource(Res.string.time_expired)
     is ExpiryRemaining.Left -> stringResource(
         when (unit) {

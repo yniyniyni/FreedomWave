@@ -10,6 +10,8 @@
     <string name="common_copied">Скопировано</string>
     <string name="common_retry">Повторить</string>
     <string name="common_connect">Подключиться</string>
+    <string name="common_ok">ОК</string>
+    <string name="common_refresh">Обновить</string>
 
     <!-- settings -->
     <string name="settings_title">Настройки</string>
@@ -57,7 +59,6 @@
 
     <!-- dashboard -->
     <string name="dashboard_title">Дашборд</string>
-    <string name="dashboard_refresh">Обновить</string>
     <string name="dashboard_live">Сейчас</string>
     <string name="dashboard_online_users">Пользователи онлайн</string>
     <string name="dashboard_online_nodes">Ноды онлайн</string>
@@ -88,7 +89,6 @@
 
     <!-- nodes -->
     <string name="nodes_title_count">Ноды (%1$d)</string>
-    <string name="nodes_refresh">Обновить</string>
     <string name="nodes_empty">Ноды не найдены</string>
     <string name="nodes_status_online">В сети</string>
     <string name="nodes_status_offline">Не в сети</string>
@@ -158,7 +158,11 @@
 
     <!-- users -->
     <string name="users_title_count">Пользователи (%1$d)</string>
-    <string name="users_refresh">Обновить</string>
+    <!-- singular per-user status badges (short-form masculine singular, agrees with «пользователь») -->
+    <string name="users_status_active">Активен</string>
+    <string name="users_status_limited">Ограничен</string>
+    <string name="users_status_expired">Истёк</string>
+    <string name="users_status_disabled">Отключён</string>
     <string name="users_sort">Сортировка</string>
     <string name="users_new_user">Новый пользователь</string>
     <string name="users_search_placeholder">Поиск по имени или тегу</string>
@@ -172,7 +176,7 @@
     <string name="users_sort_status">Статус</string>
     <string name="users_sort_online">Онлайн</string>
     <string name="users_delete_title">Удалить %1$s</string>
-    <string name="users_delete_confirm">Удалить %1$s? Это действие необратимо.</string>
+    <string name="users_delete_confirm">Удалить «%1$s»? Это действие необратимо.</string>
     <string name="users_qr_code">QR-код</string>
     <string name="users_subscription_qr">QR-код подписки</string>
     <string name="users_detail_info">Информация</string>
@@ -212,7 +216,6 @@
     <string name="users_zero_unlimited">0 = без лимита</string>
     <string name="users_blank_zero_unlimited">Пусто или 0 = без лимита</string>
     <string name="users_set">Задать</string>
-    <string name="users_ok">ОК</string>
     <string name="users_edit_title">Редактирование %1$s</string>
     <string name="users_form_identity">Основное</string>
     <string name="users_username">Имя пользователя</string>
@@ -253,7 +256,6 @@
 
     <!-- hosts -->
     <string name="hosts_title_count">Хосты (%1$d)</string>
-    <string name="hosts_refresh">Обновить</string>
     <string name="hosts_empty">Хостов нет</string>
     <string name="hosts_delete_title">Удалить хост</string>
     <string name="hosts_delete_confirm">Удалить «%1$s»? Это действие необратимо.</string>
@@ -281,7 +283,6 @@
 
     <!-- squads -->
     <string name="squads_title">Сквады</string>
-    <string name="squads_refresh">Обновить</string>
     <string name="squads_new_squad">Новый сквад</string>
     <string name="squads_rename_title">Переименовать сквад</string>
     <string name="squads_name">Название</string>

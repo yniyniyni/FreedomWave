@@ -73,7 +73,7 @@ import art.yniyniyni.freedomwave.resources.squads_internal_count
 import art.yniyniyni.freedomwave.resources.squads_members
 import art.yniyniyni.freedomwave.resources.squads_name
 import art.yniyniyni.freedomwave.resources.squads_new_squad
-import art.yniyniyni.freedomwave.resources.squads_refresh
+import art.yniyniyni.freedomwave.resources.common_refresh
 import art.yniyniyni.freedomwave.resources.squads_rename
 import art.yniyniyni.freedomwave.resources.squads_rename_title
 import art.yniyniyni.freedomwave.resources.squads_title
@@ -172,7 +172,7 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
         topBar = {
             FwTopBar(
                 title = stringResource(Res.string.squads_title),
-                actions = { TextButton(onClick = vm::load) { Text(stringResource(Res.string.squads_refresh)) } },
+                actions = { TextButton(onClick = vm::load) { Text(stringResource(Res.string.common_refresh)) } },
             )
         },
         floatingActionButton = {

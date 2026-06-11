@@ -73,7 +73,7 @@ import art.yniyniyni.freedomwave.resources.dashboard_online_nodes
 import art.yniyniyni.freedomwave.resources.dashboard_online_users
 import art.yniyniyni.freedomwave.resources.dashboard_panel
 import art.yniyniyni.freedomwave.resources.dashboard_ram
-import art.yniyniyni.freedomwave.resources.dashboard_refresh
+import art.yniyniyni.freedomwave.resources.common_refresh
 import art.yniyniyni.freedomwave.resources.dashboard_status_active
 import art.yniyniyni.freedomwave.resources.dashboard_status_disabled
 import art.yniyniyni.freedomwave.resources.dashboard_status_expired
@@ -121,7 +121,7 @@ fun DashboardScreen(
         topBar = {
             FwTopBar(
                 title = stringResource(Res.string.dashboard_title),
-                actions = { TextButton(onClick = vm::refresh) { Text(stringResource(Res.string.dashboard_refresh)) } },
+                actions = { TextButton(onClick = vm::refresh) { Text(stringResource(Res.string.common_refresh)) } },
             )
         }
     ) { padding ->

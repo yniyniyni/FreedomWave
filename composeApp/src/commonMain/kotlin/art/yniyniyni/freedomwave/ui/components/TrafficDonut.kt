@@ -29,7 +29,7 @@ import art.yniyniyni.freedomwave.resources.Res
 import art.yniyniyni.freedomwave.resources.component_donut_lifetime
 import art.yniyniyni.freedomwave.resources.component_donut_limit
 import art.yniyniyni.freedomwave.resources.component_donut_used
-import art.yniyniyni.freedomwave.resources.time_infinite
+import art.yniyniyni.freedomwave.resources.symbol_infinity
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
@@ -70,7 +70,7 @@ fun TrafficDonut(
     }
 
     // Resolve all localized labels in composable scope — not inside the Canvas draw lambda.
-    val pctLabel = if (isUnlimited) stringResource(Res.string.time_infinite)
+    val pctLabel = if (isUnlimited) stringResource(Res.string.symbol_infinity)
         else "${(fraction * 100).toInt()}%"
     val usedLabel = stringResource(Res.string.component_donut_used)
 
@@ -147,7 +147,7 @@ fun TrafficDonut(
         Spacer(Modifier.height(0.dp))
 
         // Three-column stats below the donut
-        val limitStr = if (isUnlimited) stringResource(Res.string.time_infinite) else localizedBytes(limitBytes)
+        val limitStr = if (isUnlimited) stringResource(Res.string.symbol_infinity) else localizedBytes(limitBytes)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
