@@ -70,9 +70,9 @@
     <string name="dashboard_users_by_status">Пользователи по статусу</string>
     <string name="dashboard_total_count">Всего: %1$d</string>
     <string name="dashboard_status_active">Активные</string>
-    <string name="dashboard_status_limited">Ограничены</string>
+    <string name="dashboard_status_limited">Ограниченные</string>
     <string name="dashboard_status_expired">Истёкшие</string>
-    <string name="dashboard_status_disabled">Отключены</string>
+    <string name="dashboard_status_disabled">Отключённые</string>
     <string name="dashboard_traffic">Трафик</string>
     <string name="dashboard_panel">Панель</string>
     <string name="dashboard_version">Версия</string>
@@ -83,7 +83,7 @@
     <string name="dashboard_total">Всего</string>
     <string name="dashboard_lifetime_traffic">Трафик за всё время</string>
     <string name="dashboard_system">Система</string>
-    <string name="dashboard_cpu_cores">Ядра CPU</string>
+    <string name="dashboard_cpu_cores">Ядра ЦП</string>
     <string name="dashboard_ram">ОЗУ</string>
 
     <!-- nodes -->

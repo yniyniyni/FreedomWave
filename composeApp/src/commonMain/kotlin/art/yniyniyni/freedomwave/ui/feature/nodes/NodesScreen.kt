@@ -60,9 +60,6 @@ import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.NodeStatus
 import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.bandwidth_range_30d
-import art.yniyniyni.freedomwave.resources.bandwidth_range_7d
-import art.yniyniyni.freedomwave.resources.bandwidth_range_90d
 import art.yniyniyni.freedomwave.resources.common_retry
 import art.yniyniyni.freedomwave.resources.nodes_detail_address
 import art.yniyniyni.freedomwave.resources.nodes_detail_country
@@ -99,6 +96,7 @@ import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthUiState
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.TimeRange
+import art.yniyniyni.freedomwave.ui.feature.bandwidth.label
 import art.yniyniyni.freedomwave.ui.l10n.localized
 import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
 import art.yniyniyni.freedomwave.ui.l10n.resolve
@@ -280,15 +278,6 @@ private fun nodeStatusLabel(status: NodeStatus): String = stringResource(
 )
 
 @Composable
-private fun timeRangeLabel(range: TimeRange): String = stringResource(
-    when (range) {
-        TimeRange.DAYS_7  -> Res.string.bandwidth_range_7d
-        TimeRange.DAYS_30 -> Res.string.bandwidth_range_30d
-        TimeRange.DAYS_90 -> Res.string.bandwidth_range_90d
-    }
-)
-
-@Composable
 private fun NodeStatusDot(status: NodeStatus) {
     val fwStatus = LocalFwStatus.current
     val color = when (status) {
@@ -356,7 +345,7 @@ private fun NodeDetailScreen(
                                 selected = bandwidthState.selectedRange == range,
                                 onClick  = { onRangeChange(range) },
                                 shape    = SegmentedButtonDefaults.itemShape(index, TimeRange.entries.size),
-                                label    = { Text(timeRangeLabel(range)) }
+                                label    = { Text(range.label()) }
                             )
                         }
                     }
