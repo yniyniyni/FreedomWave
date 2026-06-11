@@ -50,6 +50,33 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.ui.window.Dialog
+import art.yniyniyni.freedomwave.resources.Res
+import art.yniyniyni.freedomwave.resources.common_cancel
+import art.yniyniyni.freedomwave.resources.common_create
+import art.yniyniyni.freedomwave.resources.users_blank_zero_unlimited
+import art.yniyniyni.freedomwave.resources.users_date
+import art.yniyniyni.freedomwave.resources.users_detail_devices
+import art.yniyniyni.freedomwave.resources.users_detail_email
+import art.yniyniyni.freedomwave.resources.users_detail_squads
+import art.yniyniyni.freedomwave.resources.users_detail_tag
+import art.yniyniyni.freedomwave.resources.users_detail_traffic
+import art.yniyniyni.freedomwave.resources.users_edit_title
+import art.yniyniyni.freedomwave.resources.users_form_access
+import art.yniyniyni.freedomwave.resources.users_form_description
+import art.yniyniyni.freedomwave.resources.users_form_enabled
+import art.yniyniyni.freedomwave.resources.users_form_enabled_desc
+import art.yniyniyni.freedomwave.resources.users_form_expiry
+import art.yniyniyni.freedomwave.resources.users_form_identity
+import art.yniyniyni.freedomwave.resources.users_hwid_limit
+import art.yniyniyni.freedomwave.resources.users_limit_gb
+import art.yniyniyni.freedomwave.resources.users_new_user
+import art.yniyniyni.freedomwave.resources.users_ok
+import art.yniyniyni.freedomwave.resources.users_reset_strategy
+import art.yniyniyni.freedomwave.resources.users_save_changes
+import art.yniyniyni.freedomwave.resources.users_time
+import art.yniyniyni.freedomwave.resources.users_username
+import art.yniyniyni.freedomwave.resources.users_username_required
+import art.yniyniyni.freedomwave.resources.users_zero_unlimited
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.util.ExpiryPreset
@@ -59,15 +86,9 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 
 private val STRATEGIES = listOf("NO_RESET", "DAY", "WEEK", "MONTH", "MONTH_ROLLING")
-private val STRATEGY_LABELS = mapOf(
-    "NO_RESET"      to "No reset",
-    "DAY"           to "Day",
-    "WEEK"          to "Week",
-    "MONTH"         to "Month",
-    "MONTH_ROLLING" to "Month rolling",
-)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -83,7 +104,8 @@ internal fun UserCreateEditScreen(
         contentWindowInsets = WindowInsets(0),
         topBar = {
             FwDetailTopBar(
-                title = if (isCreate) "New User" else "Edit ${state.editingUser!!.username}",
+                title = if (isCreate) stringResource(Res.string.users_new_user)
+                    else stringResource(Res.string.users_edit_title, state.editingUser!!.username),
                 onBack = onBack,
             )
         }
@@ -95,11 +117,17 @@ internal fun UserCreateEditScreen(
         ) {
             // Identity
             item {
-                FormCard("Identity") {
+                FormCard(stringResource(Res.string.users_form_identity)) {
                     OutlinedTextField(
                         value = state.formUsername,
                         onValueChange = if (isCreate) vm::onFormUsername else { _ -> },
-                        label = { Text(if (isCreate) "Username *" else "Username") },
+                        label = {
+                            Text(
+                                stringResource(
+                                    if (isCreate) Res.string.users_username_required else Res.string.users_username
+                                )
+                            )
+                        },
                         singleLine = true,
                         enabled = isCreate && !state.formIsLoading,
                         isError = state.usernameError != null,
@@ -109,7 +137,7 @@ internal fun UserCreateEditScreen(
                     OutlinedTextField(
                         value = state.formTag,
                         onValueChange = vm::onFormTag,
-                        label = { Text("Tag") },
+                        label = { Text(stringResource(Res.string.users_detail_tag)) },
                         singleLine = true,
                         enabled = !state.formIsLoading,
                         isError = state.tagError != null,
@@ -119,7 +147,7 @@ internal fun UserCreateEditScreen(
                     OutlinedTextField(
                         value = state.formEmail,
                         onValueChange = vm::onFormEmail,
-                        label = { Text("Email") },
+                        label = { Text(stringResource(Res.string.users_detail_email)) },
                         singleLine = true,
                         enabled = !state.formIsLoading,
                         isError = state.emailError != null,
@@ -130,7 +158,7 @@ internal fun UserCreateEditScreen(
                     OutlinedTextField(
                         value = state.formDescription,
                         onValueChange = vm::onFormDescription,
-                        label = { Text("Description") },
+                        label = { Text(stringResource(Res.string.users_form_description)) },
                         enabled = !state.formIsLoading,
                         maxLines = 3,
                         modifier = Modifier.fillMaxWidth()
@@ -140,16 +168,16 @@ internal fun UserCreateEditScreen(
 
             // Access
             item {
-                FormCard("Access") {
+                FormCard(stringResource(Res.string.users_form_access)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Enabled", style = MaterialTheme.typography.bodyLarge)
+                            Text(stringResource(Res.string.users_form_enabled), style = MaterialTheme.typography.bodyLarge)
                             Text(
-                                "Off adds the user without granting access",
+                                stringResource(Res.string.users_form_enabled_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -165,12 +193,12 @@ internal fun UserCreateEditScreen(
 
             // Traffic
             item {
-                FormCard("Traffic") {
+                FormCard(stringResource(Res.string.users_detail_traffic)) {
                     OutlinedTextField(
                         value = state.formTrafficGb,
                         onValueChange = vm::onFormTrafficGb,
-                        label = { Text("Limit (GB)") },
-                        supportingText = { Text("0 = unlimited") },
+                        label = { Text(stringResource(Res.string.users_limit_gb)) },
+                        supportingText = { Text(stringResource(Res.string.users_zero_unlimited)) },
                         singleLine = true,
                         enabled = !state.formIsLoading,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -186,7 +214,7 @@ internal fun UserCreateEditScreen(
 
             // Expiry
             item {
-                FormCard("Expiry") {
+                FormCard(stringResource(Res.string.users_form_expiry)) {
                     ExpiryEditor(
                         expireMillis = state.formExpireMillis,
                         enabled = !state.formIsLoading,
@@ -197,12 +225,12 @@ internal fun UserCreateEditScreen(
 
             // Devices
             item {
-                FormCard("Devices") {
+                FormCard(stringResource(Res.string.users_detail_devices)) {
                     OutlinedTextField(
                         value = state.formHwid,
                         onValueChange = vm::onFormHwid,
-                        label = { Text("HWID device limit") },
-                        supportingText = { Text("Blank or 0 = unlimited") },
+                        label = { Text(stringResource(Res.string.users_hwid_limit)) },
+                        supportingText = { Text(stringResource(Res.string.users_blank_zero_unlimited)) },
                         singleLine = true,
                         enabled = !state.formIsLoading,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -214,7 +242,7 @@ internal fun UserCreateEditScreen(
             // Squads
             if (state.formSquads.isNotEmpty()) {
                 item {
-                    FormCard("Squads") {
+                    FormCard(stringResource(Res.string.users_detail_squads)) {
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             state.formSquads.forEach { squad ->
                                 FilterChip(
@@ -250,7 +278,11 @@ internal fun UserCreateEditScreen(
                     if (state.formIsLoading) {
                         CircularProgressIndicator(modifier = Modifier.height(18.dp), strokeWidth = 2.dp)
                     } else {
-                        Text(if (isCreate) "Create" else "Save changes")
+                        Text(
+                            stringResource(
+                                if (isCreate) Res.string.common_create else Res.string.users_save_changes
+                            )
+                        )
                     }
                 }
             }
@@ -280,11 +312,11 @@ private fun StrategyDropdown(selected: String, enabled: Boolean, onSelect: (Stri
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { if (enabled) expanded = it }) {
         OutlinedTextField(
-            value = STRATEGY_LABELS[selected] ?: selected,
+            value = trafficStrategyLabel(selected),
             onValueChange = {},
             readOnly = true,
             enabled = enabled,
-            label = { Text("Reset strategy") },
+            label = { Text(stringResource(Res.string.users_reset_strategy)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
         )
@@ -294,7 +326,7 @@ private fun StrategyDropdown(selected: String, enabled: Boolean, onSelect: (Stri
         ) {
             STRATEGIES.forEach { opt ->
                 DropdownMenuItem(
-                    text = { Text(STRATEGY_LABELS[opt] ?: opt) },
+                    text = { Text(trafficStrategyLabel(opt)) },
                     onClick = { onSelect(opt); expanded = false },
                 )
             }
@@ -320,7 +352,7 @@ internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long)
         Box(modifier = Modifier.weight(1f)) {
             OutlinedTextField(
                 value = dateStr, onValueChange = {}, readOnly = true, enabled = enabled,
-                label = { Text("Date") },
+                label = { Text(stringResource(Res.string.users_date)) },
                 modifier = Modifier.fillMaxWidth(),
             )
             if (enabled) {
@@ -337,7 +369,7 @@ internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long)
         Box(modifier = Modifier.weight(1f)) {
             OutlinedTextField(
                 value = timeStr, onValueChange = {}, readOnly = true, enabled = enabled,
-                label = { Text("Time") },
+                label = { Text(stringResource(Res.string.users_time)) },
                 modifier = Modifier.fillMaxWidth(),
             )
             if (enabled) {
@@ -359,7 +391,7 @@ internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long)
                 onClick = { onChange(presetExpiryMillis(preset)) },
                 enabled = enabled,
                 shape = RoundedCornerShape(percent = 50),
-            ) { Text(preset.label) }
+            ) { Text(preset.label()) }
         }
     }
 
@@ -379,9 +411,9 @@ internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long)
                         onChange(merged.toInstant(tz).toEpochMilliseconds())
                     }
                     showDate = false
-                }) { Text("OK") }
+                }) { Text(stringResource(Res.string.users_ok)) }
             },
-            dismissButton = { TextButton(onClick = { showDate = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showDate = false }) { Text(stringResource(Res.string.common_cancel)) } },
         ) { DatePicker(state = pickerState) }
     }
 
@@ -398,14 +430,14 @@ internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long)
                 ) {
                     TimePicker(state = timeState)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        TextButton(onClick = { showTime = false }) { Text("Cancel") }
+                        TextButton(onClick = { showTime = false }) { Text(stringResource(Res.string.common_cancel)) }
                         TextButton(onClick = {
                             val merged = LocalDateTime(
                                 ldt.year, ldt.monthNumber, ldt.dayOfMonth, timeState.hour, timeState.minute,
                             )
                             onChange(merged.toInstant(tz).toEpochMilliseconds())
                             showTime = false
-                        }) { Text("OK") }
+                        }) { Text(stringResource(Res.string.users_ok)) }
                     }
                 }
             }

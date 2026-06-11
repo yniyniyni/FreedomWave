@@ -11,6 +11,12 @@ import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.Squad
 import art.yniyniyni.freedomwave.domain.model.User
 import art.yniyniyni.freedomwave.domain.model.UserStatus
+import art.yniyniyni.freedomwave.resources.Res
+import art.yniyniyni.freedomwave.resources.users_device_limit_invalid
+import art.yniyniyni.freedomwave.resources.users_email_error
+import art.yniyniyni.freedomwave.resources.users_tag_error
+import art.yniyniyni.freedomwave.resources.users_traffic_limit_invalid
+import art.yniyniyni.freedomwave.resources.users_username_error
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import art.yniyniyni.freedomwave.util.FOREVER_DATE
@@ -30,9 +36,9 @@ private val USERNAME_REGEX = Regex("^[A-Za-z0-9_-]{3,36}$")
 private val TAG_REGEX = Regex("^[A-Z0-9_]{1,16}$")
 private val EMAIL_REGEX = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
 
-private val USERNAME_ERROR = UiText.Raw("3-36 chars, letters, digits, dash or underscore")
-private val TAG_ERROR = UiText.Raw("Tag: up to 16 uppercase letters, digits or underscore")
-private val EMAIL_ERROR = UiText.Raw("Enter a valid email address")
+private val USERNAME_ERROR = UiText.Res(Res.string.users_username_error)
+private val TAG_ERROR = UiText.Res(Res.string.users_tag_error)
+private val EMAIL_ERROR = UiText.Res(Res.string.users_email_error)
 
 data class UsersUiState(
     val isLoading: Boolean   = false,
@@ -230,14 +236,14 @@ class UsersViewModel(
 
         val trafficGb = s.formTrafficGb.trim().toDoubleOrNull()
         if (trafficGb == null || trafficGb < 0) {
-            _state.update { it.copy(formError = UiText.Raw("Traffic limit must be a number ≥ 0")) }
+            _state.update { it.copy(formError = UiText.Res(Res.string.users_traffic_limit_invalid)) }
             return
         }
         val trafficLimitBytes = (trafficGb * 1024.0 * 1024.0 * 1024.0).toLong()
 
         val hwid: Int? = s.formHwid.trim().let { if (it.isBlank()) null else it.toIntOrNull() }
         if (s.formHwid.trim().isNotBlank() && (hwid == null || hwid < 0)) {
-            _state.update { it.copy(formError = UiText.Raw("Device limit must be a whole number ≥ 0")) }
+            _state.update { it.copy(formError = UiText.Res(Res.string.users_device_limit_invalid)) }
             return
         }
 

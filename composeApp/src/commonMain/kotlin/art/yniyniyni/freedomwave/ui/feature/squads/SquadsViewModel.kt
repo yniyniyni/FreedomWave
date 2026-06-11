@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.SquadRepository
 import art.yniyniyni.freedomwave.domain.model.Squad
+import art.yniyniyni.freedomwave.resources.Res
+import art.yniyniyni.freedomwave.resources.squads_name_required
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.async
@@ -73,7 +75,7 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
 
     fun createSquad() {
         val s = _state.value
-        if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = UiText.Raw("Name is required")) }; return }
+        if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = UiText.Res(Res.string.squads_name_required)) }; return }
         viewModelScope.launch {
             _state.update { it.copy(dialogIsLoading = true, dialogError = null) }
             val result = if (s.activeTab == 0) repo.createInternalSquad(s.dialogName.trim())
@@ -94,7 +96,7 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
     fun updateSquad() {
         val s = _state.value
         val squad = s.selected ?: return
-        if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = UiText.Raw("Name is required")) }; return }
+        if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = UiText.Res(Res.string.squads_name_required)) }; return }
         viewModelScope.launch {
             _state.update { it.copy(dialogIsLoading = true, dialogError = null) }
             val result = if (squad.type == Squad.Type.INTERNAL) repo.updateInternalSquad(squad.uuid, s.dialogName.trim())

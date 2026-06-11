@@ -15,6 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import art.yniyniyni.freedomwave.resources.Res
+import art.yniyniyni.freedomwave.resources.component_back
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun FwTopBar(
@@ -52,7 +55,7 @@ fun FwDetailTopBar(
             .padding(start = 0.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TextButton(onClick = onBack) { Text("← Back") }
+        TextButton(onClick = onBack) { Text(stringResource(Res.string.component_back)) }
         Text(
             text  = title,
             style = MaterialTheme.typography.titleMedium,

@@ -2,11 +2,11 @@ package art.yniyniyni.freedomwave.domain.model
 
 import art.yniyniyni.freedomwave.data.api.dto.UserDto
 
-enum class UserStatus(val apiValue: String, val label: String) {
-    ACTIVE("ACTIVE",     "Active"),
-    DISABLED("DISABLED", "Disabled"),
-    LIMITED("LIMITED",   "Limited"),
-    EXPIRED("EXPIRED",   "Expired");
+enum class UserStatus(val apiValue: String) {
+    ACTIVE("ACTIVE"),
+    DISABLED("DISABLED"),
+    LIMITED("LIMITED"),
+    EXPIRED("EXPIRED");
 
     companion object {
         fun from(value: String) = entries.find { it.apiValue == value } ?: DISABLED

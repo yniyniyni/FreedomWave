@@ -142,4 +142,181 @@
     <string name="uptime_days_hours">%1$d дн %2$d ч</string>
     <string name="uptime_hours_minutes">%1$d ч %2$d мин</string>
     <string name="uptime_minutes">%1$d мин</string>
+
+    <!-- navigation -->
+    <string name="nav_dashboard">Дашборд</string>
+    <string name="nav_users">Пользователи</string>
+    <string name="nav_nodes">Ноды</string>
+    <string name="nav_hosts">Хосты</string>
+    <string name="nav_settings">Настройки</string>
+
+    <!-- components -->
+    <string name="component_back">← Назад</string>
+    <string name="component_donut_used">Использовано</string>
+    <string name="component_donut_limit">Лимит</string>
+    <string name="component_donut_lifetime">За всё время</string>
+
+    <!-- users -->
+    <string name="users_title_count">Пользователи (%1$d)</string>
+    <string name="users_refresh">Обновить</string>
+    <string name="users_sort">Сортировка</string>
+    <string name="users_new_user">Новый пользователь</string>
+    <string name="users_search_placeholder">Поиск по имени или тегу</string>
+    <string name="users_empty">Пользователей нет</string>
+    <string name="users_no_results">Ничего не найдено по запросу «%1$s»</string>
+    <string name="users_never_connected">Не подключался</string>
+    <string name="users_category_all">Все</string>
+    <string name="users_category_online">Онлайн</string>
+    <string name="users_category_never_online">Не были онлайн</string>
+    <string name="users_sort_username">Имя пользователя</string>
+    <string name="users_sort_status">Статус</string>
+    <string name="users_sort_online">Онлайн</string>
+    <string name="users_delete_title">Удалить %1$s</string>
+    <string name="users_delete_confirm">Удалить %1$s? Это действие необратимо.</string>
+    <string name="users_qr_code">QR-код</string>
+    <string name="users_subscription_qr">QR-код подписки</string>
+    <string name="users_detail_info">Информация</string>
+    <string name="users_detail_last_seen">Был в сети</string>
+    <string name="users_detail_expires">Истекает</string>
+    <string name="users_detail_email">Эл. почта</string>
+    <string name="users_detail_tag">Тег</string>
+    <string name="users_detail_notes">Заметки</string>
+    <string name="users_detail_traffic">Трафик</string>
+    <string name="users_detail_resets">Сброс</string>
+    <string name="users_detail_subscription">Подписка</string>
+    <string name="users_detail_squads">Сквады</string>
+    <string name="users_detail_devices">Устройства</string>
+    <string name="users_detail_ip_addresses">IP-адреса</string>
+    <string name="users_collapse">Свернуть</string>
+    <string name="users_expand">Развернуть</string>
+    <string name="users_no_devices">Нет зарегистрированных устройств</string>
+    <string name="users_no_sub_requests">Запросы подписки не зафиксированы</string>
+    <string name="users_manage">Управление</string>
+    <string name="users_manage_status">Статус</string>
+    <string name="users_enable">Включить</string>
+    <string name="users_disable">Отключить</string>
+    <string name="users_revoke_sub">Отозвать подписку</string>
+    <string name="users_manage_traffic_expiry">Трафик и срок действия</string>
+    <string name="users_reset_traffic">Сбросить трафик</string>
+    <string name="users_set_limit">Задать лимит</string>
+    <string name="users_set_expiry">Задать срок</string>
+    <string name="users_device_limit">Лимит устройств</string>
+    <string name="users_device_limit_fallback">По умолчанию</string>
+    <string name="users_edit">Изменить</string>
+    <string name="users_edit_user">Редактировать пользователя</string>
+    <string name="users_danger_zone">Опасная зона</string>
+    <string name="users_delete_user">Удалить пользователя</string>
+    <string name="users_set_traffic_limit_title">Задать лимит трафика</string>
+    <string name="users_set_device_limit_title">Задать лимит устройств</string>
+    <string name="users_limit_gb">Лимит (ГБ)</string>
+    <string name="users_zero_unlimited">0 = без лимита</string>
+    <string name="users_blank_zero_unlimited">Пусто или 0 = без лимита</string>
+    <string name="users_set">Задать</string>
+    <string name="users_ok">ОК</string>
+    <string name="users_edit_title">Редактирование %1$s</string>
+    <string name="users_form_identity">Основное</string>
+    <string name="users_username">Имя пользователя</string>
+    <string name="users_username_required">Имя пользователя *</string>
+    <string name="users_form_description">Описание</string>
+    <string name="users_form_access">Доступ</string>
+    <string name="users_form_enabled">Включён</string>
+    <string name="users_form_enabled_desc">Выкл. — пользователь будет создан без доступа</string>
+    <string name="users_reset_strategy">Стратегия сброса</string>
+    <string name="users_form_expiry">Срок действия</string>
+    <string name="users_hwid_limit">Лимит HWID-устройств</string>
+    <string name="users_save_changes">Сохранить изменения</string>
+    <string name="users_date">Дата</string>
+    <string name="users_time">Время</string>
+    <string name="users_strategy_no_reset">Без сброса</string>
+    <string name="users_strategy_day">День</string>
+    <string name="users_strategy_week">Неделя</string>
+    <string name="users_strategy_month">Месяц</string>
+    <string name="users_strategy_month_rolling">Скользящий месяц</string>
+    <string name="users_preset_day">День</string>
+    <string name="users_preset_week">Неделя</string>
+    <string name="users_preset_month">Месяц</string>
+    <string name="users_preset_3m">3 мес</string>
+    <string name="users_preset_6m">6 мес</string>
+    <string name="users_preset_year">Год</string>
+    <string name="users_preset_forever">Навсегда</string>
+    <string name="users_username_error">3–36 символов: латинские буквы, цифры, дефис или подчёркивание</string>
+    <string name="users_tag_error">Тег: до 16 заглавных букв, цифр или подчёркиваний</string>
+    <string name="users_email_error">Введите корректный адрес эл. почты</string>
+    <string name="users_traffic_limit_invalid">Лимит трафика должен быть числом ≥ 0</string>
+    <string name="users_device_limit_invalid">Лимит устройств должен быть целым числом ≥ 0</string>
+    <string name="users_enter_number">Введите число ≥ 0</string>
+    <string name="users_enter_whole_number">Введите целое число ≥ 0</string>
+    <string name="users_subscription_revoked">Подписка отозвана</string>
+    <string name="users_traffic_limit_updated">Лимит трафика обновлён</string>
+    <string name="users_expiry_updated">Срок действия обновлён</string>
+    <string name="users_device_limit_set">Лимит устройств установлен: %1$d</string>
+
+    <!-- hosts -->
+    <string name="hosts_title_count">Хосты (%1$d)</string>
+    <string name="hosts_refresh">Обновить</string>
+    <string name="hosts_empty">Хостов нет</string>
+    <string name="hosts_delete_title">Удалить хост</string>
+    <string name="hosts_delete_confirm">Удалить «%1$s»? Это действие необратимо.</string>
+    <string name="hosts_detail_connection">Подключение</string>
+    <string name="hosts_detail_address">Адрес</string>
+    <string name="hosts_detail_security">Безопасность</string>
+    <string name="hosts_detail_path">Путь</string>
+    <string name="hosts_detail_host_header">Заголовок Host</string>
+    <string name="hosts_detail_fingerprint">Отпечаток</string>
+    <string name="hosts_detail_insecure_tls">Небезопасный TLS</string>
+    <string name="hosts_detail_allowed">Разрешён</string>
+    <string name="hosts_detail_details">Детали</string>
+    <string name="hosts_detail_status">Статус</string>
+    <string name="hosts_status_enabled">Включён</string>
+    <string name="hosts_status_disabled">Отключён</string>
+    <string name="hosts_detail_tag">Тег</string>
+    <string name="hosts_detail_description">Описание</string>
+    <string name="hosts_detail_visibility">Видимость</string>
+    <string name="hosts_detail_hidden">Скрыт</string>
+    <string name="hosts_detail_shuffle">Перемешивать хост</string>
+    <string name="hosts_detail_yes">Да</string>
+    <string name="hosts_detail_nodes">Ноды</string>
+    <string name="hosts_enable">Включить</string>
+    <string name="hosts_disable">Отключить</string>
+
+    <!-- squads -->
+    <string name="squads_title">Сквады</string>
+    <string name="squads_refresh">Обновить</string>
+    <string name="squads_new_squad">Новый сквад</string>
+    <string name="squads_rename_title">Переименовать сквад</string>
+    <string name="squads_name">Название</string>
+    <string name="squads_name_required">Укажите название</string>
+    <string name="squads_inbound_hint">Конфигурацию инбаундов можно настроить в веб-панели после создания.</string>
+    <string name="squads_internal_count">Внутренние (%1$d)</string>
+    <string name="squads_external_count">Внешние (%1$d)</string>
+    <string name="squads_empty">Сквадов нет. Нажмите +, чтобы создать.</string>
+    <string name="squads_delete_title">Удалить сквад</string>
+    <string name="squads_delete_confirm">Удалить «%1$s»? Это действие необратимо.</string>
+    <string name="squads_detail_info">Информация</string>
+    <string name="squads_detail_type">Тип</string>
+    <string name="squads_type_internal">Внутренний</string>
+    <string name="squads_type_external">Внешний</string>
+    <string name="squads_detail_members">Участники</string>
+    <string name="squads_detail_inbounds">Инбаунды</string>
+    <string name="squads_detail_created">Создан</string>
+    <string name="squads_rename">Переименовать</string>
+
+    <plurals name="users_ip_unique">
+        <item quantity="one">%1$d уникальный</item>
+        <item quantity="few">%1$d уникальных</item>
+        <item quantity="many">%1$d уникальных</item>
+        <item quantity="other">%1$d уникальных</item>
+    </plurals>
+    <plurals name="squads_members">
+        <item quantity="one">%1$d участник</item>
+        <item quantity="few">%1$d участника</item>
+        <item quantity="many">%1$d участников</item>
+        <item quantity="other">%1$d участника</item>
+    </plurals>
+    <plurals name="squads_inbounds">
+        <item quantity="one">%1$d инбаунд</item>
+        <item quantity="few">%1$d инбаунда</item>
+        <item quantity="many">%1$d инбаундов</item>
+        <item quantity="other">%1$d инбаунда</item>
+    </plurals>
 </resources>

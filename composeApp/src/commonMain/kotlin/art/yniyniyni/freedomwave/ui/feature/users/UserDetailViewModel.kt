@@ -9,6 +9,13 @@ import art.yniyniyni.freedomwave.data.repository.UserRepository
 import art.yniyniyni.freedomwave.domain.model.HwidDevice
 import art.yniyniyni.freedomwave.domain.model.IpRow
 import art.yniyniyni.freedomwave.domain.model.User
+import art.yniyniyni.freedomwave.resources.Res
+import art.yniyniyni.freedomwave.resources.users_device_limit_set
+import art.yniyniyni.freedomwave.resources.users_enter_number
+import art.yniyniyni.freedomwave.resources.users_enter_whole_number
+import art.yniyniyni.freedomwave.resources.users_expiry_updated
+import art.yniyniyni.freedomwave.resources.users_subscription_revoked
+import art.yniyniyni.freedomwave.resources.users_traffic_limit_updated
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,7 +98,7 @@ class UserDetailViewModel(
         viewModelScope.launch {
             userRepository.revokeSubscription(userUuid)
                 .onSuccess { updated ->
-                    _state.update { it.copy(actionSuccess = UiText.Raw("Subscription revoked")) }
+                    _state.update { it.copy(actionSuccess = UiText.Res(Res.string.users_subscription_revoked)) }
                     onUpdated(updated)
                 }
                 .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
@@ -116,7 +123,7 @@ class UserDetailViewModel(
         val gbStr = _state.value.setLimitGbInput.trim()
         val gb = gbStr.toDoubleOrNull()
         if (gb == null || gb < 0) {
-            _state.update { it.copy(actionError = UiText.Raw("Enter a number ≥ 0")) }
+            _state.update { it.copy(actionError = UiText.Res(Res.string.users_enter_number)) }
             return
         }
         val bytes = (gb * 1024.0 * 1024.0 * 1024.0).toLong()
@@ -124,7 +131,7 @@ class UserDetailViewModel(
         viewModelScope.launch {
             userRepository.updateUser(UpdateUserRequest(uuid = userUuid, trafficLimitBytes = bytes))
                 .onSuccess { updated ->
-                    _state.update { it.copy(actionSuccess = UiText.Raw("Traffic limit updated")) }
+                    _state.update { it.copy(actionSuccess = UiText.Res(Res.string.users_traffic_limit_updated)) }
                     onUpdated(updated)
                 }
                 .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
@@ -146,7 +153,7 @@ class UserDetailViewModel(
         viewModelScope.launch {
             userRepository.updateUser(UpdateUserRequest(uuid = userUuid, expireAt = expireAt))
                 .onSuccess { updated ->
-                    _state.update { it.copy(actionSuccess = UiText.Raw("Expiry updated")) }
+                    _state.update { it.copy(actionSuccess = UiText.Res(Res.string.users_expiry_updated)) }
                     onUpdated(updated)
                 }
                 .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
@@ -169,7 +176,7 @@ class UserDetailViewModel(
     fun confirmDeviceLimit(onUpdated: (User) -> Unit) {
         val limit = _state.value.deviceLimitInput.trim().toIntOrNull()
         if (limit == null || limit < 0) {
-            _state.update { it.copy(actionError = UiText.Raw("Enter a whole number ≥ 0")) }
+            _state.update { it.copy(actionError = UiText.Res(Res.string.users_enter_whole_number)) }
             return
         }
         _state.update { it.copy(showDeviceLimitDialog = false) }
@@ -180,7 +187,7 @@ class UserDetailViewModel(
         viewModelScope.launch {
             userRepository.updateUser(UpdateUserRequest(uuid = userUuid, hwidDeviceLimit = newLimit))
                 .onSuccess { updated ->
-                    _state.update { it.copy(actionSuccess = UiText.Raw("Device limit set to $newLimit")) }
+                    _state.update { it.copy(actionSuccess = UiText.Res(Res.string.users_device_limit_set, newLimit)) }
                     onUpdated(updated)
                 }
                 .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }

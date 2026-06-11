@@ -7,20 +7,20 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
-enum class UserSortField(val label: String) {
-    USERNAME("Username"),
-    STATUS("Status"),
-    ONLINE("Online"),
-    ID("ID"),
+enum class UserSortField {
+    USERNAME,
+    STATUS,
+    ONLINE,
+    ID,
 }
 
-enum class UserCategory(val label: String) {
-    ALL("All"),
-    ACTIVE("Active"),
-    DISABLED("Disabled"),
-    EXPIRED("Expired"),
-    ONLINE("Online"),
-    NEVER_ONLINE("Never online"),
+enum class UserCategory {
+    ALL,
+    ACTIVE,
+    DISABLED,
+    EXPIRED,
+    ONLINE,
+    NEVER_ONLINE,
 }
 
 // "Online now" window — matches the dashboard's onlineNow definition (active within the last minute).
