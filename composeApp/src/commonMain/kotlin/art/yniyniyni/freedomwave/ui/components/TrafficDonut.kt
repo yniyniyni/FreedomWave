@@ -25,11 +25,11 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.component_donut_lifetime
-import art.yniyniyni.freedomwave.resources.component_donut_limit
-import art.yniyniyni.freedomwave.resources.component_donut_used
-import art.yniyniyni.freedomwave.resources.symbol_infinity
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.component_donut_lifetime
+import freedomwave.composeapp.generated.resources.component_donut_limit
+import freedomwave.composeapp.generated.resources.component_donut_used
+import freedomwave.composeapp.generated.resources.symbol_infinity
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.ui.l10n.localizedBytes

@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.SquadRepository
 import art.yniyniyni.freedomwave.domain.model.Squad
-import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.squads_name_required
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.squads_name_required
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.async

@@ -1,9 +1,9 @@
 package art.yniyniyni.freedomwave.ui.l10n
 
-import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.language_english
-import art.yniyniyni.freedomwave.resources.language_russian
-import art.yniyniyni.freedomwave.resources.settings_language_system
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.language_english
+import freedomwave.composeapp.generated.resources.language_russian
+import freedomwave.composeapp.generated.resources.settings_language_system
 import org.jetbrains.compose.resources.StringResource
 
 // When adding a locale, also update app/src/main/res/xml/locales_config.xml and add composeResources/values-<tag>/strings.xml

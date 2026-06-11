@@ -7,10 +7,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.common_cancel
-import art.yniyniyni.freedomwave.resources.lock_biometric_subtitle
-import art.yniyniyni.freedomwave.resources.lock_biometric_title
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.common_cancel
+import freedomwave.composeapp.generated.resources.lock_biometric_subtitle
+import freedomwave.composeapp.generated.resources.lock_biometric_title
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.jetbrains.compose.resources.stringResource
 import kotlin.coroutines.resume

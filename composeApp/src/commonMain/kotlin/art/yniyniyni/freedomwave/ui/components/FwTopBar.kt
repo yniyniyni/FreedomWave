@@ -15,8 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.component_back
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.component_back
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

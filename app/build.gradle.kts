@@ -33,6 +33,25 @@ android {
     }
 }
 
+// See buildSrc CopyComposeResources: works around the compose plugin not packaging
+// converted value resources (.cvr) into a consuming app under the AGP KMP library plugin.
+androidComponents {
+    onVariants { variant ->
+        val capName = variant.name.replaceFirstChar { it.uppercaseChar() }
+        val copyTask = tasks.register<CopyComposeResources>("copy${capName}ComposeResources") {
+            dependsOn(":composeApp:prepareComposeResourcesTaskForCommonMain")
+            preparedResources.set(
+                project(":composeApp").layout.buildDirectory.dir(
+                    "generated/compose/resourceGenerator/preparedResources/commonMain/composeResources"
+                )
+            )
+            resourcePackage.set("freedomwave.composeapp.generated.resources")
+            outputDir.set(layout.buildDirectory.dir("generated/composeResources/${variant.name}"))
+        }
+        variant.sources.assets?.addGeneratedSourceDirectory(copyTask) { it.outputDir }
+    }
+}
+
 dependencies {
     implementation(project(":composeApp"))
     implementation(libs.androidx.activity.compose)

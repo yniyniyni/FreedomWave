@@ -1,12 +1,12 @@
 package art.yniyniyni.freedomwave.ui.l10n
 
 import art.yniyniyni.freedomwave.data.api.ApiError
-import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.error_generic
-import art.yniyniyni.freedomwave.resources.error_network
-import art.yniyniyni.freedomwave.resources.error_not_found
-import art.yniyniyni.freedomwave.resources.error_request_failed_code
-import art.yniyniyni.freedomwave.resources.error_unauthorized
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.error_generic
+import freedomwave.composeapp.generated.resources.error_network
+import freedomwave.composeapp.generated.resources.error_not_found
+import freedomwave.composeapp.generated.resources.error_request_failed_code
+import freedomwave.composeapp.generated.resources.error_unauthorized
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

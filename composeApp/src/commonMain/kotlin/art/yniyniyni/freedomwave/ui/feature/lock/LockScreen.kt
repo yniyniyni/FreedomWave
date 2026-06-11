@@ -25,11 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.common_brand_freedom
-import art.yniyniyni.freedomwave.resources.common_brand_wave
-import art.yniyniyni.freedomwave.resources.lock_locked
-import art.yniyniyni.freedomwave.resources.lock_unlock
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.common_brand_freedom
+import freedomwave.composeapp.generated.resources.common_brand_wave
+import freedomwave.composeapp.generated.resources.lock_locked
+import freedomwave.composeapp.generated.resources.lock_unlock
 import art.yniyniyni.freedomwave.ui.auth.BiometricAuthenticator
 import art.yniyniyni.freedomwave.ui.auth.BiometricResult
 import kotlinx.coroutines.launch

@@ -3,8 +3,8 @@ package art.yniyniyni.freedomwave.ui.feature.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.AuthRepository
-import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.error_fill_all_fields
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.error_fill_all_fields
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.flow.MutableStateFlow

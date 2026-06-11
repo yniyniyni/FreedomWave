@@ -2,9 +2,9 @@ package art.yniyniyni.freedomwave.ui.auth
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.lock_biometric_failed
-import art.yniyniyni.freedomwave.resources.lock_biometric_title
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.lock_biometric_failed
+import freedomwave.composeapp.generated.resources.lock_biometric_title
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.jetbrains.compose.resources.stringResource
 import platform.LocalAuthentication.LAContext

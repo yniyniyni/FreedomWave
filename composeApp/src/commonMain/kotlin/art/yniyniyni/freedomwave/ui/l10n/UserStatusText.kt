@@ -2,11 +2,11 @@ package art.yniyniyni.freedomwave.ui.l10n
 
 import androidx.compose.runtime.Composable
 import art.yniyniyni.freedomwave.domain.model.UserStatus
-import art.yniyniyni.freedomwave.resources.Res
-import art.yniyniyni.freedomwave.resources.users_status_active
-import art.yniyniyni.freedomwave.resources.users_status_disabled
-import art.yniyniyni.freedomwave.resources.users_status_expired
-import art.yniyniyni.freedomwave.resources.users_status_limited
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.users_status_active
+import freedomwave.composeapp.generated.resources.users_status_disabled
+import freedomwave.composeapp.generated.resources.users_status_expired
+import freedomwave.composeapp.generated.resources.users_status_limited
 import org.jetbrains.compose.resources.stringResource
 
 /**
