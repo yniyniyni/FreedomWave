@@ -61,6 +61,7 @@
     <string name="error_generic">Something went wrong</string>
     <string name="error_fill_all_fields">Please fill in all fields</string>
     <string name="error_request_failed_code">Request failed (%1$d)</string>
+    <string name="error_url_must_be_https">Server URL must start with https://</string>
 
     <!-- dashboard -->
     <string name="dashboard_title">Dashboard</string>

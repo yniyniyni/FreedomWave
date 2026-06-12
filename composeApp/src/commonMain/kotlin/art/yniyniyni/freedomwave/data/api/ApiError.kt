@@ -6,5 +6,6 @@ sealed class ApiError(message: String) : Exception(message) {
     class NotFound(message: String = "") : ApiError(message)
     class ServerError(message: String, val statusCode: Int? = null) : ApiError(message)
     class NetworkError(message: String) : ApiError(message)
+    class InvalidServerUrl(message: String = "") : ApiError(message)
     class Unknown(message: String) : ApiError(message)
 }

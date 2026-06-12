@@ -51,7 +51,8 @@ val networkModule = module {
     // Plain client (no auth — third-party calls like ipwho.is)
     single(qualifier = org.koin.core.qualifier.named("plain")) { buildPlainHttpClient() }
 
-    single { AuthService(get()) }
+    // Plain (no-auth) client: verification sets the bearer explicitly per request.
+    single { AuthService(get(qualifier = org.koin.core.qualifier.named("plain"))) }
     single { BandwidthService(get()) }
     single { DashboardService(get()) }
     single { UserService(get()) }

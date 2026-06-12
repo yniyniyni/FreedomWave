@@ -56,6 +56,7 @@
     <string name="error_generic">Что-то пошло не так</string>
     <string name="error_fill_all_fields">Заполните все поля</string>
     <string name="error_request_failed_code">Ошибка запроса (%1$d)</string>
+    <string name="error_url_must_be_https">URL сервера должен начинаться с https://</string>
 
     <!-- dashboard -->
     <string name="dashboard_title">Дашборд</string>
