@@ -70,6 +70,10 @@ class SettingsViewModel(
         viewModelScope.launch { prefs.saveBiometricEnabled(enabled) }
     }
 
+    fun setGeoLookupEnabled(enabled: Boolean) {
+        viewModelScope.launch { prefs.saveGeoLookupEnabled(enabled) }
+    }
+
     fun logout() {
         // Route through the repository so the Bearer-token cache is cleared too (one place).
         viewModelScope.launch { authRepo.logout() }

@@ -19,6 +19,7 @@ class AppPreferences(
         private val KEY_API_KEY     = stringPreferencesKey("api_key")
         private val KEY_THEME_MODE  = stringPreferencesKey("theme_mode")
         private val KEY_BIOMETRIC   = booleanPreferencesKey("biometric_enabled")
+        private val KEY_GEO_LOOKUP  = booleanPreferencesKey("geo_lookup_enabled")
 
         const val THEME_SYSTEM = "system"
         const val THEME_LIGHT  = "light"
@@ -34,8 +35,11 @@ class AppPreferences(
     val isLoggedIn:      Flow<Boolean> = dataStore.data.map { !it[KEY_API_KEY].isNullOrEmpty() }
     val themeMode:       Flow<String>  = dataStore.data.map { it[KEY_THEME_MODE] ?: THEME_SYSTEM }
     val biometricEnabled: Flow<Boolean> = dataStore.data.map { it[KEY_BIOMETRIC] ?: false }
+    // Off by default: when off, client IPs are never sent to the third-party ipwho.is service.
+    val geoLookupEnabled: Flow<Boolean> = dataStore.data.map { it[KEY_GEO_LOOKUP] ?: false }
 
     suspend fun getServerUrl(): String  = dataStore.data.first()[KEY_SERVER_URL] ?: ""
+    suspend fun getGeoLookupEnabled(): Boolean = dataStore.data.first()[KEY_GEO_LOOKUP] ?: false
     suspend fun getThemeMode(): String  = dataStore.data.first()[KEY_THEME_MODE] ?: THEME_SYSTEM
 
     suspend fun getApiKey(): String? {
@@ -62,6 +66,10 @@ class AppPreferences(
 
     suspend fun saveBiometricEnabled(enabled: Boolean) {
         dataStore.edit { it[KEY_BIOMETRIC] = enabled }
+    }
+
+    suspend fun saveGeoLookupEnabled(enabled: Boolean) {
+        dataStore.edit { it[KEY_GEO_LOOKUP] = enabled }
     }
 
     suspend fun clearCredentials() {
