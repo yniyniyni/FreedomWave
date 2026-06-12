@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-class AppPreferences(private val dataStore: DataStore<Preferences>) {
+class AppPreferences(
+    private val dataStore: DataStore<Preferences>,
+    private val secretStore: SecretStore
+) {
 
     companion object {
         private val KEY_SERVER_URL  = stringPreferencesKey("server_url")
@@ -23,19 +26,33 @@ class AppPreferences(private val dataStore: DataStore<Preferences>) {
     }
 
     val serverUrl:       Flow<String>  = dataStore.data.map { it[KEY_SERVER_URL] ?: "" }
-    val apiKey:          Flow<String?> = dataStore.data.map { it[KEY_API_KEY] }
-    val isLoggedIn:      Flow<Boolean> = apiKey.map { !it.isNullOrEmpty() }
+    // The stored value is ciphertext; decrypt for display/copy. A null decrypt means a
+    // legacy plaintext key (pre-encryption) — surface it as-is until getApiKey() migrates it.
+    val apiKey:          Flow<String?> = dataStore.data.map { p ->
+        p[KEY_API_KEY]?.let { secretStore.decrypt(it) ?: it }
+    }
+    val isLoggedIn:      Flow<Boolean> = dataStore.data.map { !it[KEY_API_KEY].isNullOrEmpty() }
     val themeMode:       Flow<String>  = dataStore.data.map { it[KEY_THEME_MODE] ?: THEME_SYSTEM }
     val biometricEnabled: Flow<Boolean> = dataStore.data.map { it[KEY_BIOMETRIC] ?: false }
 
     suspend fun getServerUrl(): String  = dataStore.data.first()[KEY_SERVER_URL] ?: ""
-    suspend fun getApiKey(): String?    = dataStore.data.first()[KEY_API_KEY]
     suspend fun getThemeMode(): String  = dataStore.data.first()[KEY_THEME_MODE] ?: THEME_SYSTEM
 
+    suspend fun getApiKey(): String? {
+        val stored = dataStore.data.first()[KEY_API_KEY] ?: return null
+        secretStore.decrypt(stored)?.let { return it }
+        // Legacy plaintext written before encryption existed: re-encrypt in place so the
+        // plaintext no longer sits in the DataStore, then return the (still valid) key.
+        val token = secretStore.encrypt(stored)
+        if (token != stored) dataStore.edit { it[KEY_API_KEY] = token }
+        return stored
+    }
+
     suspend fun saveApiKey(serverUrl: String, apiKey: String) {
+        val token = secretStore.encrypt(apiKey.trim())
         dataStore.edit {
             it[KEY_SERVER_URL] = serverUrl.trimEnd('/')
-            it[KEY_API_KEY]    = apiKey.trim()
+            it[KEY_API_KEY]    = token
         }
     }
 

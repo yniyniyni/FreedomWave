@@ -20,7 +20,10 @@ import art.yniyniyni.freedomwave.data.repository.NodeRepository
 import art.yniyniyni.freedomwave.data.repository.SquadRepository
 import art.yniyniyni.freedomwave.data.repository.SubHistoryRepository
 import art.yniyniyni.freedomwave.data.repository.UserRepository
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import art.yniyniyni.freedomwave.data.store.AppPreferences
+import art.yniyniyni.freedomwave.data.store.SecretStore
 import art.yniyniyni.freedomwave.data.store.createDataStore
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.dashboard.DashboardViewModel
@@ -37,7 +40,9 @@ import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 
 val prefsModule = module {
-    single { AppPreferences(createDataStore()) }
+    single<DataStore<Preferences>> { createDataStore() }
+    single { SecretStore() }
+    single { AppPreferences(get(), get()) }
 }
 
 val networkModule = module {
@@ -61,7 +66,7 @@ val networkModule = module {
 }
 
 val repositoryModule = module {
-    single { AuthRepository(get(), get()) }
+    single { AuthRepository(get(), get(), get()) }
     single { BandwidthRepository(get(), get()) }
     single { DashboardRepository(get(), get(), get()) }
     single { UserRepository(get(), get()) }
