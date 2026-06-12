@@ -63,8 +63,11 @@ import freedomwave.composeapp.generated.resources.settings_change_key
 import freedomwave.composeapp.generated.resources.settings_change_key_title
 import freedomwave.composeapp.generated.resources.settings_connection
 import freedomwave.composeapp.generated.resources.settings_copy_key
+import freedomwave.composeapp.generated.resources.settings_geo_lookup
+import freedomwave.composeapp.generated.resources.settings_geo_lookup_desc
 import freedomwave.composeapp.generated.resources.settings_language
 import freedomwave.composeapp.generated.resources.settings_log_out
+import freedomwave.composeapp.generated.resources.settings_privacy
 import freedomwave.composeapp.generated.resources.settings_security
 import freedomwave.composeapp.generated.resources.settings_server
 import freedomwave.composeapp.generated.resources.settings_server_url
@@ -96,6 +99,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
     val apiKey           by prefs.apiKey.collectAsState(null)
     val themeMode        by prefs.themeMode.collectAsState(THEME_SYSTEM)
     val biometricEnabled by prefs.biometricEnabled.collectAsState(false)
+    val geoLookupEnabled by prefs.geoLookupEnabled.collectAsState(false)
     val clipboard        = LocalClipboardManager.current
     val biometricAuth    = rememberBiometricAuthenticator()
     val canUseBiometrics = biometricAuth.isAvailable()
@@ -213,6 +217,31 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                             checked = biometricEnabled && canUseBiometrics,
                             onCheckedChange = { vm.setBiometricEnabled(it) },
                             enabled = canUseBiometrics
+                        )
+                    }
+                }
+            }
+
+            item {
+                FwCard {
+                    Text(stringResource(Res.string.settings_privacy), style = MaterialTheme.typography.titleSmall)
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(stringResource(Res.string.settings_geo_lookup), style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                stringResource(Res.string.settings_geo_lookup_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(
+                            checked = geoLookupEnabled,
+                            onCheckedChange = { vm.setGeoLookupEnabled(it) }
                         )
                     }
                 }

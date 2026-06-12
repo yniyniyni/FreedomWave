@@ -30,6 +30,9 @@
     <string name="settings_biometric_lock">Биометрическая блокировка</string>
     <string name="settings_biometric_on_desc">Требовать аутентификацию при запуске</string>
     <string name="settings_biometric_unavailable">На устройстве не настроена биометрия</string>
+    <string name="settings_privacy">Конфиденциальность</string>
+    <string name="settings_geo_lookup">IP-геолокация (ipwho.is)</string>
+    <string name="settings_geo_lookup_desc">Отправляет IP-адреса клиентов в стороннюю службу ipwho.is для показа города и провайдера. По умолчанию выключено.</string>
     <string name="settings_about">О приложении</string>
     <string name="settings_version">Версия</string>
     <string name="settings_log_out">Выйти</string>

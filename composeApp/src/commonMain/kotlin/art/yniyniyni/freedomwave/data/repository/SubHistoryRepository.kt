@@ -29,7 +29,10 @@ class SubHistoryRepository(
                 isp = null, geoLoaded = false)
         }
 
-        // Geo-enrich unique IPs — parallel but best-effort
+        // Geo lookup is opt-in: when off, never send client IPs to the third-party ipwho.is.
+        if (!prefs.getGeoLookupEnabled()) return@api baseRows
+
+        // Geo-enrich unique IPs — best-effort
         baseRows.map { row ->
             val geo = service.getIpInfo(row.ip)
             if (geo != null && geo.success) {
