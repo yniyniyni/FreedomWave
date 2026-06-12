@@ -38,6 +38,8 @@
     <string name="settings_geo_lookup">IP geolocation (ipwho.is)</string>
     <string name="settings_geo_lookup_desc">Sends client IP addresses to ipwho.is, a third party, to show city and ISP. Off by default.</string>
     <string name="settings_about">About</string>
+    <string name="settings_oss_licenses">Open-source licenses</string>
+    <string name="settings_oss_licenses_open">Open in browser</string>
     <string name="settings_version">Version</string>
     <string name="settings_log_out">Log out</string>
     <string name="settings_change_key_title">Change API key</string>

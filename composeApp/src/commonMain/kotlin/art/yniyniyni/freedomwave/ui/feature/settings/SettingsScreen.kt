@@ -1,5 +1,6 @@
 package art.yniyniyni.freedomwave.ui.feature.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,6 +29,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,6 +40,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,6 +72,8 @@ import freedomwave.composeapp.generated.resources.settings_geo_lookup
 import freedomwave.composeapp.generated.resources.settings_geo_lookup_desc
 import freedomwave.composeapp.generated.resources.settings_language
 import freedomwave.composeapp.generated.resources.settings_log_out
+import freedomwave.composeapp.generated.resources.settings_oss_licenses
+import freedomwave.composeapp.generated.resources.settings_oss_licenses_open
 import freedomwave.composeapp.generated.resources.settings_privacy
 import freedomwave.composeapp.generated.resources.settings_security
 import freedomwave.composeapp.generated.resources.settings_server
@@ -109,6 +116,12 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
     val maskedKey = apiKey?.let {
         if (it.length > 8) it.take(8) + "•".repeat(16) else "•".repeat(it.length)
     } ?: emptyDash
+
+    var showLicenses by rememberSaveable { mutableStateOf(false) }
+    if (showLicenses) {
+        LicensesScreen(onBack = { showLicenses = false })
+        return
+    }
 
     if (state.showChangeKeyDialog) {
         ChangeKeyDialog(
@@ -252,6 +265,19 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                     Text(stringResource(Res.string.settings_about), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
                     InfoRow(stringResource(Res.string.settings_version), APP_VERSION, monoFont)
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { showLicenses = true },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(stringResource(Res.string.settings_oss_licenses), style = MaterialTheme.typography.bodyMedium)
+                        Icon(
+                            Icons.Rounded.ChevronRight,
+                            contentDescription = stringResource(Res.string.settings_oss_licenses_open),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
