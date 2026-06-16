@@ -3,11 +3,13 @@
 package art.yniyniyni.freedomwave.ui.feature.users
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,7 +41,6 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.DataUsage
 import androidx.compose.material.icons.rounded.Devices
-import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Groups
 import androidx.compose.material.icons.rounded.Info
@@ -89,6 +90,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
@@ -742,12 +744,16 @@ private fun UserDetailScreen(
                                 Badge { Text("${detailState.devices.size}") }
                             }
                         }
+                        val devicesRotation by animateFloatAsState(
+                            if (detailState.devicesExpanded) 180f else 0f, label = "devices_chevron"
+                        )
                         Icon(
-                            if (detailState.devicesExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                            Icons.Rounded.ExpandMore,
                             contentDescription = stringResource(
                                 if (detailState.devicesExpanded) Res.string.users_collapse else Res.string.users_expand
                             ),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.rotate(devicesRotation),
                         )
                     }
 
@@ -806,12 +812,16 @@ private fun UserDetailScreen(
                                 }
                             }
                         }
+                        val ipRotation by animateFloatAsState(
+                            if (detailState.ipExpanded) 180f else 0f, label = "ip_chevron"
+                        )
                         Icon(
-                            if (detailState.ipExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                            Icons.Rounded.ExpandMore,
                             contentDescription = stringResource(
                                 if (detailState.ipExpanded) Res.string.users_collapse else Res.string.users_expand
                             ),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.rotate(ipRotation),
                         )
                     }
 
@@ -1261,7 +1271,7 @@ private fun FwDetailCard(content: @Composable ColumnScope.() -> Unit) {
         colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp).animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             content = content,
         )
