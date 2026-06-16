@@ -33,6 +33,7 @@ data class NodeDto(
     @SerialName("xrayUptime")               val xrayUptime: Double = 0.0,
     @SerialName("usersOnline")              val usersOnline: Int = 0,
     @SerialName("versions")                 val versions: NodeVersionsDto? = null,
+    @SerialName("configProfile")            val configProfile: NodeConfigProfileRef? = null,
     @SerialName("viewPosition")             val viewPosition: Int,
     @SerialName("countryCode")              val countryCode: String,
     @SerialName("tags")                     val tags: List<String> = emptyList(),
@@ -69,4 +70,10 @@ data class NodeSystemStatsDto(
 data class NodeVersionsDto(
     @SerialName("xray") val xray: String,
     @SerialName("node") val node: String
+)
+
+@Serializable
+data class NodeConfigProfileRef(
+    @SerialName("activeConfigProfileUuid") val activeConfigProfileUuid: String? = null,
+    @SerialName("activeInbounds")          val activeInbounds: List<String> = emptyList(),
 )
