@@ -501,12 +501,10 @@ private fun NodeHeaderCard(node: Node) {
         shape    = MaterialTheme.shapes.large,
         colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
-        Column(Modifier.fillMaxWidth()) {
-            Box(Modifier.fillMaxWidth().height(4.dp).background(statusColor))
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -544,7 +542,6 @@ private fun NodeHeaderCard(node: Node) {
                     }
                 }
             }
-        }
     }
 }
 
