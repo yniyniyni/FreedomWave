@@ -34,10 +34,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.ShowChart
+import androidx.compose.material.icons.rounded.SwapVert
+import androidx.compose.material.icons.rounded.Wifi
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -370,7 +376,7 @@ private fun NodeDetailScreen(
 
             item {
                 FwDetailCard {
-                    DetailSectionTitle(stringResource(Res.string.nodes_detail_connection))
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_connection), Icons.Rounded.Wifi)
                     DetailRow(stringResource(Res.string.nodes_detail_address), node.address, monoFont)
                     node.port?.let { DetailRow(stringResource(Res.string.nodes_detail_port), it.toString(), monoFont) }
                     DetailRow(stringResource(Res.string.nodes_detail_status), nodeStatusLabel(node.status), monoFont)
@@ -382,7 +388,7 @@ private fun NodeDetailScreen(
 
             item {
                 FwDetailCard {
-                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic))
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic), Icons.Rounded.SwapVert)
                     val limit = node.trafficLimitBytes
                     if (limit != null && limit > 0) {
                         val pct = (node.trafficUsedBytes.toFloat() / limit.toFloat() * 100f).coerceIn(0f, 100f)
@@ -408,7 +414,7 @@ private fun NodeDetailScreen(
 
             item {
                 FwDetailCard {
-                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic_history))
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic_history), Icons.Rounded.ShowChart)
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         TimeRange.entries.forEachIndexed { index, range ->
                             SegmentedButton(
@@ -445,7 +451,7 @@ private fun NodeDetailScreen(
 
             if (node.xrayVersion != null || node.nodeVersion != null || node.xrayUptimeSeconds != null) {
                 item {
-                    FwExpandableCard(stringResource(Res.string.nodes_detail_software)) {
+                    FwExpandableCard(stringResource(Res.string.nodes_detail_software), Icons.Rounded.Code) {
                         node.xrayVersion?.let { DetailRow(stringResource(Res.string.nodes_detail_xray_version), it, monoFont) }
                         node.nodeVersion?.let { DetailRow(stringResource(Res.string.nodes_detail_node_version), it, monoFont) }
                         node.xrayUptimeSeconds?.let { DetailRow(stringResource(Res.string.nodes_detail_xray_uptime), uptimeParts(it).localized(), monoFont) }
@@ -457,7 +463,7 @@ private fun NodeDetailScreen(
                 node.memoryFreeBytes != null || node.arch != null || node.platform != null ||
                 node.uptimeSeconds != null || node.loadAvg1 != null || node.hostname != null) {
                 item {
-                    FwExpandableCard(stringResource(Res.string.nodes_detail_hardware)) {
+                    FwExpandableCard(stringResource(Res.string.nodes_detail_hardware), Icons.Rounded.Memory) {
                         node.cpuModel?.takeIf { it.isNotBlank() }?.let { DetailRow(stringResource(Res.string.nodes_detail_cpu_model), it, monoFont) }
                         node.cpus?.let { DetailRow(stringResource(Res.string.nodes_detail_cpu_cores), it.toString(), monoFont) }
                         node.arch?.takeIf { it.isNotBlank() }?.let { DetailRow(stringResource(Res.string.nodes_detail_arch), it, monoFont) }
@@ -473,7 +479,7 @@ private fun NodeDetailScreen(
             }
 
             item {
-                FwExpandableCard(stringResource(Res.string.nodes_detail_metadata)) {
+                FwExpandableCard(stringResource(Res.string.nodes_detail_metadata), Icons.Rounded.Info) {
                     DetailRow(stringResource(Res.string.nodes_detail_uuid), node.uuid, monoFont)
                     if (node.countryCode.isNotBlank()) DetailRow(stringResource(Res.string.nodes_detail_country), "${node.countryCode} ${countryFlag(node.countryCode)}", monoFont)
                     if (node.tags.isNotEmpty()) DetailRow(stringResource(Res.string.nodes_detail_tags), node.tags.joinToString(", "), monoFont)
@@ -599,6 +605,7 @@ private fun VersionChip(icon: ImageVector, text: String, tint: Color) {
 @Composable
 private fun FwExpandableCard(
     title: String,
+    icon: ImageVector? = null,
     initiallyExpanded: Boolean = false,
     content: @Composable () -> Unit,
 ) {
@@ -615,7 +622,7 @@ private fun FwExpandableCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                DetailSectionTitle(title)
+                DetailSectionTitle(title, icon)
                 Icon(
                     Icons.Rounded.ExpandMore,
                     contentDescription = null,
@@ -710,8 +717,21 @@ private fun FwDetailCard(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun DetailSectionTitle(title: String) {
-    Text(title, style = MaterialTheme.typography.titleSmall)
+private fun DetailSectionTitle(title: String, icon: ImageVector? = null) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (icon != null) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+        Text(title, style = MaterialTheme.typography.titleSmall)
+    }
 }
 
 @Composable
