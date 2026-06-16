@@ -2,16 +2,39 @@ package art.yniyniyni.freedomwave.data.repository
 
 import art.yniyniyni.freedomwave.data.api.dto.CreateNodeRequest
 import art.yniyniyni.freedomwave.data.api.dto.NodeConfigProfileBody
+import art.yniyniyni.freedomwave.data.api.dto.NodeDto
 import art.yniyniyni.freedomwave.data.api.dto.UpdateNodeRequest
+import art.yniyniyni.freedomwave.domain.model.Node
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class NodeRequestSerializationTest {
 
     private val json = Json { encodeDefaults = false; explicitNulls = true }
+    // Mirrors the app's authed client decode settings.
+    private val decodeJson = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
     private val profile = NodeConfigProfileBody("cp-uuid", listOf("in-1"))
+
+    @Test
+    fun `node response with activeInbounds as objects decodes`() {
+        // Regression: the GET /api/nodes response returns configProfile.activeInbounds
+        // as an array of inbound OBJECTS, not UUID strings. Decoding must not throw,
+        // and Node.from must extract the inbound UUIDs.
+        val body = """
+            {"uuid":"u1","name":"n","address":"1.2.3.4","isConnected":true,"isDisabled":false,
+             "isConnecting":false,"isTrafficTrackingActive":false,"viewPosition":1,"countryCode":"IT",
+             "createdAt":"2024-01-01T00:00:00.000Z","updatedAt":"2024-01-01T00:00:00.000Z",
+             "configProfile":{"activeConfigProfileUuid":"cp-1","activeInbounds":[
+                {"uuid":"in-1","profileUuid":"cp-1","tag":"VLESS","type":"vless","network":"tcp","security":"reality","port":443}
+             ]}}
+        """.trimIndent()
+        val node = Node.from(decodeJson.decodeFromString<NodeDto>(body))
+        assertEquals("cp-1", node.activeConfigProfileUuid)
+        assertEquals(listOf("in-1"), node.activeInbounds)
+    }
 
     @Test
     fun `create omits unset optional fields`() {

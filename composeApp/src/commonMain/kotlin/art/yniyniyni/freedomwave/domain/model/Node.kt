@@ -102,7 +102,7 @@ data class Node(
             createdAt         = dto.createdAt,
             updatedAt         = dto.updatedAt,
             activeConfigProfileUuid = dto.configProfile?.activeConfigProfileUuid,
-            activeInbounds          = dto.configProfile?.activeInbounds ?: emptyList(),
+            activeInbounds          = dto.configProfile?.activeInbounds?.map { it.uuid } ?: emptyList(),
         )
     }
 }

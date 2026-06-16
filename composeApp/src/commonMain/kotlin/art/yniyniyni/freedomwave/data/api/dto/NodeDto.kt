@@ -75,5 +75,7 @@ data class NodeVersionsDto(
 @Serializable
 data class NodeConfigProfileRef(
     @SerialName("activeConfigProfileUuid") val activeConfigProfileUuid: String? = null,
-    @SerialName("activeInbounds")          val activeInbounds: List<String> = emptyList(),
+    // The node response returns activeInbounds as an array of inbound OBJECTS
+    // (not UUID strings — that's the create/update request shape). Parse as objects.
+    @SerialName("activeInbounds")          val activeInbounds: List<InboundDto> = emptyList(),
 )
