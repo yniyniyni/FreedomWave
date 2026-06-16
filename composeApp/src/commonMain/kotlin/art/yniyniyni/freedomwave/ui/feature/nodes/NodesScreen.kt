@@ -386,7 +386,7 @@ private fun NodeDetailScreen(
                             }
                         }
                         node.uptimeSeconds?.let { DetailRow(stringResource(Res.string.nodes_detail_uptime), uptimeParts(it).localized(), monoFont) }
-                        node.loadAvg?.let { DetailRow(stringResource(Res.string.nodes_detail_load), it.toDouble().format2(), monoFont) }
+                        node.loadAvg1?.let { DetailRow(stringResource(Res.string.nodes_detail_load), it.toDouble().format2(), monoFont) }
                     }
                 }
             }
