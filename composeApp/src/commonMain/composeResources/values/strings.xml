@@ -152,6 +152,8 @@
     <string name="nodes_enable">Enable node</string>
     <string name="nodes_restart">Restart node</string>
     <string name="nodes_reset_traffic">Reset traffic</string>
+    <string name="nodes_delete">Delete node</string>
+    <string name="nodes_delete_confirm">Delete %1$s? This cannot be undone.</string>
     <string name="nodes_form_new_title">New node</string>
     <string name="nodes_form_edit_title">Edit %1$s</string>
     <string name="nodes_form_connection">Connection</string>

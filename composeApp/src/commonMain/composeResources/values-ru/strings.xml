@@ -147,6 +147,8 @@
     <string name="nodes_enable">Включить ноду</string>
     <string name="nodes_restart">Перезапустить ноду</string>
     <string name="nodes_reset_traffic">Сбросить трафик</string>
+    <string name="nodes_delete">Удалить ноду</string>
+    <string name="nodes_delete_confirm">Удалить %1$s? Действие необратимо.</string>
     <string name="nodes_form_new_title">Новая нода</string>
     <string name="nodes_form_edit_title">Изменить %1$s</string>
     <string name="nodes_form_connection">Подключение</string>

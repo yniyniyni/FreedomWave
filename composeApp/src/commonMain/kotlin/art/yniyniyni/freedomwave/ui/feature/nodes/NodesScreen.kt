@@ -46,6 +46,7 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.ShowChart
 import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material.icons.rounded.Wifi
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -65,6 +66,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
@@ -87,6 +89,8 @@ import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.NodeStatus
 import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.common_cancel
+import freedomwave.composeapp.generated.resources.common_delete
 import freedomwave.composeapp.generated.resources.common_retry
 import freedomwave.composeapp.generated.resources.nodes_detail_address
 import freedomwave.composeapp.generated.resources.nodes_detail_arch
@@ -136,6 +140,8 @@ import freedomwave.composeapp.generated.resources.nodes_enable
 import freedomwave.composeapp.generated.resources.nodes_form_add
 import freedomwave.composeapp.generated.resources.nodes_form_edit
 import freedomwave.composeapp.generated.resources.common_refresh
+import freedomwave.composeapp.generated.resources.nodes_delete
+import freedomwave.composeapp.generated.resources.nodes_delete_confirm
 import freedomwave.composeapp.generated.resources.nodes_reset_traffic
 import freedomwave.composeapp.generated.resources.nodes_restart
 import freedomwave.composeapp.generated.resources.nodes_status_connecting
@@ -241,6 +247,7 @@ fun NodesScreen(
                     onDisable      = { vm.disableNode(live.uuid) },
                     onRestart      = { vm.restartNode(live.uuid) },
                     onReset        = { vm.resetTraffic(live.uuid) },
+                    onDelete       = { vm.deleteNode(live.uuid); stack = stack.dropLast(1) },
                 )
             }
             is NodesNav.Form -> {
@@ -404,13 +411,32 @@ private fun NodeDetailScreen(
     onEnable: () -> Unit,
     onDisable: () -> Unit,
     onRestart: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val monoFont = LocalFwMonoFont.current
     val nodeSeries = bandwidthState.data?.series
         ?.find { it.uuid == node.uuid }
         ?.let { listOf(ChartSeries(it.name, it.color, it.data)) }
         ?: emptyList()
+
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(Res.string.nodes_delete)) },
+            text  = { Text(stringResource(Res.string.nodes_delete_confirm, node.name)) },
+            confirmButton = {
+                TextButton(
+                    onClick = { showDeleteConfirm = false; onDelete() },
+                    colors  = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) { Text(stringResource(Res.string.common_delete)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(Res.string.common_cancel)) }
+            },
+        )
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -547,7 +573,7 @@ private fun NodeDetailScreen(
                 }
             }
 
-            item { NodeActions(node, onEnable, onDisable, onRestart, onReset) }
+            item { NodeActions(node, onEnable, onDisable, onRestart, onReset, onDelete = { showDeleteConfirm = true }) }
         }
     }
 }
@@ -706,6 +732,7 @@ private fun NodeActions(
     onDisable: () -> Unit,
     onRestart: () -> Unit,
     onReset: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     val actionPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -757,6 +784,12 @@ private fun NodeActions(
                 contentColor   = MaterialTheme.colorScheme.onSurface,
             )
         ) { Text(stringResource(Res.string.nodes_reset_traffic)) }
+        Button(
+            onClick = onDelete,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(percent = 50),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+        ) { Text(stringResource(Res.string.nodes_delete)) }
     }
 }
 

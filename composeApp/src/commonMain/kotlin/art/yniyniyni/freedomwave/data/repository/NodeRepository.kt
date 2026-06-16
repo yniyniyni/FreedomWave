@@ -23,6 +23,7 @@ class NodeRepository(
     suspend fun getNode(uuid: String): Result<Node> = api { Node.from(service.getNode(prefs.getServerUrl(), uuid).response) }
     suspend fun createNode(body: CreateNodeRequest): Result<Node> = api { Node.from(service.createNode(prefs.getServerUrl(), body).response) }
     suspend fun updateNode(body: UpdateNodeRequest): Result<Node> = api { Node.from(service.updateNode(prefs.getServerUrl(), body).response) }
+    suspend fun deleteNode(uuid: String): Result<Unit> = api { service.deleteNode(prefs.getServerUrl(), uuid) }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =
         runCatching { block() }.also { result ->

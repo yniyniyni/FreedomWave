@@ -40,6 +40,14 @@ class NodesViewModel(private val nodeRepository: NodeRepository) : ViewModel() {
     fun restartNode(uuid: String)  = action(uuid) { nodeRepository.restartNode(uuid) }
     fun resetTraffic(uuid: String) = action(uuid) { nodeRepository.resetTraffic(uuid) }
 
+    fun deleteNode(uuid: String) {
+        viewModelScope.launch {
+            nodeRepository.deleteNode(uuid)
+                .onSuccess { _state.update { it.copy(nodes = it.nodes.filterNot { n -> n.uuid == uuid }) } }
+                .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
+        }
+    }
+
     fun clearActionError() = _state.update { it.copy(actionError = null) }
 
     private fun action(uuid: String, block: suspend () -> Result<Node>) {
