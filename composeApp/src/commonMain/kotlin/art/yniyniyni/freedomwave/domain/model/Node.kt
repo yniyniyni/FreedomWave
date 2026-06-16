@@ -37,7 +37,9 @@ data class Node(
     val lastStatusChange: String?,
     val lastStatusMessage: String?,
     val createdAt: String,
-    val updatedAt: String
+    val updatedAt: String,
+    val activeConfigProfileUuid: String?,
+    val activeInbounds: List<String>,
 ) {
     val isOnline: Boolean   get() = status == NodeStatus.ONLINE
     val isDisabled: Boolean get() = status == NodeStatus.DISABLED
@@ -98,7 +100,9 @@ data class Node(
             lastStatusChange  = dto.lastStatusChange,
             lastStatusMessage = dto.lastStatusMessage,
             createdAt         = dto.createdAt,
-            updatedAt         = dto.updatedAt
+            updatedAt         = dto.updatedAt,
+            activeConfigProfileUuid = dto.configProfile?.activeConfigProfileUuid,
+            activeInbounds          = dto.configProfile?.activeInbounds ?: emptyList(),
         )
     }
 }
