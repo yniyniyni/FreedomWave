@@ -147,6 +147,36 @@
     <string name="nodes_enable">Включить ноду</string>
     <string name="nodes_restart">Перезапустить ноду</string>
     <string name="nodes_reset_traffic">Сбросить трафик</string>
+    <string name="nodes_form_new_title">Новая нода</string>
+    <string name="nodes_form_edit_title">Изменить %1$s</string>
+    <string name="nodes_form_connection">Подключение</string>
+    <string name="nodes_form_internal_name">Внутреннее имя</string>
+    <string name="nodes_form_internal_name_hint">3–30 символов</string>
+    <string name="nodes_form_address">Адрес</string>
+    <string name="nodes_form_port">Порт</string>
+    <string name="nodes_form_country">Страна</string>
+    <string name="nodes_form_country_search">Поиск страны</string>
+    <string name="nodes_form_config_profile">Конфиг-профиль</string>
+    <string name="nodes_form_select_profile">Выбор профиля</string>
+    <string name="nodes_form_no_profiles">Нет доступных конфиг-профилей</string>
+    <string name="nodes_form_inbounds">Инбаунды</string>
+    <string name="nodes_form_select_all">Выбрать все</string>
+    <string name="nodes_form_deselect_all">Снять все</string>
+    <string name="nodes_form_secret_key">Секретный ключ</string>
+    <string name="nodes_form_secret_key_hint">Скопируйте этот SECRET_KEY в docker-compose.yml ноды</string>
+    <string name="nodes_form_copy_secret">Копировать SECRET_KEY</string>
+    <string name="nodes_form_copy_compose">Копировать docker-compose.yml</string>
+    <string name="nodes_form_traffic_tracking">Учёт трафика</string>
+    <string name="nodes_form_multiplier">Множитель расхода</string>
+    <string name="nodes_form_traffic_limit_gb">Лимит трафика (ГБ)</string>
+    <string name="nodes_form_reset_day">День сброса (1–31)</string>
+    <string name="nodes_form_notify_at">Уведомлять при (%)</string>
+    <string name="nodes_form_tags">Теги</string>
+    <string name="nodes_form_tags_hint">TAG_ONE, TAG_TWO</string>
+    <string name="nodes_form_create">Создать</string>
+    <string name="nodes_form_save">Сохранить</string>
+    <string name="nodes_form_edit">Изменить ноду</string>
+    <string name="nodes_form_add">Добавить ноду</string>
 
     <!-- bandwidth -->
     <string name="bandwidth_range_7d">7 дн</string>
