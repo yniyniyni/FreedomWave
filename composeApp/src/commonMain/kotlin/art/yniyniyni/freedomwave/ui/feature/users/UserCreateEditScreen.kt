@@ -13,9 +13,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DataUsage
+import androidx.compose.material.icons.rounded.Devices
+import androidx.compose.material.icons.rounded.Groups
+import androidx.compose.material.icons.rounded.Key
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -25,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -39,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
@@ -117,7 +127,7 @@ internal fun UserCreateEditScreen(
         ) {
             // Identity
             item {
-                FormCard(stringResource(Res.string.users_form_identity)) {
+                FormCard(stringResource(Res.string.users_form_identity), Icons.Rounded.Person) {
                     OutlinedTextField(
                         value = state.formUsername,
                         onValueChange = if (isCreate) vm::onFormUsername else { _ -> },
@@ -168,7 +178,7 @@ internal fun UserCreateEditScreen(
 
             // Access
             item {
-                FormCard(stringResource(Res.string.users_form_access)) {
+                FormCard(stringResource(Res.string.users_form_access), Icons.Rounded.Key) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -193,7 +203,7 @@ internal fun UserCreateEditScreen(
 
             // Traffic
             item {
-                FormCard(stringResource(Res.string.users_detail_traffic)) {
+                FormCard(stringResource(Res.string.users_detail_traffic), Icons.Rounded.DataUsage) {
                     OutlinedTextField(
                         value = state.formTrafficGb,
                         onValueChange = vm::onFormTrafficGb,
@@ -214,7 +224,7 @@ internal fun UserCreateEditScreen(
 
             // Expiry
             item {
-                FormCard(stringResource(Res.string.users_form_expiry)) {
+                FormCard(stringResource(Res.string.users_form_expiry), Icons.Rounded.Schedule) {
                     ExpiryEditor(
                         expireMillis = state.formExpireMillis,
                         enabled = !state.formIsLoading,
@@ -225,7 +235,7 @@ internal fun UserCreateEditScreen(
 
             // Devices
             item {
-                FormCard(stringResource(Res.string.users_detail_devices)) {
+                FormCard(stringResource(Res.string.users_detail_devices), Icons.Rounded.Devices) {
                     OutlinedTextField(
                         value = state.formHwid,
                         onValueChange = vm::onFormHwid,
@@ -242,7 +252,7 @@ internal fun UserCreateEditScreen(
             // Squads
             if (state.formSquads.isNotEmpty()) {
                 item {
-                    FormCard(stringResource(Res.string.users_detail_squads)) {
+                    FormCard(stringResource(Res.string.users_detail_squads), Icons.Rounded.Groups) {
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             state.formSquads.forEach { squad ->
                                 FilterChip(
@@ -293,14 +303,19 @@ internal fun UserCreateEditScreen(
 }
 
 @Composable
-private fun FormCard(title: String, content: @Composable () -> Unit) {
+private fun FormCard(title: String, icon: ImageVector? = null, content: @Composable () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape    = MaterialTheme.shapes.large,
         colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(title, style = MaterialTheme.typography.titleSmall)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (icon != null) {
+                    Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                }
+                Text(title, style = MaterialTheme.typography.titleSmall)
+            }
             content()
         }
     }
