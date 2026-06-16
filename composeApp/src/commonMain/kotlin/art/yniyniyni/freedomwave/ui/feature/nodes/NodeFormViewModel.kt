@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.ConfigProfileRepository
 import art.yniyniyni.freedomwave.data.repository.NodeRepository
-import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.ConfigProfile
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
@@ -54,7 +53,6 @@ class NodeFormViewModel(
     private val nodeUuid: String?,
     private val nodeRepo: NodeRepository,
     private val configRepo: ConfigProfileRepository,
-    private val prefs: AppPreferences,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(NodeFormUiState(isEdit = nodeUuid != null, isLoading = true))

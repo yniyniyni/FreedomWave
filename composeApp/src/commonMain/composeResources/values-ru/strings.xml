@@ -167,6 +167,7 @@
     <string name="nodes_form_copy_secret">Копировать SECRET_KEY</string>
     <string name="nodes_form_copy_compose">Копировать docker-compose.yml</string>
     <string name="nodes_form_traffic_tracking">Учёт трафика</string>
+    <string name="nodes_form_traffic">Трафик</string>
     <string name="nodes_form_multiplier">Множитель расхода</string>
     <string name="nodes_form_traffic_limit_gb">Лимит трафика (ГБ)</string>
     <string name="nodes_form_reset_day">День сброса (1–31)</string>

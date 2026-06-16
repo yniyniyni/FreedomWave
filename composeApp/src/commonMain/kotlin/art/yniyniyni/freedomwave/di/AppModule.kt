@@ -89,7 +89,7 @@ val viewModelModule = module {
     viewModel { DashboardViewModel(get()) }
     viewModel { UsersViewModel(get(), get(), get()) }
     viewModel { NodesViewModel(get()) }
-    viewModel { (uuid: String?) -> NodeFormViewModel(uuid, get(), get(), get()) }
+    viewModel { (uuid: String?) -> NodeFormViewModel(uuid, get(), get()) }
     viewModel { HostsViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { SquadsViewModel(get()) }

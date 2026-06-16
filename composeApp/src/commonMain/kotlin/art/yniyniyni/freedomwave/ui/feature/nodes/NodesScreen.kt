@@ -167,7 +167,7 @@ import org.koin.core.parameter.parametersOf
 private sealed interface NodesNav {
     data object List : NodesNav
     data class Detail(val node: Node) : NodesNav
-    data class Form(val node: Node?) : NodesNav   // null = create
+    data class Form(val node: Node?, val epoch: Int) : NodesNav   // null = create
 
     val depth: Int get() = when (this) {
         List -> 0
@@ -177,7 +177,7 @@ private sealed interface NodesNav {
     val key: String get() = when (this) {
         List -> "list"
         is Detail -> "detail:${node.uuid}"
-        is Form -> "form:${node?.uuid ?: "new"}"
+        is Form -> "form:${node?.uuid ?: "new"}:$epoch"
     }
 }
 
@@ -192,6 +192,7 @@ fun NodesScreen(
     val snackbar = remember { SnackbarHostState() }
 
     var stack by remember { mutableStateOf<kotlin.collections.List<NodesNav>>(listOf(NodesNav.List)) }
+    var formEpoch by remember { mutableStateOf(0) }
     val top = stack.last()
     val canGoBack = stack.size > 1
 
@@ -226,7 +227,7 @@ fun NodesScreen(
             is NodesNav.List -> NodesListContent(
                 state = state, vm = vm, snackbar = snackbar,
                 onOpenDetail = { node -> stack = stack + NodesNav.Detail(node) },
-                onCreate = { stack = stack + NodesNav.Form(null) },
+                onCreate = { formEpoch++; stack = stack + NodesNav.Form(null, formEpoch) },
             )
             is NodesNav.Detail -> {
                 val live = state.nodes.find { it.uuid == navEntry.node.uuid } ?: navEntry.node
@@ -235,7 +236,7 @@ fun NodesScreen(
                     bandwidthState = bandwidthState,
                     onRangeChange  = bandwidthVm::setRange,
                     onBack         = { stack = stack.dropLast(1) },
-                    onEdit         = { stack = stack + NodesNav.Form(live) },
+                    onEdit         = { formEpoch++; stack = stack + NodesNav.Form(live, formEpoch) },
                     onEnable       = { vm.enableNode(live.uuid) },
                     onDisable      = { vm.disableNode(live.uuid) },
                     onRestart      = { vm.restartNode(live.uuid) },
@@ -244,14 +245,15 @@ fun NodesScreen(
             }
             is NodesNav.Form -> {
                 val uuid = navEntry.node?.uuid
-                val formVm: NodeFormViewModel = koinViewModel(key = "node-form-${uuid ?: "new"}") { parametersOf(uuid) }
+                val formVm: NodeFormViewModel = koinViewModel(key = "node-form-${navEntry.epoch}") { parametersOf(uuid) }
                 NodeCreateEditScreen(
-                    nodeUuid = uuid,
                     vm = formVm,
                     onBack = { stack = stack.dropLast(1) },
                     onSaved = {
                         vm.load()
-                        stack = if (uuid == null) listOf(NodesNav.List) else stack.dropLast(1)
+                        if (stack.lastOrNull() is NodesNav.Form) {
+                            stack = if (uuid == null) listOf(NodesNav.List) else stack.dropLast(1)
+                        }
                     },
                 )
             }

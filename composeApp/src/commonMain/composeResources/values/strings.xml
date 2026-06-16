@@ -172,6 +172,7 @@
     <string name="nodes_form_copy_secret">Copy SECRET_KEY</string>
     <string name="nodes_form_copy_compose">Copy docker-compose.yml</string>
     <string name="nodes_form_traffic_tracking">Traffic tracking</string>
+    <string name="nodes_form_traffic">Traffic</string>
     <string name="nodes_form_multiplier">Consumption multiplier</string>
     <string name="nodes_form_traffic_limit_gb">Traffic limit (GB)</string>
     <string name="nodes_form_reset_day">Reset day (1–31)</string>

@@ -89,12 +89,12 @@ import freedomwave.composeapp.generated.resources.nodes_form_select_profile
 import freedomwave.composeapp.generated.resources.nodes_form_tags
 import freedomwave.composeapp.generated.resources.nodes_form_tags_hint
 import freedomwave.composeapp.generated.resources.nodes_form_traffic_limit_gb
+import freedomwave.composeapp.generated.resources.nodes_form_traffic
 import freedomwave.composeapp.generated.resources.nodes_form_traffic_tracking
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun NodeCreateEditScreen(
-    nodeUuid: String?,
     vm: NodeFormViewModel,
     onBack: () -> Unit,
     onSaved: () -> Unit,
@@ -277,7 +277,7 @@ internal fun NodeCreateEditScreen(
             }
 
             item {
-                FormCard(stringResource(Res.string.nodes_form_traffic_tracking), Icons.Rounded.SwapVert) {
+                FormCard(stringResource(Res.string.nodes_form_traffic), Icons.Rounded.SwapVert) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
