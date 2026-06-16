@@ -7,6 +7,7 @@ import art.yniyniyni.freedomwave.data.api.service.BandwidthService
 import art.yniyniyni.freedomwave.data.api.service.DashboardService
 import art.yniyniyni.freedomwave.data.api.service.HostService
 import art.yniyniyni.freedomwave.data.api.service.HwidService
+import art.yniyniyni.freedomwave.data.api.service.ConfigProfileService
 import art.yniyniyni.freedomwave.data.api.service.NodeService
 import art.yniyniyni.freedomwave.data.api.service.SquadService
 import art.yniyniyni.freedomwave.data.api.service.SubHistoryService
@@ -16,6 +17,7 @@ import art.yniyniyni.freedomwave.data.repository.BandwidthRepository
 import art.yniyniyni.freedomwave.data.repository.DashboardRepository
 import art.yniyniyni.freedomwave.data.repository.HostRepository
 import art.yniyniyni.freedomwave.data.repository.HwidRepository
+import art.yniyniyni.freedomwave.data.repository.ConfigProfileRepository
 import art.yniyniyni.freedomwave.data.repository.NodeRepository
 import art.yniyniyni.freedomwave.data.repository.SquadRepository
 import art.yniyniyni.freedomwave.data.repository.SubHistoryRepository
@@ -57,6 +59,7 @@ val networkModule = module {
     single { DashboardService(get()) }
     single { UserService(get()) }
     single { NodeService(get()) }
+    single { ConfigProfileService(get()) }
     single { HostService(get()) }
     single { SquadService(get()) }
     single { HwidService(get()) }
@@ -72,6 +75,7 @@ val repositoryModule = module {
     single { DashboardRepository(get(), get(), get()) }
     single { UserRepository(get(), get()) }
     single { NodeRepository(get(), get()) }
+    single { ConfigProfileRepository(get(), get()) }
     single { HostRepository(get(), get()) }
     single { SquadRepository(get(), get()) }
     single { HwidRepository(get(), get()) }
