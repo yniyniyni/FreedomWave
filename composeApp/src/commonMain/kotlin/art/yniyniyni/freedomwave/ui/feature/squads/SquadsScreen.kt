@@ -3,7 +3,9 @@ package art.yniyniyni.freedomwave.ui.feature.squads
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -172,7 +174,7 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
         topBar = {
             FwTopBar(
                 title = stringResource(Res.string.squads_title),
-                actions = { TextButton(onClick = vm::load) { Text(stringResource(Res.string.common_refresh)) } },
+                actions = { IconButton(onClick = vm::load) { Icon(Icons.Rounded.Refresh, contentDescription = stringResource(Res.string.common_refresh)) } },
             )
         },
         floatingActionButton = {

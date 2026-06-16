@@ -38,6 +38,7 @@
     <string name="settings_geo_lookup">IP geolocation (ipwho.is)</string>
     <string name="settings_geo_lookup_desc">Sends client IP addresses to ipwho.is, a third party, to show city and ISP. Off by default.</string>
     <string name="settings_about">About</string>
+    <string name="settings_github">GitHub</string>
     <string name="settings_oss_licenses">Open-source licenses</string>
     <string name="settings_oss_licenses_open">Open in browser</string>
     <string name="settings_version">Version</string>
@@ -164,7 +165,7 @@
     <string name="nav_settings">Settings</string>
 
     <!-- components -->
-    <string name="component_back">← Back</string>
+    <string name="component_back">Back</string>
     <string name="component_donut_used">Used</string>
     <string name="component_donut_limit">Limit</string>
     <string name="component_donut_lifetime">Lifetime</string>

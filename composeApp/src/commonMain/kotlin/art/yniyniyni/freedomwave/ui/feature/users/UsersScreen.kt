@@ -40,6 +40,7 @@ import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.QrCode
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material3.AlertDialog
@@ -312,7 +313,7 @@ private fun UsersListContent(
                             )
                         }
                     }
-                    TextButton(onClick = vm::load) { Text(stringResource(Res.string.common_refresh)) }
+                    IconButton(onClick = vm::load) { Icon(Icons.Rounded.Refresh, contentDescription = stringResource(Res.string.common_refresh)) }
                 },
             )
         },

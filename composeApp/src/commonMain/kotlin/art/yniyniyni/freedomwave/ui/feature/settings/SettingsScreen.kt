@@ -1,5 +1,14 @@
+@file:OptIn(ExperimentalTransitionApi::class)
+
 package art.yniyniyni.freedomwave.ui.feature.settings
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.ExperimentalTransitionApi
+import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,20 +40,22 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -70,6 +81,7 @@ import freedomwave.composeapp.generated.resources.settings_connection
 import freedomwave.composeapp.generated.resources.settings_copy_key
 import freedomwave.composeapp.generated.resources.settings_geo_lookup
 import freedomwave.composeapp.generated.resources.settings_geo_lookup_desc
+import freedomwave.composeapp.generated.resources.settings_github
 import freedomwave.composeapp.generated.resources.settings_language
 import freedomwave.composeapp.generated.resources.settings_log_out
 import freedomwave.composeapp.generated.resources.settings_oss_licenses
@@ -85,6 +97,7 @@ import freedomwave.composeapp.generated.resources.settings_title
 import freedomwave.composeapp.generated.resources.settings_version
 import art.yniyniyni.freedomwave.ui.auth.rememberBiometricAuthenticator
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
+import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
 import art.yniyniyni.freedomwave.ui.l10n.AppLanguage
 import art.yniyniyni.freedomwave.ui.l10n.applyAppLanguage
 import art.yniyniyni.freedomwave.ui.l10n.UiText
@@ -108,6 +121,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
     val biometricEnabled by prefs.biometricEnabled.collectAsState(false)
     val geoLookupEnabled by prefs.geoLookupEnabled.collectAsState(false)
     val clipboard        = LocalClipboardManager.current
+    val uriHandler       = LocalUriHandler.current
     val biometricAuth    = rememberBiometricAuthenticator()
     val canUseBiometrics = biometricAuth.isAvailable()
     val monoFont         = LocalFwMonoFont.current
@@ -117,11 +131,43 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
         if (it.length > 8) it.take(8) + "•".repeat(16) else "•".repeat(it.length)
     } ?: emptyDash
 
-    var showLicenses by rememberSaveable { mutableStateOf(false) }
-    if (showLicenses) {
-        LicensesScreen(onBack = { showLicenses = false })
-        return
+    // Master/detail nav so the licenses sub-screen gets the same predictive-back animation
+    // as the other detail screens (Users/Nodes/Hosts).
+    var stack by remember { mutableStateOf(listOf<SettingsNav>(SettingsNav.Settings)) }
+    val top = stack.last()
+    val canGoBack = stack.size > 1
+
+    val transitionState = remember { SeekableTransitionState<SettingsNav>(SettingsNav.Settings) }
+    val transition = rememberTransition(transitionState, label = "settings_nav")
+    LaunchedEffect(top) {
+        if (transitionState.currentState != top) transitionState.animateTo(top)
     }
+    BackGestureEffect(
+        enabled = canGoBack,
+        onProgress = { fraction -> transitionState.seekTo(fraction, stack[stack.size - 2]) },
+        onCommit   = {
+            val target = stack[stack.size - 2]
+            transitionState.animateTo(target)
+            stack = stack.dropLast(1)
+        },
+        onCancel   = { transitionState.animateTo(top) },
+    )
+
+    transition.AnimatedContent(
+        contentKey = { it.key },
+        transitionSpec = {
+            val deeper = targetState.depth > initialState.depth
+            if (deeper) {
+                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
+            } else {
+                slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
+            }.apply { targetContentZIndex = if (deeper) 1f else 0f }
+        },
+    ) { navEntry ->
+        if (navEntry == SettingsNav.Licenses) {
+            LicensesScreen(onBack = { stack = stack.dropLast(1) })
+            return@AnimatedContent
+        }
 
     if (state.showChangeKeyDialog) {
         ChangeKeyDialog(
@@ -267,7 +313,20 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                     InfoRow(stringResource(Res.string.settings_version), APP_VERSION, monoFont)
                     Spacer(Modifier.height(8.dp))
                     Row(
-                        modifier = Modifier.fillMaxWidth().clickable { showLicenses = true },
+                        modifier = Modifier.fillMaxWidth().clickable { uriHandler.openUri(GITHUB_URL) },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(stringResource(Res.string.settings_github), style = MaterialTheme.typography.bodyMedium)
+                        Icon(
+                            Icons.AutoMirrored.Rounded.OpenInNew,
+                            contentDescription = stringResource(Res.string.settings_oss_licenses_open),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { stack = stack + SettingsNav.Licenses },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -292,6 +351,18 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             }
         }
     }
+    }
+}
+
+private const val GITHUB_URL = "https://github.com/yniyniyni/freedomwave"
+
+/** Two-level nav inside the Settings tab so the licenses sub-screen animates like other detail screens. */
+private sealed interface SettingsNav {
+    data object Settings : SettingsNav
+    data object Licenses : SettingsNav
+
+    val depth: Int get() = if (this is Licenses) 1 else 0
+    val key: String get() = if (this is Licenses) "licenses" else "settings"
 }
 
 @Composable

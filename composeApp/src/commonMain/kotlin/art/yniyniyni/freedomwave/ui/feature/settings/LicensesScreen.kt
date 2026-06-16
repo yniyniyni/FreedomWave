@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.OpenInNew
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
-import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
 import freedomwave.composeapp.generated.resources.Res
 import freedomwave.composeapp.generated.resources.settings_oss_licenses
 import freedomwave.composeapp.generated.resources.settings_oss_licenses_open
@@ -34,9 +33,8 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LicensesScreen(onBack: () -> Unit) {
-    // Handle the system / predictive back gesture (top-bar arrow handles the tap).
-    BackGestureEffect(enabled = true, onProgress = {}, onCommit = { onBack() }, onCancel = {})
-
+    // Predictive back + slide animation are owned by the parent (SettingsScreen) nav host;
+    // the top-bar arrow handles the tap.
     val uriHandler = LocalUriHandler.current
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -77,7 +75,7 @@ private fun LicenseRow(lib: OssLibrary, openLabel: String, onClick: () -> Unit) 
                 )
             }
             Icon(
-                Icons.Rounded.OpenInNew,
+                Icons.AutoMirrored.Rounded.OpenInNew,
                 contentDescription = openLabel,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )

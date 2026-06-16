@@ -34,6 +34,7 @@
     <string name="settings_geo_lookup">IP-геолокация (ipwho.is)</string>
     <string name="settings_geo_lookup_desc">Отправляет IP-адреса клиентов в стороннюю службу ipwho.is для показа города и провайдера. По умолчанию выключено.</string>
     <string name="settings_about">О приложении</string>
+    <string name="settings_github">GitHub</string>
     <string name="settings_oss_licenses">Лицензии открытого ПО</string>
     <string name="settings_oss_licenses_open">Открыть в браузере</string>
     <string name="settings_version">Версия</string>
@@ -157,7 +158,7 @@
     <string name="nav_settings">Настройки</string>
 
     <!-- components -->
-    <string name="component_back">← Назад</string>
+    <string name="component_back">Назад</string>
     <string name="component_donut_used">Использовано</string>
     <string name="component_donut_limit">Лимит</string>
     <string name="component_donut_lifetime">За всё время</string>
