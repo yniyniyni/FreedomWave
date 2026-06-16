@@ -295,8 +295,15 @@ private fun NodeListItem(node: Node, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                val metrics = if (node.isOnline) {
+                    listOfNotNull(
+                        node.usersOnline.takeIf { it > 0 }?.let { stringResource(Res.string.nodes_detail_online_users, it) },
+                        node.cpuLoadPercent?.let { "${stringResource(Res.string.nodes_detail_cpu)} ${it.roundToInt()}%" },
+                        node.memoryUsedPercent?.let { "${stringResource(Res.string.nodes_detail_memory)} ${it.roundToInt()}%" },
+                    ).joinToString(" · ")
+                } else ""
                 Text(
-                    localizedBytes(node.trafficUsedBytes),
+                    metrics.ifBlank { localizedBytes(node.trafficUsedBytes) },
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
