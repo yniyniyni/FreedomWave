@@ -3,30 +3,40 @@
 package art.yniyniyni.freedomwave.ui.feature.nodes
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.rememberTransition
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -54,32 +64,62 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.NodeStatus
 import freedomwave.composeapp.generated.resources.Res
 import freedomwave.composeapp.generated.resources.common_retry
 import freedomwave.composeapp.generated.resources.nodes_detail_address
+import freedomwave.composeapp.generated.resources.nodes_detail_arch
+import freedomwave.composeapp.generated.resources.nodes_detail_connection
 import freedomwave.composeapp.generated.resources.nodes_detail_country
-import freedomwave.composeapp.generated.resources.nodes_detail_cpus
+import freedomwave.composeapp.generated.resources.nodes_detail_cpu
+import freedomwave.composeapp.generated.resources.nodes_detail_cpu_cores
+import freedomwave.composeapp.generated.resources.nodes_detail_cpu_model
+import freedomwave.composeapp.generated.resources.nodes_detail_created
+import freedomwave.composeapp.generated.resources.nodes_detail_hardware
 import freedomwave.composeapp.generated.resources.nodes_detail_hostname
-import freedomwave.composeapp.generated.resources.nodes_detail_info
 import freedomwave.composeapp.generated.resources.nodes_detail_limit
 import freedomwave.composeapp.generated.resources.nodes_detail_load
-import freedomwave.composeapp.generated.resources.nodes_detail_message
+import freedomwave.composeapp.generated.resources.nodes_detail_memory
+import freedomwave.composeapp.generated.resources.nodes_detail_memory_free
+import freedomwave.composeapp.generated.resources.nodes_detail_memory_total
+import freedomwave.composeapp.generated.resources.nodes_detail_metadata
+import freedomwave.composeapp.generated.resources.nodes_detail_multiplier
 import freedomwave.composeapp.generated.resources.nodes_detail_no_traffic_data
+import freedomwave.composeapp.generated.resources.nodes_detail_node_version
+import freedomwave.composeapp.generated.resources.nodes_detail_notify_at
+import freedomwave.composeapp.generated.resources.nodes_detail_online_users
+import freedomwave.composeapp.generated.resources.nodes_detail_platform
+import freedomwave.composeapp.generated.resources.nodes_detail_port
 import freedomwave.composeapp.generated.resources.nodes_detail_ram
+import freedomwave.composeapp.generated.resources.nodes_detail_reset_day
+import freedomwave.composeapp.generated.resources.nodes_detail_reset_day_value
+import freedomwave.composeapp.generated.resources.nodes_detail_software
 import freedomwave.composeapp.generated.resources.nodes_detail_status
-import freedomwave.composeapp.generated.resources.nodes_detail_system
+import freedomwave.composeapp.generated.resources.nodes_detail_status_changed
 import freedomwave.composeapp.generated.resources.nodes_detail_tags
+import freedomwave.composeapp.generated.resources.nodes_detail_tracking
+import freedomwave.composeapp.generated.resources.nodes_detail_tracking_active
+import freedomwave.composeapp.generated.resources.nodes_detail_tracking_inactive
 import freedomwave.composeapp.generated.resources.nodes_detail_traffic
 import freedomwave.composeapp.generated.resources.nodes_detail_traffic_history
 import freedomwave.composeapp.generated.resources.nodes_detail_unlimited
+import freedomwave.composeapp.generated.resources.nodes_detail_updated
 import freedomwave.composeapp.generated.resources.nodes_detail_uptime
 import freedomwave.composeapp.generated.resources.nodes_detail_used
+import freedomwave.composeapp.generated.resources.nodes_detail_uuid
+import freedomwave.composeapp.generated.resources.nodes_detail_xray_uptime
+import freedomwave.composeapp.generated.resources.nodes_detail_xray_version
 import freedomwave.composeapp.generated.resources.nodes_disable
 import freedomwave.composeapp.generated.resources.nodes_empty
 import freedomwave.composeapp.generated.resources.nodes_enable
@@ -105,7 +145,9 @@ import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.countryFlag
 import art.yniyniyni.freedomwave.util.format2
+import art.yniyniyni.freedomwave.util.relativePast
 import art.yniyniyni.freedomwave.util.uptimeParts
+import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -317,23 +359,43 @@ private fun NodeDetailScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            item { NodeHeaderCard(node) }
+
             item {
                 FwDetailCard {
-                    DetailSectionTitle(stringResource(Res.string.nodes_detail_info))
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_connection))
+                    DetailRow(stringResource(Res.string.nodes_detail_address), node.address, monoFont)
+                    node.port?.let { DetailRow(stringResource(Res.string.nodes_detail_port), it.toString(), monoFont) }
                     DetailRow(stringResource(Res.string.nodes_detail_status), nodeStatusLabel(node.status), monoFont)
-                    DetailRow(stringResource(Res.string.nodes_detail_address), "${node.address}${node.port?.let { ":$it" } ?: ""}", monoFont)
-                    if (node.countryCode.isNotBlank()) {
-                        DetailRow(stringResource(Res.string.nodes_detail_country), "${node.countryCode} ${countryFlag(node.countryCode)}", monoFont)
+                    if (node.lastStatusChange != null) {
+                        DetailRow(stringResource(Res.string.nodes_detail_status_changed), relativePast(node.lastStatusChange).localized(), monoFont)
                     }
-                    if (node.tags.isNotEmpty()) DetailRow(stringResource(Res.string.nodes_detail_tags), node.tags.joinToString(", "), monoFont)
-                    node.lastStatusMessage?.let { DetailRow(stringResource(Res.string.nodes_detail_message), it, monoFont) }
                 }
             }
+
             item {
                 FwDetailCard {
                     DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic))
-                    DetailRow(stringResource(Res.string.nodes_detail_used), localizedBytes(node.trafficUsedBytes), monoFont)
-                    DetailRow(stringResource(Res.string.nodes_detail_limit), node.trafficLimitBytes?.let { localizedBytes(it) } ?: stringResource(Res.string.nodes_detail_unlimited), monoFont)
+                    val limit = node.trafficLimitBytes
+                    if (limit != null && limit > 0) {
+                        val pct = (node.trafficUsedBytes.toFloat() / limit.toFloat() * 100f).coerceIn(0f, 100f)
+                        MiniGauge(
+                            label    = stringResource(Res.string.nodes_detail_used),
+                            percent  = pct,
+                            trailing = "${localizedBytes(node.trafficUsedBytes)} / ${localizedBytes(limit)}",
+                        )
+                    } else {
+                        DetailRow(stringResource(Res.string.nodes_detail_used), localizedBytes(node.trafficUsedBytes), monoFont)
+                        DetailRow(stringResource(Res.string.nodes_detail_limit), stringResource(Res.string.nodes_detail_unlimited), monoFont)
+                    }
+                    DetailRow(
+                        stringResource(Res.string.nodes_detail_tracking),
+                        stringResource(if (node.isTrafficTrackingActive) Res.string.nodes_detail_tracking_active else Res.string.nodes_detail_tracking_inactive),
+                        monoFont,
+                    )
+                    node.trafficResetDay?.let { DetailRow(stringResource(Res.string.nodes_detail_reset_day), stringResource(Res.string.nodes_detail_reset_day_value, it), monoFont) }
+                    node.notifyPercent?.let { DetailRow(stringResource(Res.string.nodes_detail_notify_at), "$it%", monoFont) }
+                    DetailRow(stringResource(Res.string.nodes_detail_multiplier), "${node.consumptionMultiplier}×", monoFont)
                 }
             }
 
@@ -374,69 +436,257 @@ private fun NodeDetailScreen(
                 }
             }
 
-            node.hostname?.let { hostname ->
+            if (node.xrayVersion != null || node.nodeVersion != null || node.xrayUptimeSeconds != null) {
                 item {
-                    FwDetailCard {
-                        DetailSectionTitle(stringResource(Res.string.nodes_detail_system))
-                        DetailRow(stringResource(Res.string.nodes_detail_hostname), hostname, monoFont)
-                        node.cpus?.let { DetailRow(stringResource(Res.string.nodes_detail_cpus), it.toString(), monoFont) }
-                        node.memoryUsedBytes?.let { used ->
-                            node.memoryTotalBytes?.let { total ->
-                                DetailRow(stringResource(Res.string.nodes_detail_ram), "${localizedBytes(used)} / ${localizedBytes(total)}", monoFont)
-                            }
-                        }
-                        node.uptimeSeconds?.let { DetailRow(stringResource(Res.string.nodes_detail_uptime), uptimeParts(it).localized(), monoFont) }
-                        node.loadAvg1?.let { DetailRow(stringResource(Res.string.nodes_detail_load), it.toDouble().format2(), monoFont) }
+                    FwExpandableCard(stringResource(Res.string.nodes_detail_software)) {
+                        node.xrayVersion?.let { DetailRow(stringResource(Res.string.nodes_detail_xray_version), it, monoFont) }
+                        node.nodeVersion?.let { DetailRow(stringResource(Res.string.nodes_detail_node_version), it, monoFont) }
+                        node.xrayUptimeSeconds?.let { DetailRow(stringResource(Res.string.nodes_detail_xray_uptime), uptimeParts(it).localized(), monoFont) }
                     }
                 }
             }
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (node.isOnline) {
-                        Button(
-                            onClick = onDisable,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(percent = 50),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor   = MaterialTheme.colorScheme.onSecondaryContainer,
-                            )
-                        ) { Text(stringResource(Res.string.nodes_disable)) }
-                        Button(
-                            onClick = onRestart,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(percent = 50),
-                        ) { Text(stringResource(Res.string.nodes_restart)) }
-                    } else if (node.isDisabled) {
-                        Button(
-                            onClick = onEnable,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(percent = 50),
-                        ) { Text(stringResource(Res.string.nodes_enable)) }
-                    } else {
-                        Button(
-                            onClick = onEnable,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(percent = 50),
-                        ) { Text(stringResource(Res.string.nodes_enable)) }
-                        Button(
-                            onClick = onRestart,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(percent = 50),
-                        ) { Text(stringResource(Res.string.nodes_restart)) }
+
+            if (node.cpuModel != null || node.cpus != null || node.memoryTotalBytes != null ||
+                node.memoryFreeBytes != null || node.arch != null || node.platform != null ||
+                node.uptimeSeconds != null || node.loadAvg1 != null || node.hostname != null) {
+                item {
+                    FwExpandableCard(stringResource(Res.string.nodes_detail_hardware)) {
+                        node.cpuModel?.takeIf { it.isNotBlank() }?.let { DetailRow(stringResource(Res.string.nodes_detail_cpu_model), it, monoFont) }
+                        node.cpus?.let { DetailRow(stringResource(Res.string.nodes_detail_cpu_cores), it.toString(), monoFont) }
+                        node.arch?.takeIf { it.isNotBlank() }?.let { DetailRow(stringResource(Res.string.nodes_detail_arch), it, monoFont) }
+                        node.platform?.takeIf { it.isNotBlank() }?.let { DetailRow(stringResource(Res.string.nodes_detail_platform), it, monoFont) }
+                        node.memoryTotalBytes?.let { DetailRow(stringResource(Res.string.nodes_detail_memory_total), localizedBytes(it), monoFont) }
+                        node.memoryUsedBytes?.let { DetailRow(stringResource(Res.string.nodes_detail_ram), localizedBytes(it), monoFont) }
+                        node.memoryFreeBytes?.let { DetailRow(stringResource(Res.string.nodes_detail_memory_free), localizedBytes(it), monoFont) }
+                        node.uptimeSeconds?.let { DetailRow(stringResource(Res.string.nodes_detail_uptime), uptimeParts(it).localized(), monoFont) }
+                        node.loadAvg1?.let { DetailRow(stringResource(Res.string.nodes_detail_load), it.toDouble().format2(), monoFont) }
+                        node.hostname?.let { DetailRow(stringResource(Res.string.nodes_detail_hostname), it, monoFont) }
                     }
-                    Button(
-                        onClick = onReset,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(percent = 50),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            contentColor   = MaterialTheme.colorScheme.onSurface,
-                        )
-                    ) { Text(stringResource(Res.string.nodes_reset_traffic)) }
+                }
+            }
+
+            item {
+                FwExpandableCard(stringResource(Res.string.nodes_detail_metadata)) {
+                    DetailRow(stringResource(Res.string.nodes_detail_uuid), node.uuid, monoFont)
+                    if (node.countryCode.isNotBlank()) DetailRow(stringResource(Res.string.nodes_detail_country), "${node.countryCode} ${countryFlag(node.countryCode)}", monoFont)
+                    if (node.tags.isNotEmpty()) DetailRow(stringResource(Res.string.nodes_detail_tags), node.tags.joinToString(", "), monoFont)
+                    DetailRow(stringResource(Res.string.nodes_detail_created), relativePast(node.createdAt).localized(), monoFont)
+                    DetailRow(stringResource(Res.string.nodes_detail_updated), relativePast(node.updatedAt).localized(), monoFont)
+                }
+            }
+
+            item { NodeActions(node, onEnable, onDisable, onRestart, onReset) }
+        }
+    }
+}
+
+@Composable
+private fun NodeHeaderCard(node: Node) {
+    val fwStatus = LocalFwStatus.current
+    val statusColor = when (node.status) {
+        NodeStatus.ONLINE     -> fwStatus.online
+        NodeStatus.OFFLINE    -> fwStatus.offline
+        NodeStatus.DISABLED   -> fwStatus.neutral
+        NodeStatus.CONNECTING -> fwStatus.warning
+    }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape    = MaterialTheme.shapes.large,
+        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    ) {
+        Column(Modifier.fillMaxWidth()) {
+            Box(Modifier.fillMaxWidth().height(4.dp).background(statusColor))
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        NodeStatusDot(node.status)
+                        Text(nodeStatusLabel(node.status).uppercase(), style = MaterialTheme.typography.titleSmall, color = statusColor)
+                    }
+                    OnlinePill(node.usersOnline)
+                }
+                if (node.xrayVersion != null || node.nodeVersion != null) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        node.xrayVersion?.let { VersionChip(Icons.Rounded.Bolt, "Xray $it", MaterialTheme.colorScheme.primary) }
+                        node.nodeVersion?.let { VersionChip(Icons.Rounded.Dns, "Node $it", MaterialTheme.colorScheme.secondary) }
+                    }
+                }
+                node.cpuLoadPercent?.let { cpu ->
+                    val loadTrailing = listOfNotNull(
+                        node.loadAvg1?.let { "1m ${it.toDouble().format2()}" },
+                        node.loadAvg5?.let { "5m ${it.toDouble().format2()}" },
+                        node.loadAvg15?.let { "15m ${it.toDouble().format2()}" },
+                    ).joinToString(" · ")
+                    MiniGauge(stringResource(Res.string.nodes_detail_cpu), cpu, loadTrailing)
+                }
+                node.memoryUsedPercent?.let { mem ->
+                    val used = node.memoryUsedBytes
+                    val total = node.memoryTotalBytes
+                    val memTrailing = if (used != null && total != null) "${localizedBytes(used)} / ${localizedBytes(total)}" else ""
+                    MiniGauge(stringResource(Res.string.nodes_detail_memory), mem, memTrailing)
+                }
+                if (!node.isOnline) {
+                    node.lastStatusMessage?.let {
+                        Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MiniGauge(label: String, percent: Float, trailing: String) {
+    val fwStatus = LocalFwStatus.current
+    val barColor = if (percent >= 90f) fwStatus.warning else fwStatus.online
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("${percent.roundToInt()}%", style = MaterialTheme.typography.bodyMedium)
+        }
+        Box(
+            modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(50))
+                .background(barColor.copy(alpha = 0.15f)),
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth((percent / 100f).coerceIn(0f, 1f)).fillMaxHeight()
+                    .clip(RoundedCornerShape(50)).background(barColor),
+            )
+        }
+        if (trailing.isNotBlank()) {
+            Text(trailing, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun OnlinePill(count: Int) {
+    val fwStatus = LocalFwStatus.current
+    Row(
+        modifier = Modifier.clip(RoundedCornerShape(50)).background(fwStatus.online.copy(alpha = 0.15f))
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Icon(Icons.Rounded.Person, contentDescription = null, tint = fwStatus.online, modifier = Modifier.size(14.dp))
+        Text(stringResource(Res.string.nodes_detail_online_users, count), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
+    }
+}
+
+@Composable
+private fun VersionChip(icon: ImageVector, text: String, tint: Color) {
+    Row(
+        modifier = Modifier.clip(RoundedCornerShape(50)).background(tint.copy(alpha = 0.12f))
+            .padding(horizontal = 8.dp, vertical = 3.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(14.dp))
+        Text(text, style = MaterialTheme.typography.labelMedium)
+    }
+}
+
+@Composable
+private fun FwExpandableCard(
+    title: String,
+    initiallyExpanded: Boolean = false,
+    content: @Composable () -> Unit,
+) {
+    var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
+    val rotation by animateFloatAsState(if (expanded) 180f else 0f, label = "chevron")
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape    = MaterialTheme.shapes.large,
+        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().animateContentSize()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                DetailSectionTitle(title)
+                Icon(
+                    Icons.Rounded.ExpandMore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.rotate(rotation),
+                )
+            }
+            if (expanded) {
+                Column(
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) { content() }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NodeActions(
+    node: Node,
+    onEnable: () -> Unit,
+    onDisable: () -> Unit,
+    onRestart: () -> Unit,
+    onReset: () -> Unit,
+) {
+    val actionPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        when {
+            node.isOnline -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = onDisable,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(percent = 50),
+                    contentPadding = actionPadding,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor   = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                ) { Text(stringResource(Res.string.nodes_disable), textAlign = TextAlign.Center, maxLines = 2) }
+                Button(
+                    onClick = onRestart,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(percent = 50),
+                    contentPadding = actionPadding,
+                ) { Text(stringResource(Res.string.nodes_restart), textAlign = TextAlign.Center, maxLines = 2) }
+            }
+            node.isDisabled -> Button(
+                onClick = onEnable,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(percent = 50),
+            ) { Text(stringResource(Res.string.nodes_enable)) }
+            else -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = onEnable,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(percent = 50),
+                    contentPadding = actionPadding,
+                ) { Text(stringResource(Res.string.nodes_enable), textAlign = TextAlign.Center, maxLines = 2) }
+                Button(
+                    onClick = onRestart,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(percent = 50),
+                    contentPadding = actionPadding,
+                ) { Text(stringResource(Res.string.nodes_restart), textAlign = TextAlign.Center, maxLines = 2) }
+            }
+        }
+        Button(
+            onClick = onReset,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(percent = 50),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                contentColor   = MaterialTheme.colorScheme.onSurface,
+            )
+        ) { Text(stringResource(Res.string.nodes_reset_traffic)) }
     }
 }
 
