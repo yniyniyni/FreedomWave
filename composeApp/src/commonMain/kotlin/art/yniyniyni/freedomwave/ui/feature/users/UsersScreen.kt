@@ -87,6 +87,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -916,14 +917,16 @@ private fun ManageCard(
                 onClick = onResetTraffic,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(percent = 50),
-            ) { Text(stringResource(Res.string.users_reset_traffic)) }
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            ) { Text(stringResource(Res.string.users_reset_traffic), textAlign = TextAlign.Center, maxLines = 2) }
             OutlinedButton(
                 onClick = {
                     detailVm.openSetLimitDialog(user.trafficLimitBytes)
                 },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(percent = 50),
-            ) { Text(stringResource(Res.string.users_set_limit)) }
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            ) { Text(stringResource(Res.string.users_set_limit), textAlign = TextAlign.Center, maxLines = 2) }
             OutlinedButton(
                 onClick = {
                     val millis = parseInstant(user.expireAt)?.toEpochMilliseconds()
@@ -932,7 +935,8 @@ private fun ManageCard(
                 },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(percent = 50),
-            ) { Text(stringResource(Res.string.users_set_expiry)) }
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            ) { Text(stringResource(Res.string.users_set_expiry), textAlign = TextAlign.Center, maxLines = 2) }
         }
 
         Spacer(Modifier.height(4.dp))

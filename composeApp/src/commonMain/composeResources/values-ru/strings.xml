@@ -152,7 +152,7 @@
 
     <!-- navigation -->
     <string name="nav_dashboard">Дашборд</string>
-    <string name="nav_users">Пользователи</string>
+    <string name="nav_users">Юзеры</string>
     <string name="nav_nodes">Ноды</string>
     <string name="nav_hosts">Хосты</string>
     <string name="nav_settings">Настройки</string>
