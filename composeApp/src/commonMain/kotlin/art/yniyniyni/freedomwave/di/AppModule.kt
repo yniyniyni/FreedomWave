@@ -31,6 +31,7 @@ import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.dashboard.DashboardViewModel
 import art.yniyniyni.freedomwave.ui.feature.hosts.HostsViewModel
 import art.yniyniyni.freedomwave.ui.feature.login.LoginViewModel
+import art.yniyniyni.freedomwave.ui.feature.nodes.NodeFormViewModel
 import art.yniyniyni.freedomwave.ui.feature.nodes.NodesViewModel
 import art.yniyniyni.freedomwave.ui.feature.settings.SettingsViewModel
 import art.yniyniyni.freedomwave.ui.feature.squads.SquadsViewModel
@@ -88,6 +89,7 @@ val viewModelModule = module {
     viewModel { DashboardViewModel(get()) }
     viewModel { UsersViewModel(get(), get(), get()) }
     viewModel { NodesViewModel(get()) }
+    viewModel { (uuid: String?) -> NodeFormViewModel(uuid, get(), get(), get()) }
     viewModel { HostsViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { SquadsViewModel(get()) }
