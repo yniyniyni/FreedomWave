@@ -40,6 +40,8 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.ShowChart
 import androidx.compose.material.icons.rounded.SwapVert
@@ -47,6 +49,8 @@ import androidx.compose.material.icons.rounded.Wifi
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -129,6 +133,8 @@ import freedomwave.composeapp.generated.resources.nodes_detail_xray_version
 import freedomwave.composeapp.generated.resources.nodes_disable
 import freedomwave.composeapp.generated.resources.nodes_empty
 import freedomwave.composeapp.generated.resources.nodes_enable
+import freedomwave.composeapp.generated.resources.nodes_form_add
+import freedomwave.composeapp.generated.resources.nodes_form_edit
 import freedomwave.composeapp.generated.resources.common_refresh
 import freedomwave.composeapp.generated.resources.nodes_reset_traffic
 import freedomwave.composeapp.generated.resources.nodes_restart
@@ -156,10 +162,23 @@ import art.yniyniyni.freedomwave.util.uptimeParts
 import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 private sealed interface NodesNav {
-    object List : NodesNav
+    data object List : NodesNav
     data class Detail(val node: Node) : NodesNav
+    data class Form(val node: Node?) : NodesNav   // null = create
+
+    val depth: Int get() = when (this) {
+        List -> 0
+        is Detail -> 1
+        is Form -> if (node == null) 1 else 2
+    }
+    val key: String get() = when (this) {
+        List -> "list"
+        is Detail -> "detail:${node.uuid}"
+        is Form -> "form:${node?.uuid ?: "new"}"
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -171,107 +190,134 @@ fun NodesScreen(
     val state by vm.state.collectAsState()
     val bandwidthState by bandwidthVm.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
-    var nav: NodesNav by remember { mutableStateOf(NodesNav.List) }
+
+    var stack by remember { mutableStateOf<kotlin.collections.List<NodesNav>>(listOf(NodesNav.List)) }
+    val top = stack.last()
+    val canGoBack = stack.size > 1
 
     val actionErrorText = state.actionError?.resolve()
     LaunchedEffect(actionErrorText) {
         actionErrorText?.let { snackbar.showSnackbar(it); vm.clearActionError() }
     }
 
-    val isDetail = nav is NodesNav.Detail
-
-    val transitionState = remember { SeekableTransitionState(false) }
+    val transitionState = remember { SeekableTransitionState<NodesNav>(NodesNav.List) }
     val transition = rememberTransition(transitionState, label = "nodes_nav")
-
-    LaunchedEffect(isDetail) { transitionState.animateTo(isDetail) }
-
-    var lastDetailNode by remember { mutableStateOf<Node?>(null) }
-    val currentDetailNode = (nav as? NodesNav.Detail)?.node
-    if (currentDetailNode != null) lastDetailNode = currentDetailNode
+    LaunchedEffect(top) { if (transitionState.currentState != top) transitionState.animateTo(top) }
 
     BackGestureEffect(
-        enabled    = isDetail,
-        onProgress = { fraction -> transitionState.seekTo(fraction, false) },
-        onCommit   = { transitionState.animateTo(false); nav = NodesNav.List },
-        onCancel   = { transitionState.animateTo(true) },
+        enabled    = canGoBack,
+        onProgress = { fraction -> transitionState.seekTo(fraction, stack[stack.size - 2]) },
+        onCommit   = { val t = stack[stack.size - 2]; transitionState.animateTo(t); stack = stack.dropLast(1) },
+        onCancel   = { transitionState.animateTo(top) },
     )
 
     transition.AnimatedContent(
-        contentKey = { it },
+        contentKey = { it.key },
         transitionSpec = {
-            if (targetState) {
+            val deeper = targetState.depth > initialState.depth
+            if (deeper) {
                 slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
             } else {
                 slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
-            }.apply { targetContentZIndex = if (targetState) 1f else 0f }
+            }.apply { targetContentZIndex = if (deeper) 1f else 0f }
         },
-    ) { showDetail ->
-        if (showDetail) {
-            lastDetailNode?.let { node ->
+    ) { navEntry ->
+        when (navEntry) {
+            is NodesNav.List -> NodesListContent(
+                state = state, vm = vm, snackbar = snackbar,
+                onOpenDetail = { node -> stack = stack + NodesNav.Detail(node) },
+                onCreate = { stack = stack + NodesNav.Form(null) },
+            )
+            is NodesNav.Detail -> {
+                val live = state.nodes.find { it.uuid == navEntry.node.uuid } ?: navEntry.node
                 NodeDetailScreen(
-                    node           = node,
+                    node           = live,
                     bandwidthState = bandwidthState,
                     onRangeChange  = bandwidthVm::setRange,
-                    onBack         = { nav = NodesNav.List },
-                    onEnable       = { vm.enableNode(node.uuid) },
-                    onDisable      = { vm.disableNode(node.uuid) },
-                    onRestart      = { vm.restartNode(node.uuid) },
-                    onReset        = { vm.resetTraffic(node.uuid) },
+                    onBack         = { stack = stack.dropLast(1) },
+                    onEdit         = { stack = stack + NodesNav.Form(live) },
+                    onEnable       = { vm.enableNode(live.uuid) },
+                    onDisable      = { vm.disableNode(live.uuid) },
+                    onRestart      = { vm.restartNode(live.uuid) },
+                    onReset        = { vm.resetTraffic(live.uuid) },
                 )
             }
-        } else {
-            Scaffold(
-                contentWindowInsets = WindowInsets(0),
-                snackbarHost = { SnackbarHost(snackbar) },
-                topBar = {
-                    FwTopBar(
-                        title   = stringResource(Res.string.nodes_title_count, state.nodes.size),
-                        actions = { IconButton(onClick = vm::load) { Icon(Icons.Rounded.Refresh, contentDescription = stringResource(Res.string.common_refresh)) } },
-                    )
-                },
-            ) { padding ->
-                when {
-                    state.isLoading && state.nodes.isEmpty() ->
-                        ShimmerList(modifier = Modifier.padding(padding))
+            is NodesNav.Form -> {
+                val uuid = navEntry.node?.uuid
+                val formVm: NodeFormViewModel = koinViewModel(key = "node-form-${uuid ?: "new"}") { parametersOf(uuid) }
+                NodeCreateEditScreen(
+                    nodeUuid = uuid,
+                    vm = formVm,
+                    onBack = { stack = stack.dropLast(1) },
+                    onSaved = {
+                        vm.load()
+                        stack = if (uuid == null) listOf(NodesNav.List) else stack.dropLast(1)
+                    },
+                )
+            }
+        }
+    }
+}
 
-                    state.error != null && state.nodes.isEmpty() ->
-                        Column(
-                            Modifier.fillMaxSize().padding(padding).padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NodesListContent(
+    state: NodesUiState,
+    vm: NodesViewModel,
+    snackbar: SnackbarHostState,
+    onOpenDetail: (Node) -> Unit,
+    onCreate: () -> Unit,
+) {
+    Scaffold(
+        contentWindowInsets = WindowInsets(0),
+        snackbarHost = { SnackbarHost(snackbar) },
+        topBar = {
+            FwTopBar(
+                title   = stringResource(Res.string.nodes_title_count, state.nodes.size),
+                actions = { IconButton(onClick = vm::load) { Icon(Icons.Rounded.Refresh, contentDescription = stringResource(Res.string.common_refresh)) } },
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick        = onCreate,
+                containerColor = MaterialTheme.colorScheme.primary,
+                elevation      = FloatingActionButtonDefaults.elevation(0.dp),
+            ) { Icon(Icons.Rounded.Add, contentDescription = stringResource(Res.string.nodes_form_add)) }
+        },
+    ) { padding ->
+        when {
+            state.isLoading && state.nodes.isEmpty() ->
+                ShimmerList(modifier = Modifier.padding(padding))
+            state.error != null && state.nodes.isEmpty() ->
+                Column(
+                    Modifier.fillMaxSize().padding(padding).padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
+                    Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
+                }
+            else ->
+                PullToRefreshBox(
+                    isRefreshing = state.isLoading && state.nodes.isNotEmpty(),
+                    onRefresh    = vm::load,
+                    modifier     = Modifier.fillMaxSize().padding(padding),
+                ) {
+                    if (state.nodes.isEmpty()) {
+                        Text(stringResource(Res.string.nodes_empty),
+                            modifier = Modifier.align(Alignment.Center),
+                            color    = MaterialTheme.colorScheme.onSurfaceVariant)
+                    } else {
+                        LazyColumn(
+                            contentPadding      = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
-                            Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
-                        }
-
-                    else ->
-                        PullToRefreshBox(
-                            isRefreshing = state.isLoading && state.nodes.isNotEmpty(),
-                            onRefresh    = vm::load,
-                            modifier     = Modifier.fillMaxSize().padding(padding),
-                        ) {
-                            if (state.nodes.isEmpty()) {
-                                Text(
-                                    stringResource(Res.string.nodes_empty),
-                                    modifier = Modifier.align(Alignment.Center),
-                                    color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            } else {
-                                LazyColumn(
-                                    contentPadding      = PaddingValues(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    items(state.nodes, key = { it.uuid }) { node ->
-                                        NodeListItem(
-                                            node    = node,
-                                            onClick = { nav = NodesNav.Detail(node) },
-                                        )
-                                    }
-                                }
+                            items(state.nodes, key = { it.uuid }) { node ->
+                                NodeListItem(node = node, onClick = { onOpenDetail(node) })
                             }
                         }
+                    }
                 }
-            }
         }
     }
 }
@@ -352,6 +398,7 @@ private fun NodeDetailScreen(
     bandwidthState: BandwidthUiState,
     onRangeChange: (TimeRange) -> Unit,
     onBack: () -> Unit,
+    onEdit: () -> Unit,
     onEnable: () -> Unit,
     onDisable: () -> Unit,
     onRestart: () -> Unit,
@@ -365,7 +412,17 @@ private fun NodeDetailScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
-        topBar = { FwDetailTopBar(title = node.name, onBack = onBack) }
+        topBar = {
+            FwDetailTopBar(
+                title   = node.name,
+                onBack  = onBack,
+                actions = {
+                    IconButton(onClick = onEdit) {
+                        Icon(Icons.Rounded.Edit, contentDescription = stringResource(Res.string.nodes_form_edit))
+                    }
+                },
+            )
+        }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.padding(padding),
