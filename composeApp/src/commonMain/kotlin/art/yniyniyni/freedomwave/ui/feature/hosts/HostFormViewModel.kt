@@ -116,7 +116,7 @@ class HostFormViewModel(
                             keepSniBlank = h.keepSniBlank,
                             allowInsecure = h.allowInsecure,
                             shuffleHost = h.shuffleHost,
-                            mihomoX25519 = false,
+                            mihomoX25519 = h.mihomoX25519,
                             selectedNodeUuids = h.nodes.toSet(),
                             xrayTemplateUuid = h.xrayJsonTemplateUuid,
                         )
