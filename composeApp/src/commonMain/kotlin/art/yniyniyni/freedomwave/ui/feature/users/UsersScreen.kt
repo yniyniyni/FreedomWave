@@ -3,11 +3,13 @@
 package art.yniyniyni.freedomwave.ui.feature.users
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,12 +39,18 @@ import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.ContentCopy
-import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.DataUsage
+import androidx.compose.material.icons.rounded.Devices
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Groups
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.QrCode
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SwapVert
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
@@ -82,6 +90,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -623,7 +633,7 @@ private fun UserDetailScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        DetailSectionTitle(stringResource(Res.string.users_detail_info))
+                        DetailSectionTitle(stringResource(Res.string.users_detail_info), Icons.Rounded.Info)
                         StatusBadge(user.status)
                     }
                     // Last connection, formatted like the user list: 🇩🇪 DE · node · 5m ago
@@ -651,7 +661,7 @@ private fun UserDetailScreen(
             // ── Traffic donut ─────────────────────────────────────────────────
             item {
                 FwDetailCard {
-                    DetailSectionTitle(stringResource(Res.string.users_detail_traffic))
+                    DetailSectionTitle(stringResource(Res.string.users_detail_traffic), Icons.Rounded.DataUsage)
                     Spacer(Modifier.height(8.dp))
                     TrafficDonut(
                         usedBytes     = user.usedTrafficBytes,
@@ -674,7 +684,7 @@ private fun UserDetailScreen(
             if (user.subscriptionUrl.isNotBlank()) {
                 item {
                     FwDetailCard {
-                        DetailSectionTitle(stringResource(Res.string.users_detail_subscription))
+                        DetailSectionTitle(stringResource(Res.string.users_detail_subscription), Icons.Rounded.Link)
                         Spacer(Modifier.height(4.dp))
                         Row(
                             modifier = Modifier
@@ -709,7 +719,7 @@ private fun UserDetailScreen(
             if (user.activeSquads.isNotEmpty()) {
                 item {
                     FwDetailCard {
-                        DetailSectionTitle(stringResource(Res.string.users_detail_squads))
+                        DetailSectionTitle(stringResource(Res.string.users_detail_squads), Icons.Rounded.Groups)
                         user.activeSquads.forEach {
                             Text(it, style = MaterialTheme.typography.bodyMedium)
                         }
@@ -729,17 +739,21 @@ private fun UserDetailScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            DetailSectionTitle(stringResource(Res.string.users_detail_devices))
+                            DetailSectionTitle(stringResource(Res.string.users_detail_devices), Icons.Rounded.Devices)
                             if (!detailState.devicesLoading) {
                                 Badge { Text("${detailState.devices.size}") }
                             }
                         }
+                        val devicesRotation by animateFloatAsState(
+                            if (detailState.devicesExpanded) 180f else 0f, label = "devices_chevron"
+                        )
                         Icon(
-                            if (detailState.devicesExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                            Icons.Rounded.ExpandMore,
                             contentDescription = stringResource(
                                 if (detailState.devicesExpanded) Res.string.users_collapse else Res.string.users_expand
                             ),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.rotate(devicesRotation),
                         )
                     }
 
@@ -785,7 +799,7 @@ private fun UserDetailScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            DetailSectionTitle(stringResource(Res.string.users_detail_ip_addresses))
+                            DetailSectionTitle(stringResource(Res.string.users_detail_ip_addresses), Icons.Rounded.Public)
                             if (!detailState.ipLoading) {
                                 Badge {
                                     Text(
@@ -798,12 +812,16 @@ private fun UserDetailScreen(
                                 }
                             }
                         }
+                        val ipRotation by animateFloatAsState(
+                            if (detailState.ipExpanded) 180f else 0f, label = "ip_chevron"
+                        )
                         Icon(
-                            if (detailState.ipExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                            Icons.Rounded.ExpandMore,
                             contentDescription = stringResource(
                                 if (detailState.ipExpanded) Res.string.users_collapse else Res.string.users_expand
                             ),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.rotate(ipRotation),
                         )
                     }
 
@@ -872,7 +890,7 @@ private fun ManageCard(
     onApplyUpdate: (User) -> Unit,
 ) {
     FwDetailCard {
-        DetailSectionTitle(stringResource(Res.string.users_manage))
+        DetailSectionTitle(stringResource(Res.string.users_manage), Icons.Rounded.Tune)
         Spacer(Modifier.height(4.dp))
 
         // Status row
@@ -1253,7 +1271,7 @@ private fun FwDetailCard(content: @Composable ColumnScope.() -> Unit) {
         colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp).animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             content = content,
         )
@@ -1261,8 +1279,21 @@ private fun FwDetailCard(content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
-private fun DetailSectionTitle(title: String) {
-    Text(title, style = MaterialTheme.typography.titleSmall)
+private fun DetailSectionTitle(title: String, icon: ImageVector? = null) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (icon != null) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+        Text(title, style = MaterialTheme.typography.titleSmall)
+    }
 }
 
 @Composable

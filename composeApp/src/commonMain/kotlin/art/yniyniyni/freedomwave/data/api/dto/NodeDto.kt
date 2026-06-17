@@ -29,6 +29,11 @@ data class NodeDto(
     @SerialName("trafficUsedBytes")         val trafficUsedBytes: Long? = null,
     @SerialName("trafficResetDay")          val trafficResetDay: Int? = null,
     @SerialName("consumptionMultiplier")    val consumptionMultiplier: Double = 1.0,
+    @SerialName("notifyPercent")            val notifyPercent: Int? = null,
+    @SerialName("xrayUptime")               val xrayUptime: Double = 0.0,
+    @SerialName("usersOnline")              val usersOnline: Int = 0,
+    @SerialName("versions")                 val versions: NodeVersionsDto? = null,
+    @SerialName("configProfile")            val configProfile: NodeConfigProfileRef? = null,
     @SerialName("viewPosition")             val viewPosition: Int,
     @SerialName("countryCode")              val countryCode: String,
     @SerialName("tags")                     val tags: List<String> = emptyList(),
@@ -59,4 +64,18 @@ data class NodeSystemStatsDto(
     @SerialName("memoryUsed") val memoryUsed: Long,
     @SerialName("uptime")     val uptime: Double,
     @SerialName("loadAvg")    val loadAvg: List<Double> = emptyList()
+)
+
+@Serializable
+data class NodeVersionsDto(
+    @SerialName("xray") val xray: String,
+    @SerialName("node") val node: String
+)
+
+@Serializable
+data class NodeConfigProfileRef(
+    @SerialName("activeConfigProfileUuid") val activeConfigProfileUuid: String? = null,
+    // The node response returns activeInbounds as an array of inbound OBJECTS
+    // (not UUID strings — that's the create/update request shape). Parse as objects.
+    @SerialName("activeInbounds")          val activeInbounds: List<InboundDto> = emptyList(),
 )
