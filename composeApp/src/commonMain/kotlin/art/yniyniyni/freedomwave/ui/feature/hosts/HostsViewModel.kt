@@ -17,7 +17,6 @@ data class HostsUiState(
     val hosts: List<Host> = emptyList(),
     val error: UiText? = null,
     val actionError: UiText? = null,
-    val selected: Host? = null,
     val actionInProgress: Boolean = false
 )
 
@@ -37,8 +36,6 @@ class HostsViewModel(private val repo: HostRepository) : ViewModel() {
         }
     }
 
-    fun select(host: Host) = _state.update { it.copy(selected = host) }
-    fun clearSelection() = _state.update { it.copy(selected = null) }
     fun clearActionError() = _state.update { it.copy(actionError = null) }
 
     fun toggleEnabled(host: Host) {
@@ -52,8 +49,7 @@ class HostsViewModel(private val repo: HostRepository) : ViewModel() {
                         val merged = s.hosts.map { h ->
                             updatedList.firstOrNull { it.uuid == h.uuid } ?: h
                         }
-                        val updatedSelected = updatedList.firstOrNull { it.uuid == host.uuid }
-                        s.copy(actionInProgress = false, hosts = merged, selected = updatedSelected ?: s.selected)
+                        s.copy(actionInProgress = false, hosts = merged)
                     }
                 }
                 .onFailure { e ->
@@ -71,7 +67,6 @@ class HostsViewModel(private val repo: HostRepository) : ViewModel() {
                         s.copy(
                             actionInProgress = false,
                             hosts = s.hosts.filter { it.uuid != host.uuid },
-                            selected = if (s.selected?.uuid == host.uuid) null else s.selected
                         )
                     }
                 }

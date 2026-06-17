@@ -21,19 +21,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +64,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.domain.model.Host
 import freedomwave.composeapp.generated.resources.Res
@@ -71,9 +79,11 @@ import freedomwave.composeapp.generated.resources.hosts_detail_alpn
 import freedomwave.composeapp.generated.resources.hosts_detail_connection
 import freedomwave.composeapp.generated.resources.hosts_detail_description
 import freedomwave.composeapp.generated.resources.hosts_detail_details
+import freedomwave.composeapp.generated.resources.hosts_detail_edit
 import freedomwave.composeapp.generated.resources.hosts_detail_fingerprint
 import freedomwave.composeapp.generated.resources.hosts_detail_hidden
 import freedomwave.composeapp.generated.resources.hosts_detail_host_header
+import freedomwave.composeapp.generated.resources.hosts_detail_inbound
 import freedomwave.composeapp.generated.resources.hosts_detail_insecure_tls
 import freedomwave.composeapp.generated.resources.hosts_detail_nodes
 import freedomwave.composeapp.generated.resources.hosts_detail_path
@@ -83,10 +93,13 @@ import freedomwave.composeapp.generated.resources.hosts_detail_sni
 import freedomwave.composeapp.generated.resources.hosts_detail_status
 import freedomwave.composeapp.generated.resources.hosts_detail_tag
 import freedomwave.composeapp.generated.resources.hosts_detail_visibility
+import freedomwave.composeapp.generated.resources.hosts_detail_vless_route
+import freedomwave.composeapp.generated.resources.hosts_detail_xray_template
 import freedomwave.composeapp.generated.resources.hosts_detail_yes
 import freedomwave.composeapp.generated.resources.hosts_disable
 import freedomwave.composeapp.generated.resources.hosts_empty
 import freedomwave.composeapp.generated.resources.hosts_enable
+import freedomwave.composeapp.generated.resources.hosts_form_add
 import freedomwave.composeapp.generated.resources.common_refresh
 import freedomwave.composeapp.generated.resources.hosts_status_disabled
 import freedomwave.composeapp.generated.resources.hosts_status_enabled
@@ -96,12 +109,35 @@ import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
+
+private sealed interface HostsNav {
+    data object List : HostsNav
+    data class Detail(val host: Host) : HostsNav
+    data class Form(val host: Host?, val epoch: Int) : HostsNav
+
+    val depth: Int get() = when (this) {
+        List -> 0
+        is Detail -> 1
+        is Form -> if (host == null) 1 else 2
+    }
+    val key: String get() = when (this) {
+        List -> "list"
+        is Detail -> "detail:${host.uuid}"
+        is Form -> "form:${host?.uuid ?: "new"}:$epoch"
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
+
+    var stack by remember { mutableStateOf<kotlin.collections.List<HostsNav>>(listOf(HostsNav.List)) }
+    var formEpoch by remember { mutableStateOf(0) }
+    val top = stack.last()
+    val canGoBack = stack.size > 1
 
     val actionErrorText = state.actionError?.resolve()
     LaunchedEffect(actionErrorText) {
@@ -111,96 +147,129 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
         }
     }
 
-    val isDetail = state.selected != null
-
-    val transitionState = remember { SeekableTransitionState(false) }
+    val transitionState = remember { SeekableTransitionState<HostsNav>(HostsNav.List) }
     val transition = rememberTransition(transitionState, label = "hosts_nav")
-
-    LaunchedEffect(isDetail) { transitionState.animateTo(isDetail) }
-
-    // Snapshot the last selected host so the detail content stays alive during the exit animation.
-    var lastSelectedHost by remember { mutableStateOf<Host?>(null) }
-    val currentSelected = state.selected
-    if (currentSelected != null) lastSelectedHost = currentSelected
+    LaunchedEffect(top) { if (transitionState.currentState != top) transitionState.animateTo(top) }
 
     BackGestureEffect(
-        enabled    = isDetail,
-        onProgress = { fraction -> transitionState.seekTo(fraction, false) },
-        onCommit   = { transitionState.animateTo(false); vm.clearSelection() },
-        onCancel   = { transitionState.animateTo(true) },
+        enabled    = canGoBack,
+        onProgress = { fraction -> transitionState.seekTo(fraction, stack[stack.size - 2]) },
+        onCommit   = { val t = stack[stack.size - 2]; transitionState.animateTo(t); stack = stack.dropLast(1) },
+        onCancel   = { transitionState.animateTo(top) },
     )
 
     transition.AnimatedContent(
-        contentKey = { it },
+        contentKey = { it.key },
         transitionSpec = {
-            if (targetState) {
+            val deeper = targetState.depth > initialState.depth
+            if (deeper) {
                 slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
             } else {
                 slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
-            }.apply { targetContentZIndex = if (targetState) 1f else 0f }
+            }.apply { targetContentZIndex = if (deeper) 1f else 0f }
         },
-    ) { showDetail ->
-        if (showDetail) {
-            lastSelectedHost?.let { host ->
+    ) { navEntry ->
+        when (navEntry) {
+            is HostsNav.List -> HostsListContent(
+                state    = state,
+                vm       = vm,
+                snackbar = snackbar,
+                onOpenDetail = { host -> stack = stack + HostsNav.Detail(host) },
+                onCreate     = { formEpoch++; stack = stack + HostsNav.Form(null, formEpoch) },
+            )
+            is HostsNav.Detail -> {
+                val live = state.hosts.find { it.uuid == navEntry.host.uuid } ?: navEntry.host
                 HostDetailScreen(
-                    host             = host,
+                    host             = live,
                     actionInProgress = state.actionInProgress,
-                    onBack           = vm::clearSelection,
-                    onToggleEnabled  = { vm.toggleEnabled(host) },
-                    onDelete         = { vm.delete(host) },
+                    onBack           = { stack = stack.dropLast(1) },
+                    onEdit           = { formEpoch++; stack = stack + HostsNav.Form(live, formEpoch) },
+                    onToggleEnabled  = { vm.toggleEnabled(live) },
+                    onDelete         = { vm.delete(live); stack = stack.dropLast(1) },
                 )
             }
-        } else {
-            Scaffold(
-                contentWindowInsets = WindowInsets(0),
-                topBar = {
-                    FwTopBar(
-                        title   = stringResource(Res.string.hosts_title_count, state.hosts.size),
-                        actions = { IconButton(onClick = vm::load) { Icon(Icons.Rounded.Refresh, contentDescription = stringResource(Res.string.common_refresh)) } },
-                    )
-                },
-                snackbarHost = { SnackbarHost(snackbar) },
-            ) { padding ->
-                when {
-                    state.isLoading && state.hosts.isEmpty() ->
-                        ShimmerList(modifier = Modifier.padding(padding))
-
-                    state.error != null && state.hosts.isEmpty() ->
-                        Box(Modifier.fillMaxSize().padding(padding)) {
-                            Column(
-                                modifier = Modifier.align(Alignment.Center).padding(32.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
-                                Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
-                            }
+            is HostsNav.Form -> {
+                val uuid = navEntry.host?.uuid
+                val formVm: HostFormViewModel = koinViewModel(key = "host-form-${navEntry.epoch}") { parametersOf(uuid) }
+                HostCreateEditScreen(
+                    vm     = formVm,
+                    onBack = { stack = stack.dropLast(1) },
+                    onSaved = {
+                        vm.load()
+                        if (stack.lastOrNull() is HostsNav.Form) {
+                            stack = if (uuid == null) listOf(HostsNav.List) else stack.dropLast(1)
                         }
-
-                    else ->
-                        PullToRefreshBox(
-                            isRefreshing = state.isLoading && state.hosts.isNotEmpty(),
-                            onRefresh    = vm::load,
-                            modifier     = Modifier.fillMaxSize().padding(padding),
-                        ) {
-                            if (state.hosts.isEmpty()) {
-                                Text(
-                                    stringResource(Res.string.hosts_empty),
-                                    modifier = Modifier.align(Alignment.Center),
-                                    color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            } else {
-                                LazyColumn(
-                                    contentPadding      = PaddingValues(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    items(state.hosts, key = { it.uuid }) { host ->
-                                        HostItem(host = host, onClick = { vm.select(host) })
-                                    }
-                                }
-                            }
-                        }
-                }
+                    },
+                )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HostsListContent(
+    state: HostsUiState,
+    vm: HostsViewModel,
+    snackbar: SnackbarHostState,
+    onOpenDetail: (Host) -> Unit,
+    onCreate: () -> Unit,
+) {
+    Scaffold(
+        contentWindowInsets = WindowInsets(0),
+        snackbarHost = { SnackbarHost(snackbar) },
+        topBar = {
+            FwTopBar(
+                title   = stringResource(Res.string.hosts_title_count, state.hosts.size),
+                actions = { IconButton(onClick = vm::load) { Icon(Icons.Rounded.Refresh, contentDescription = stringResource(Res.string.common_refresh)) } },
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick        = onCreate,
+                containerColor = MaterialTheme.colorScheme.primary,
+                elevation      = FloatingActionButtonDefaults.elevation(0.dp),
+            ) { Icon(Icons.Rounded.Add, contentDescription = stringResource(Res.string.hosts_form_add)) }
+        },
+    ) { padding ->
+        when {
+            state.isLoading && state.hosts.isEmpty() ->
+                ShimmerList(modifier = Modifier.padding(padding))
+
+            state.error != null && state.hosts.isEmpty() ->
+                Box(Modifier.fillMaxSize().padding(padding)) {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center).padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
+                        Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
+                    }
+                }
+
+            else ->
+                PullToRefreshBox(
+                    isRefreshing = state.isLoading && state.hosts.isNotEmpty(),
+                    onRefresh    = vm::load,
+                    modifier     = Modifier.fillMaxSize().padding(padding),
+                ) {
+                    if (state.hosts.isEmpty()) {
+                        Text(
+                            stringResource(Res.string.hosts_empty),
+                            modifier = Modifier.align(Alignment.Center),
+                            color    = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        LazyColumn(
+                            contentPadding      = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            items(state.hosts, key = { it.uuid }) { host ->
+                                HostItem(host = host, onClick = { onOpenDetail(host) })
+                            }
+                        }
+                    }
+                }
         }
     }
 }
@@ -280,8 +349,9 @@ private fun HostDetailScreen(
     host: Host,
     actionInProgress: Boolean,
     onBack: () -> Unit,
+    onEdit: () -> Unit,
     onToggleEnabled: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
 ) {
     val monoFont = LocalFwMonoFont.current
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -306,7 +376,17 @@ private fun HostDetailScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
-        topBar = { FwDetailTopBar(title = host.remark, onBack = onBack) }
+        topBar = {
+            FwDetailTopBar(
+                title   = host.remark,
+                onBack  = onBack,
+                actions = {
+                    IconButton(onClick = onEdit) {
+                        Icon(Icons.Rounded.Edit, contentDescription = stringResource(Res.string.hosts_detail_edit))
+                    }
+                },
+            )
+        }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
@@ -315,7 +395,7 @@ private fun HostDetailScreen(
         ) {
             item {
                 FwDetailCard {
-                    DetailSectionTitle(stringResource(Res.string.hosts_detail_connection))
+                    DetailSectionTitle(stringResource(Res.string.hosts_detail_connection), Icons.Rounded.Link)
                     DetailRow(stringResource(Res.string.hosts_detail_address), "${host.address}:${host.port}", monoFont)
                     DetailRow(stringResource(Res.string.hosts_detail_security), host.securityLayer, monoFont)
                     host.sni?.let { DetailRow(stringResource(Res.string.hosts_detail_sni), it, monoFont) }
@@ -333,7 +413,7 @@ private fun HostDetailScreen(
 
             item {
                 FwDetailCard {
-                    DetailSectionTitle(stringResource(Res.string.hosts_detail_details))
+                    DetailSectionTitle(stringResource(Res.string.hosts_detail_details), Icons.Rounded.Tune)
                     DetailRow(
                         stringResource(Res.string.hosts_detail_status),
                         stringResource(
@@ -354,6 +434,9 @@ private fun HostDetailScreen(
                         monoFont,
                     )
                     if (host.nodes.isNotEmpty()) DetailRow(stringResource(Res.string.hosts_detail_nodes), "${host.nodes.size}", monoFont)
+                    host.configProfileInboundUuid?.let { DetailRow(stringResource(Res.string.hosts_detail_inbound), it, monoFont) }
+                    host.vlessRouteId?.let { DetailRow(stringResource(Res.string.hosts_detail_vless_route), it.toString(), monoFont) }
+                    host.xrayJsonTemplateUuid?.let { DetailRow(stringResource(Res.string.hosts_detail_xray_template), it, monoFont) }
                 }
             }
 
@@ -405,8 +488,21 @@ private fun FwDetailCard(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun DetailSectionTitle(title: String) {
-    Text(title, style = MaterialTheme.typography.titleSmall)
+private fun DetailSectionTitle(title: String, icon: ImageVector? = null) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (icon != null) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+        Text(title, style = MaterialTheme.typography.titleSmall)
+    }
 }
 
 @Composable
