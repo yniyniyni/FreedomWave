@@ -1,6 +1,8 @@
 package art.yniyniyni.freedomwave.data.repository
 
 import art.yniyniyni.freedomwave.data.api.ApiError
+import art.yniyniyni.freedomwave.data.api.dto.CreateHostRequest
+import art.yniyniyni.freedomwave.data.api.dto.UpdateHostRequest
 import art.yniyniyni.freedomwave.data.api.service.HostService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.Host
@@ -19,6 +21,18 @@ class HostRepository(
 
     suspend fun disableHost(uuid: String): Result<List<Host>> = runCatching {
         service.disableHosts(prefs.getServerUrl(), listOf(uuid)).response.map { Host.from(it) }
+    }.also { clearOnUnauthorized(it) }
+
+    suspend fun getHost(uuid: String): Result<Host> = runCatching {
+        Host.from(service.getHost(prefs.getServerUrl(), uuid).response)
+    }.also { clearOnUnauthorized(it) }
+
+    suspend fun createHost(body: CreateHostRequest): Result<Host> = runCatching {
+        Host.from(service.createHost(prefs.getServerUrl(), body).response)
+    }.also { clearOnUnauthorized(it) }
+
+    suspend fun updateHost(body: UpdateHostRequest): Result<Host> = runCatching {
+        Host.from(service.updateHost(prefs.getServerUrl(), body).response)
     }.also { clearOnUnauthorized(it) }
 
     suspend fun deleteHost(uuid: String): Result<Unit> = runCatching {
