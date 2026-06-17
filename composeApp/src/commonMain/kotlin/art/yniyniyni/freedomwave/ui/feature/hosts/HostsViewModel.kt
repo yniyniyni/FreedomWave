@@ -38,26 +38,6 @@ class HostsViewModel(private val repo: HostRepository) : ViewModel() {
 
     fun clearActionError() = _state.update { it.copy(actionError = null) }
 
-    fun toggleEnabled(host: Host) {
-        viewModelScope.launch {
-            _state.update { it.copy(actionInProgress = true) }
-            val result = if (host.isDisabled) repo.enableHost(host.uuid)
-                         else repo.disableHost(host.uuid)
-            result
-                .onSuccess { updatedList ->
-                    _state.update { s ->
-                        val merged = s.hosts.map { h ->
-                            updatedList.firstOrNull { it.uuid == h.uuid } ?: h
-                        }
-                        s.copy(actionInProgress = false, hosts = merged)
-                    }
-                }
-                .onFailure { e ->
-                    _state.update { it.copy(actionInProgress = false, actionError = e.toUiText()) }
-                }
-        }
-    }
-
     fun delete(host: Host) {
         viewModelScope.launch {
             _state.update { it.copy(actionInProgress = true) }

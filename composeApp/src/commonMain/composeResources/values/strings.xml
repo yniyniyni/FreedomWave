@@ -372,6 +372,7 @@
     <string name="hosts_form_tag">Tag</string>
     <string name="hosts_form_tag_hint">Optional tag</string>
     <string name="hosts_form_hidden">Hidden</string>
+    <string name="hosts_form_enabled">Enabled</string>
     <string name="hosts_form_overrides">Connection Overrides</string>
     <string name="hosts_form_sni">SNI</string>
     <string name="hosts_form_sni_hint">Server Name Indication. If empty, the config inbound value is used.</string>

@@ -3,24 +3,30 @@
 package art.yniyniyni.freedomwave.ui.feature.hosts
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Link
@@ -28,7 +34,9 @@ import androidx.compose.material.icons.rounded.RadioButtonChecked
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -54,6 +62,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -63,8 +73,16 @@ import art.yniyniyni.freedomwave.domain.model.ConfigProfile
 import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.l10n.resolve
+import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
+import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import freedomwave.composeapp.generated.resources.Res
 import freedomwave.composeapp.generated.resources.common_cancel
+import freedomwave.composeapp.generated.resources.common_delete
+import freedomwave.composeapp.generated.resources.hosts_delete_confirm
+import freedomwave.composeapp.generated.resources.hosts_delete_title
+import freedomwave.composeapp.generated.resources.hosts_form_enabled
+import freedomwave.composeapp.generated.resources.hosts_status_disabled
+import freedomwave.composeapp.generated.resources.hosts_status_enabled
 import freedomwave.composeapp.generated.resources.hosts_form_address
 import freedomwave.composeapp.generated.resources.hosts_form_allow_insecure
 import freedomwave.composeapp.generated.resources.hosts_form_alpn
@@ -120,12 +138,32 @@ internal fun HostCreateEditScreen(
     vm: HostFormViewModel,
     onBack: () -> Unit,
     onSaved: () -> Unit,
+    onDelete: (() -> Unit)? = null,
 ) {
     val state by vm.state.collectAsState()
     val isEdit = state.isEdit
 
     var showInboundPicker by remember { mutableStateOf(false) }
     var showNodePicker by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog && onDelete != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text(stringResource(Res.string.hosts_delete_title)) },
+            text = { Text(stringResource(Res.string.hosts_delete_confirm, state.remark)) },
+            confirmButton = {
+                Button(
+                    onClick = { showDeleteDialog = false; onDelete() },
+                    shape = RoundedCornerShape(percent = 50),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                ) { Text(stringResource(Res.string.common_delete)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(Res.string.common_cancel)) }
+            },
+        )
+    }
 
     if (showInboundPicker) {
         InboundPickerDialog(
@@ -179,9 +217,22 @@ internal fun HostCreateEditScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            // 0. Header (edit mode only) — live summary
+            if (isEdit) {
+                item {
+                    HostHeaderCard(
+                        remark = state.remark,
+                        address = state.address,
+                        port = state.port,
+                        isDisabled = state.isDisabled,
+                    )
+                }
+            }
+
             // 1. Basic
             item {
-                FormCard(stringResource(Res.string.hosts_form_basic), Icons.Rounded.Tune) {
+                FormCard(stringResource(Res.string.hosts_form_basic), Icons.Rounded.Tune, MaterialTheme.colorScheme.primary) {
+                    SwitchRow(stringResource(Res.string.hosts_form_enabled), !state.isDisabled) { vm.setDisabled(!it) }
                     OutlinedTextField(
                         value = state.remark,
                         onValueChange = vm::onRemark,
@@ -237,7 +288,7 @@ internal fun HostCreateEditScreen(
 
             // 2. Connection Overrides
             item {
-                FormCard(stringResource(Res.string.hosts_form_overrides), Icons.Rounded.Link) {
+                FormCard(stringResource(Res.string.hosts_form_overrides), Icons.Rounded.Link, MaterialTheme.colorScheme.tertiary) {
                     OutlinedTextField(
                         value = state.sni,
                         onValueChange = vm::onSni,
@@ -310,7 +361,7 @@ internal fun HostCreateEditScreen(
 
             // 3. Misc Settings
             item {
-                FormCard(stringResource(Res.string.hosts_form_misc), Icons.Rounded.Settings) {
+                FormCard(stringResource(Res.string.hosts_form_misc), Icons.Rounded.Settings, MaterialTheme.colorScheme.secondary) {
                     OutlinedTextField(
                         value = state.serverDescription,
                         onValueChange = vm::onServerDescription,
@@ -325,7 +376,7 @@ internal fun HostCreateEditScreen(
 
             // 4. Xray JSON & Raw
             item {
-                FormCard(stringResource(Res.string.hosts_form_xray), Icons.Rounded.Description) {
+                FormCard(stringResource(Res.string.hosts_form_xray), Icons.Rounded.Description, MaterialTheme.colorScheme.primary) {
                     DropdownPicker(
                         label = stringResource(Res.string.hosts_form_xray_template),
                         selectedValue = state.xrayTemplateUuid,
@@ -337,7 +388,7 @@ internal fun HostCreateEditScreen(
 
             // 5. Assigned Nodes
             item {
-                FormCard(stringResource(Res.string.hosts_form_assigned_nodes), Icons.Rounded.Dns) {
+                FormCard(stringResource(Res.string.hosts_form_assigned_nodes), Icons.Rounded.Dns, MaterialTheme.colorScheme.tertiary) {
                     if (state.nodes.isEmpty()) {
                         Text(
                             stringResource(Res.string.hosts_form_no_nodes),
@@ -390,13 +441,71 @@ internal fun HostCreateEditScreen(
                     }
                     Text(stringResource(if (isEdit) Res.string.hosts_form_save else Res.string.hosts_form_create))
                 }
+
+                if (onDelete != null) {
+                    Spacer(Modifier.height(8.dp))
+                    TextButton(
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    ) {
+                        Icon(Icons.Rounded.DeleteOutline, contentDescription = null, modifier = Modifier.padding(end = 6.dp))
+                        Text(stringResource(Res.string.common_delete))
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun FormCard(title: String, icon: ImageVector, content: @Composable () -> Unit) {
+private fun HostHeaderCard(remark: String, address: String, port: String, isDisabled: Boolean) {
+    val fwStatus = LocalFwStatus.current
+    val monoFont = LocalFwMonoFont.current
+    val statusColor = if (isDisabled) fwStatus.neutral else fwStatus.online
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(Modifier.size(10.dp).clip(CircleShape).background(statusColor))
+                    Text(
+                        remark.ifBlank { "—" },
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                    )
+                }
+                Row(
+                    modifier = Modifier.clip(RoundedCornerShape(50)).background(statusColor.copy(alpha = 0.15f))
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Text(
+                        stringResource(if (isDisabled) Res.string.hosts_status_disabled else Res.string.hosts_status_enabled).uppercase(),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = statusColor,
+                    )
+                }
+            }
+            if (address.isNotBlank()) {
+                Text(
+                    "$address:${port.ifBlank { "—" }}",
+                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FormCard(title: String, icon: ImageVector, tint: Color, content: @Composable () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
@@ -406,13 +515,13 @@ private fun FormCard(title: String, icon: ImageVector, content: @Composable () -
             modifier = Modifier.padding(16.dp).animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(
-                    icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.heightIn(max = 18.dp),
-                )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Box(
+                    modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp)).background(tint.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
+                }
                 Text(title, style = MaterialTheme.typography.titleSmall)
             }
             content()

@@ -360,6 +360,7 @@
     <string name="hosts_form_tag">Тег</string>
     <string name="hosts_form_tag_hint">Необязательный тег</string>
     <string name="hosts_form_hidden">Скрытый</string>
+    <string name="hosts_form_enabled">Включён</string>
     <string name="hosts_form_overrides">Переопределения соединения</string>
     <string name="hosts_form_sni">SNI</string>
     <string name="hosts_form_sni_hint">Server Name Indication. Если пусто — берётся значение из inbound.</string>
