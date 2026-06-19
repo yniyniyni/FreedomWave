@@ -14,6 +14,12 @@ data class HostResponse(
 )
 
 @Serializable
+data class HostInboundRef(
+    @SerialName("configProfileUuid")        val configProfileUuid: String? = null,
+    @SerialName("configProfileInboundUuid") val configProfileInboundUuid: String? = null,
+)
+
+@Serializable
 data class HostDto(
     @SerialName("uuid")                  val uuid: String,
     @SerialName("remark")                val remark: String,
@@ -35,7 +41,10 @@ data class HostDto(
     @SerialName("shuffleHost")           val shuffleHost: Boolean = false,
     @SerialName("mihomoX25519")          val mihomoX25519: Boolean = false,
     @SerialName("viewPosition")          val viewPosition: Int = 0,
-    @SerialName("nodes")                 val nodes: List<String> = emptyList()
+    @SerialName("nodes")                 val nodes: List<String> = emptyList(),
+    @SerialName("inbound")               val inbound: HostInboundRef? = null,
+    @SerialName("vlessRouteId")          val vlessRouteId: Int? = null,
+    @SerialName("xrayJsonTemplateUuid")  val xrayJsonTemplateUuid: String? = null,
 )
 
 @Serializable

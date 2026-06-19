@@ -11,6 +11,7 @@ import art.yniyniyni.freedomwave.data.api.service.ConfigProfileService
 import art.yniyniyni.freedomwave.data.api.service.NodeService
 import art.yniyniyni.freedomwave.data.api.service.SquadService
 import art.yniyniyni.freedomwave.data.api.service.SubHistoryService
+import art.yniyniyni.freedomwave.data.api.service.TemplateService
 import art.yniyniyni.freedomwave.data.api.service.UserService
 import art.yniyniyni.freedomwave.data.repository.AuthRepository
 import art.yniyniyni.freedomwave.data.repository.BandwidthRepository
@@ -21,6 +22,7 @@ import art.yniyniyni.freedomwave.data.repository.ConfigProfileRepository
 import art.yniyniyni.freedomwave.data.repository.NodeRepository
 import art.yniyniyni.freedomwave.data.repository.SquadRepository
 import art.yniyniyni.freedomwave.data.repository.SubHistoryRepository
+import art.yniyniyni.freedomwave.data.repository.TemplateRepository
 import art.yniyniyni.freedomwave.data.repository.UserRepository
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -29,6 +31,7 @@ import art.yniyniyni.freedomwave.data.store.SecretStore
 import art.yniyniyni.freedomwave.data.store.createDataStore
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.dashboard.DashboardViewModel
+import art.yniyniyni.freedomwave.ui.feature.hosts.HostFormViewModel
 import art.yniyniyni.freedomwave.ui.feature.hosts.HostsViewModel
 import art.yniyniyni.freedomwave.ui.feature.login.LoginViewModel
 import art.yniyniyni.freedomwave.ui.feature.nodes.NodeFormViewModel
@@ -64,6 +67,7 @@ val networkModule = module {
     single { HostService(get()) }
     single { SquadService(get()) }
     single { HwidService(get()) }
+    single { TemplateService(get()) }
     single { SubHistoryService(
         panelClient = get(),
         plainClient = get(qualifier = org.koin.core.qualifier.named("plain"))
@@ -81,6 +85,7 @@ val repositoryModule = module {
     single { SquadRepository(get(), get()) }
     single { HwidRepository(get(), get()) }
     single { SubHistoryRepository(get(), get()) }
+    single { TemplateRepository(get(), get()) }
 }
 
 val viewModelModule = module {
@@ -91,6 +96,7 @@ val viewModelModule = module {
     viewModel { NodesViewModel(get()) }
     viewModel { (uuid: String?) -> NodeFormViewModel(uuid, get(), get()) }
     viewModel { HostsViewModel(get()) }
+    viewModel { (uuid: String?) -> HostFormViewModel(uuid, get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { SquadsViewModel(get()) }
     viewModel { (userUuid: String) ->
