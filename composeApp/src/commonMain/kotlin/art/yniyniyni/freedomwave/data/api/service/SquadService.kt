@@ -2,10 +2,14 @@ package art.yniyniyni.freedomwave.data.api.service
 
 import art.yniyniyni.freedomwave.data.api.dto.CreateExternalSquadRequest
 import art.yniyniyni.freedomwave.data.api.dto.CreateInternalSquadRequest
+import art.yniyniyni.freedomwave.data.api.dto.ExternalSquadDetailResponse
 import art.yniyniyni.freedomwave.data.api.dto.ExternalSquadListResponse
 import art.yniyniyni.freedomwave.data.api.dto.ExternalSquadResponse
+import art.yniyniyni.freedomwave.data.api.dto.InternalSquadDetailResponse
 import art.yniyniyni.freedomwave.data.api.dto.InternalSquadListResponse
 import art.yniyniyni.freedomwave.data.api.dto.InternalSquadResponse
+import art.yniyniyni.freedomwave.data.api.dto.UpdateExternalSquadRequest
+import art.yniyniyni.freedomwave.data.api.dto.UpdateInternalSquadFullRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateSquadRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -52,4 +56,16 @@ class SquadService(private val client: HttpClient) {
     suspend fun deleteExternalSquad(serverUrl: String, uuid: String) {
         client.delete("$serverUrl/api/external-squads/$uuid")
     }
+
+    suspend fun getInternalSquad(serverUrl: String, uuid: String): InternalSquadDetailResponse =
+        client.get("$serverUrl/api/internal-squads/$uuid").body()
+
+    suspend fun getExternalSquad(serverUrl: String, uuid: String): ExternalSquadDetailResponse =
+        client.get("$serverUrl/api/external-squads/$uuid").body()
+
+    suspend fun updateInternalSquadFull(serverUrl: String, req: UpdateInternalSquadFullRequest): InternalSquadResponse =
+        client.patch("$serverUrl/api/internal-squads") { setBody(req) }.body()
+
+    suspend fun updateExternalSquadFull(serverUrl: String, req: UpdateExternalSquadRequest): ExternalSquadResponse =
+        client.patch("$serverUrl/api/external-squads") { setBody(req) }.body()
 }
