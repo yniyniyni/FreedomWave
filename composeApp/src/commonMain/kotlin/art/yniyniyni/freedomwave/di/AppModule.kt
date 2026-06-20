@@ -11,6 +11,7 @@ import art.yniyniyni.freedomwave.data.api.service.ConfigProfileService
 import art.yniyniyni.freedomwave.data.api.service.NodeService
 import art.yniyniyni.freedomwave.data.api.service.SquadService
 import art.yniyniyni.freedomwave.data.api.service.SubHistoryService
+import art.yniyniyni.freedomwave.data.api.service.SubPageConfigService
 import art.yniyniyni.freedomwave.data.api.service.TemplateService
 import art.yniyniyni.freedomwave.data.api.service.UserService
 import art.yniyniyni.freedomwave.data.repository.AuthRepository
@@ -22,6 +23,7 @@ import art.yniyniyni.freedomwave.data.repository.ConfigProfileRepository
 import art.yniyniyni.freedomwave.data.repository.NodeRepository
 import art.yniyniyni.freedomwave.data.repository.SquadRepository
 import art.yniyniyni.freedomwave.data.repository.SubHistoryRepository
+import art.yniyniyni.freedomwave.data.repository.SubPageConfigRepository
 import art.yniyniyni.freedomwave.data.repository.TemplateRepository
 import art.yniyniyni.freedomwave.data.repository.UserRepository
 import androidx.datastore.core.DataStore
@@ -37,6 +39,8 @@ import art.yniyniyni.freedomwave.ui.feature.login.LoginViewModel
 import art.yniyniyni.freedomwave.ui.feature.nodes.NodeFormViewModel
 import art.yniyniyni.freedomwave.ui.feature.nodes.NodesViewModel
 import art.yniyniyni.freedomwave.ui.feature.settings.SettingsViewModel
+import art.yniyniyni.freedomwave.ui.feature.squads.ExternalSquadEditViewModel
+import art.yniyniyni.freedomwave.ui.feature.squads.InternalSquadEditViewModel
 import art.yniyniyni.freedomwave.ui.feature.squads.SquadsViewModel
 import art.yniyniyni.freedomwave.ui.feature.users.UserDetailViewModel
 import art.yniyniyni.freedomwave.ui.feature.users.UsersViewModel
@@ -68,6 +72,7 @@ val networkModule = module {
     single { SquadService(get()) }
     single { HwidService(get()) }
     single { TemplateService(get()) }
+    single { SubPageConfigService(get()) }
     single { SubHistoryService(
         panelClient = get(),
         plainClient = get(qualifier = org.koin.core.qualifier.named("plain"))
@@ -86,6 +91,7 @@ val repositoryModule = module {
     single { HwidRepository(get(), get()) }
     single { SubHistoryRepository(get(), get()) }
     single { TemplateRepository(get(), get()) }
+    single { SubPageConfigRepository(get(), get()) }
 }
 
 val viewModelModule = module {
@@ -99,6 +105,8 @@ val viewModelModule = module {
     viewModel { (uuid: String?) -> HostFormViewModel(uuid, get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { SquadsViewModel(get()) }
+    viewModel { (uuid: String) -> InternalSquadEditViewModel(uuid, get(), get()) }
+    viewModel { (uuid: String) -> ExternalSquadEditViewModel(uuid, get(), get(), get()) }
     viewModel { (userUuid: String) ->
         UserDetailViewModel(
             userUuid             = userUuid,
