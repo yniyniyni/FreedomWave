@@ -72,6 +72,7 @@ import androidx.compose.ui.window.Dialog
 import art.yniyniyni.freedomwave.domain.model.ConfigProfile
 import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
+import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
@@ -516,12 +517,7 @@ private fun FormCard(title: String, icon: ImageVector, tint: Color, content: @Co
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Box(
-                    modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp)).background(tint.copy(alpha = 0.15f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
-                }
+                FwSectionIcon(icon, tint)
                 Text(title, style = MaterialTheme.typography.titleSmall)
             }
             content()
