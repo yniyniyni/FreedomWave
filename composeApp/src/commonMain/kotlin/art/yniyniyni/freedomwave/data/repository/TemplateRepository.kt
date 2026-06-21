@@ -10,13 +10,13 @@ class TemplateRepository(
     private val prefs: AppPreferences,
 ) {
     suspend fun getXrayTemplates(): Result<List<XrayTemplate>> = runCatching {
-        service.getTemplates(prefs.getServerUrl()).response.templates
+        service.getTemplates().response.templates
             .filter { it.templateType == "XRAY_JSON" }
             .map { XrayTemplate(it.uuid, it.name) }
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun getTemplatesByType(): Result<Map<String, List<SubscriptionTemplate>>> = runCatching {
-        service.getTemplates(prefs.getServerUrl()).response.templates
+        service.getTemplates().response.templates
             .map { SubscriptionTemplate(it.uuid, it.name, it.templateType) }
             .groupBy { it.type }
     }.also { it.clearOnUnauthorized(prefs) }

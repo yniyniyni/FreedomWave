@@ -63,41 +63,40 @@ class UserRepository(
     private val prefs: AppPreferences
 ) {
     suspend fun getUsers(): Result<List<User>> = api {
-        val serverUrl = prefs.getServerUrl()
-        collectAllUsers { start, size -> service.getUsers(serverUrl, start, size).response }
+        collectAllUsers { start, size -> service.getUsers(start, size).response }
             .map { User.from(it) }
     }
 
     suspend fun getUser(uuid: String): Result<User> = api {
-        User.from(service.getUser(prefs.getServerUrl(), uuid).response)
+        User.from(service.getUser(uuid).response)
     }
 
     suspend fun createUser(request: CreateUserRequest): Result<User> = api {
-        User.from(service.createUser(prefs.getServerUrl(), request).response)
+        User.from(service.createUser(request).response)
     }
 
     suspend fun updateUser(request: UpdateUserRequest): Result<User> = api {
-        User.from(service.updateUser(prefs.getServerUrl(), request).response)
+        User.from(service.updateUser(request).response)
     }
 
     suspend fun deleteUser(uuid: String): Result<Unit> = api {
-        service.deleteUser(prefs.getServerUrl(), uuid)
+        service.deleteUser(uuid)
     }
 
     suspend fun enableUser(uuid: String): Result<User> = api {
-        User.from(service.enableUser(prefs.getServerUrl(), uuid).response)
+        User.from(service.enableUser(uuid).response)
     }
 
     suspend fun disableUser(uuid: String): Result<User> = api {
-        User.from(service.disableUser(prefs.getServerUrl(), uuid).response)
+        User.from(service.disableUser(uuid).response)
     }
 
     suspend fun resetTraffic(uuid: String): Result<User> = api {
-        User.from(service.resetTraffic(prefs.getServerUrl(), uuid).response)
+        User.from(service.resetTraffic(uuid).response)
     }
 
     suspend fun revokeSubscription(uuid: String): Result<User> = api {
-        User.from(service.revokeSubscription(prefs.getServerUrl(), uuid).response)
+        User.from(service.revokeSubscription(uuid).response)
     }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =

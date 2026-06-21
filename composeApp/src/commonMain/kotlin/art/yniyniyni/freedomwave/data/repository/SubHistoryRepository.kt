@@ -16,7 +16,7 @@ class SubHistoryRepository(
      * then geo-enrich each unique IP (best-effort, failures leave geo fields null).
      */
     suspend fun getIpRows(userUuid: String): Result<List<IpRow>> = api {
-        val records = service.getSubHistory(prefs.getServerUrl(), userUuid).response.records
+        val records = service.getSubHistory(userUuid).response.records
 
         // Aggregate by IP
         val grouped = records

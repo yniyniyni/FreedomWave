@@ -9,11 +9,11 @@ class ConfigProfileRepository(
     private val prefs: AppPreferences,
 ) {
     suspend fun getProfiles(): Result<List<ConfigProfile>> = api {
-        service.getConfigProfiles(prefs.getServerUrl()).response.configProfiles.map { ConfigProfile.from(it) }
+        service.getConfigProfiles().response.configProfiles.map { ConfigProfile.from(it) }
     }
 
     suspend fun getSecretKey(): Result<String> = api {
-        service.getPubKey(prefs.getServerUrl()).response.pubKey
+        service.getPubKey().response.pubKey
     }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =

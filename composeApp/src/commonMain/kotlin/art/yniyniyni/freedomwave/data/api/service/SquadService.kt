@@ -11,6 +11,7 @@ import art.yniyniyni.freedomwave.data.api.dto.InternalSquadResponse
 import art.yniyniyni.freedomwave.data.api.dto.UpdateExternalSquadRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateInternalSquadFullRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateSquadRequest
+import art.yniyniyni.freedomwave.data.store.AppPreferences
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -19,53 +20,53 @@ import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 
-class SquadService(private val client: HttpClient) {
+class SquadService(private val client: HttpClient, private val prefs: AppPreferences) {
 
     // Internal squads
-    suspend fun getInternalSquads(serverUrl: String): InternalSquadListResponse =
-        client.get("$serverUrl/api/internal-squads").body()
+    suspend fun getInternalSquads(): InternalSquadListResponse =
+        client.get("${prefs.getServerUrl()}/api/internal-squads").body()
 
-    suspend fun createInternalSquad(serverUrl: String, name: String): InternalSquadResponse =
-        client.post("$serverUrl/api/internal-squads") {
+    suspend fun createInternalSquad(name: String): InternalSquadResponse =
+        client.post("${prefs.getServerUrl()}/api/internal-squads") {
             setBody(CreateInternalSquadRequest(name, emptyList()))
         }.body()
 
-    suspend fun updateInternalSquad(serverUrl: String, uuid: String, name: String): InternalSquadResponse =
-        client.patch("$serverUrl/api/internal-squads") {
+    suspend fun updateInternalSquad(uuid: String, name: String): InternalSquadResponse =
+        client.patch("${prefs.getServerUrl()}/api/internal-squads") {
             setBody(UpdateSquadRequest(uuid, name))
         }.body()
 
-    suspend fun deleteInternalSquad(serverUrl: String, uuid: String) {
-        client.delete("$serverUrl/api/internal-squads/$uuid")
+    suspend fun deleteInternalSquad(uuid: String) {
+        client.delete("${prefs.getServerUrl()}/api/internal-squads/$uuid")
     }
 
     // External squads
-    suspend fun getExternalSquads(serverUrl: String): ExternalSquadListResponse =
-        client.get("$serverUrl/api/external-squads").body()
+    suspend fun getExternalSquads(): ExternalSquadListResponse =
+        client.get("${prefs.getServerUrl()}/api/external-squads").body()
 
-    suspend fun createExternalSquad(serverUrl: String, name: String): ExternalSquadResponse =
-        client.post("$serverUrl/api/external-squads") {
+    suspend fun createExternalSquad(name: String): ExternalSquadResponse =
+        client.post("${prefs.getServerUrl()}/api/external-squads") {
             setBody(CreateExternalSquadRequest(name))
         }.body()
 
-    suspend fun updateExternalSquad(serverUrl: String, uuid: String, name: String): ExternalSquadResponse =
-        client.patch("$serverUrl/api/external-squads") {
+    suspend fun updateExternalSquad(uuid: String, name: String): ExternalSquadResponse =
+        client.patch("${prefs.getServerUrl()}/api/external-squads") {
             setBody(UpdateSquadRequest(uuid, name))
         }.body()
 
-    suspend fun deleteExternalSquad(serverUrl: String, uuid: String) {
-        client.delete("$serverUrl/api/external-squads/$uuid")
+    suspend fun deleteExternalSquad(uuid: String) {
+        client.delete("${prefs.getServerUrl()}/api/external-squads/$uuid")
     }
 
-    suspend fun getInternalSquad(serverUrl: String, uuid: String): InternalSquadDetailResponse =
-        client.get("$serverUrl/api/internal-squads/$uuid").body()
+    suspend fun getInternalSquad(uuid: String): InternalSquadDetailResponse =
+        client.get("${prefs.getServerUrl()}/api/internal-squads/$uuid").body()
 
-    suspend fun getExternalSquad(serverUrl: String, uuid: String): ExternalSquadDetailResponse =
-        client.get("$serverUrl/api/external-squads/$uuid").body()
+    suspend fun getExternalSquad(uuid: String): ExternalSquadDetailResponse =
+        client.get("${prefs.getServerUrl()}/api/external-squads/$uuid").body()
 
-    suspend fun updateInternalSquadFull(serverUrl: String, req: UpdateInternalSquadFullRequest): InternalSquadResponse =
-        client.patch("$serverUrl/api/internal-squads") { setBody(req) }.body()
+    suspend fun updateInternalSquadFull(req: UpdateInternalSquadFullRequest): InternalSquadResponse =
+        client.patch("${prefs.getServerUrl()}/api/internal-squads") { setBody(req) }.body()
 
-    suspend fun updateExternalSquadFull(serverUrl: String, req: UpdateExternalSquadRequest): ExternalSquadResponse =
-        client.patch("$serverUrl/api/external-squads") { setBody(req) }.body()
+    suspend fun updateExternalSquadFull(req: UpdateExternalSquadRequest): ExternalSquadResponse =
+        client.patch("${prefs.getServerUrl()}/api/external-squads") { setBody(req) }.body()
 }

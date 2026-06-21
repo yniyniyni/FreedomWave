@@ -9,7 +9,7 @@ class HwidRepository(
     private val prefs: AppPreferences
 ) {
     suspend fun getDevices(userUuid: String): Result<List<HwidDevice>> = api {
-        service.getDevices(prefs.getServerUrl(), userUuid)
+        service.getDevices(userUuid)
             .response.devices.map { HwidDevice.from(it) }
     }
 

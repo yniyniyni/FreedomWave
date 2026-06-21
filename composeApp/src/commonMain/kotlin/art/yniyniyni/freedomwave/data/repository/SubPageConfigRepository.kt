@@ -9,6 +9,6 @@ class SubPageConfigRepository(
     private val prefs: AppPreferences,
 ) {
     suspend fun getConfigs(): Result<List<SubPageConfig>> = runCatching {
-        service.getConfigs(prefs.getServerUrl()).response.configs.map { SubPageConfig(it.uuid, it.name) }
+        service.getConfigs().response.configs.map { SubPageConfig(it.uuid, it.name) }
     }.also { it.clearOnUnauthorized(prefs) }
 }
