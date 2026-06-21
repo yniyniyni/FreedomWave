@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -48,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -88,6 +88,7 @@ import freedomwave.composeapp.generated.resources.users_username
 import freedomwave.composeapp.generated.resources.users_username_required
 import freedomwave.composeapp.generated.resources.users_zero_unlimited
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
+import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.util.ExpiryPreset
 import art.yniyniyni.freedomwave.util.presetExpiryMillis
@@ -178,7 +179,7 @@ internal fun UserCreateEditScreen(
 
             // Access
             item {
-                FormCard(stringResource(Res.string.users_form_access), Icons.Rounded.Key) {
+                FormCard(stringResource(Res.string.users_form_access), Icons.Rounded.Key, MaterialTheme.colorScheme.tertiary) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -203,7 +204,7 @@ internal fun UserCreateEditScreen(
 
             // Traffic
             item {
-                FormCard(stringResource(Res.string.users_detail_traffic), Icons.Rounded.DataUsage) {
+                FormCard(stringResource(Res.string.users_detail_traffic), Icons.Rounded.DataUsage, MaterialTheme.colorScheme.secondary) {
                     OutlinedTextField(
                         value = state.formTrafficGb,
                         onValueChange = vm::onFormTrafficGb,
@@ -224,7 +225,7 @@ internal fun UserCreateEditScreen(
 
             // Expiry
             item {
-                FormCard(stringResource(Res.string.users_form_expiry), Icons.Rounded.Schedule) {
+                FormCard(stringResource(Res.string.users_form_expiry), Icons.Rounded.Schedule, MaterialTheme.colorScheme.primary) {
                     ExpiryEditor(
                         expireMillis = state.formExpireMillis,
                         enabled = !state.formIsLoading,
@@ -235,7 +236,7 @@ internal fun UserCreateEditScreen(
 
             // Devices
             item {
-                FormCard(stringResource(Res.string.users_detail_devices), Icons.Rounded.Devices) {
+                FormCard(stringResource(Res.string.users_detail_devices), Icons.Rounded.Devices, MaterialTheme.colorScheme.tertiary) {
                     OutlinedTextField(
                         value = state.formHwid,
                         onValueChange = vm::onFormHwid,
@@ -252,7 +253,7 @@ internal fun UserCreateEditScreen(
             // Squads
             if (state.formSquads.isNotEmpty()) {
                 item {
-                    FormCard(stringResource(Res.string.users_detail_squads), Icons.Rounded.Groups) {
+                    FormCard(stringResource(Res.string.users_detail_squads), Icons.Rounded.Groups, MaterialTheme.colorScheme.secondary) {
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             state.formSquads.forEach { squad ->
                                 FilterChip(
@@ -303,16 +304,21 @@ internal fun UserCreateEditScreen(
 }
 
 @Composable
-private fun FormCard(title: String, icon: ImageVector? = null, content: @Composable () -> Unit) {
+private fun FormCard(
+    title: String,
+    icon: ImageVector? = null,
+    tint: Color = MaterialTheme.colorScheme.primary,
+    content: @Composable () -> Unit,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape    = MaterialTheme.shapes.large,
         colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (icon != null) {
-                    Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                    FwSectionIcon(icon, tint)
                 }
                 Text(title, style = MaterialTheme.typography.titleSmall)
             }

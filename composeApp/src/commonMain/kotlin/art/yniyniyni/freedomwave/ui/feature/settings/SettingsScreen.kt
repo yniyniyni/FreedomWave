@@ -40,6 +40,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Groups
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
@@ -95,8 +96,10 @@ import freedomwave.composeapp.generated.resources.settings_theme_light
 import freedomwave.composeapp.generated.resources.settings_theme_system
 import freedomwave.composeapp.generated.resources.settings_title
 import freedomwave.composeapp.generated.resources.settings_version
+import freedomwave.composeapp.generated.resources.squads_title
 import art.yniyniyni.freedomwave.ui.auth.rememberBiometricAuthenticator
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
+import art.yniyniyni.freedomwave.ui.feature.squads.SquadsScreen
 import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
 import art.yniyniyni.freedomwave.ui.l10n.AppLanguage
 import art.yniyniyni.freedomwave.ui.l10n.applyAppLanguage
@@ -169,6 +172,11 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             return@AnimatedContent
         }
 
+        if (navEntry == SettingsNav.Squads) {
+            SquadsScreen(onBack = { stack = stack.dropLast(1) })
+            return@AnimatedContent
+        }
+
     if (state.showChangeKeyDialog) {
         ChangeKeyDialog(
             serverUrl = state.dialogServerUrl,
@@ -210,6 +218,32 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(percent = 50),
                         ) { Text(stringResource(Res.string.settings_change_key)) }
+                    }
+                }
+            }
+
+            item {
+                FwCard {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { stack = stack + SettingsNav.Squads },
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            Icons.Rounded.Groups,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(
+                            stringResource(Res.string.squads_title),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Icon(
+                            Icons.Rounded.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
@@ -360,9 +394,14 @@ private const val GITHUB_URL = "https://github.com/yniyniyni/freedomwave"
 private sealed interface SettingsNav {
     data object Settings : SettingsNav
     data object Licenses : SettingsNav
+    data object Squads : SettingsNav
 
-    val depth: Int get() = if (this is Licenses) 1 else 0
-    val key: String get() = if (this is Licenses) "licenses" else "settings"
+    val depth: Int get() = if (this is Settings) 0 else 1
+    val key: String get() = when (this) {
+        Settings -> "settings"
+        Licenses -> "licenses"
+        Squads -> "squads"
+    }
 }
 
 @Composable

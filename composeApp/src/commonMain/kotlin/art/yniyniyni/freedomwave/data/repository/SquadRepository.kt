@@ -1,8 +1,12 @@
 package art.yniyniyni.freedomwave.data.repository
 
 import art.yniyniyni.freedomwave.data.api.ApiError
+import art.yniyniyni.freedomwave.data.api.dto.UpdateExternalSquadRequest
+import art.yniyniyni.freedomwave.data.api.dto.UpdateInternalSquadFullRequest
 import art.yniyniyni.freedomwave.data.api.service.SquadService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
+import art.yniyniyni.freedomwave.domain.model.ExternalSquadDetail
+import art.yniyniyni.freedomwave.domain.model.InternalSquadDetail
 import art.yniyniyni.freedomwave.domain.model.Squad
 
 class SquadRepository(
@@ -39,6 +43,22 @@ class SquadRepository(
 
     suspend fun deleteExternalSquad(uuid: String): Result<Unit> = runCatching {
         service.deleteExternalSquad(prefs.getServerUrl(), uuid)
+    }.also { clearOnUnauthorized(it) }
+
+    suspend fun getInternalSquadDetail(uuid: String): Result<InternalSquadDetail> = runCatching {
+        InternalSquadDetail.from(service.getInternalSquad(prefs.getServerUrl(), uuid).response)
+    }.also { clearOnUnauthorized(it) }
+
+    suspend fun getExternalSquadDetail(uuid: String): Result<ExternalSquadDetail> = runCatching {
+        ExternalSquadDetail.from(service.getExternalSquad(prefs.getServerUrl(), uuid).response)
+    }.also { clearOnUnauthorized(it) }
+
+    suspend fun updateInternalSquadFull(req: UpdateInternalSquadFullRequest): Result<Unit> = runCatching {
+        service.updateInternalSquadFull(prefs.getServerUrl(), req); Unit
+    }.also { clearOnUnauthorized(it) }
+
+    suspend fun updateExternalSquadFull(req: UpdateExternalSquadRequest): Result<Unit> = runCatching {
+        service.updateExternalSquadFull(prefs.getServerUrl(), req); Unit
     }.also { clearOnUnauthorized(it) }
 
     private suspend fun <T> clearOnUnauthorized(result: Result<T>) {

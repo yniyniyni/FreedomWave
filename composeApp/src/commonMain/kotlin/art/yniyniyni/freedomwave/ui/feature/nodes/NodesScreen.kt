@@ -69,6 +69,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
+import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -473,7 +474,7 @@ private fun NodeDetailScreen(
 
             item {
                 FwDetailCard {
-                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic), Icons.Rounded.SwapVert)
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic), Icons.Rounded.SwapVert, MaterialTheme.colorScheme.tertiary)
                     val limit = node.trafficLimitBytes
                     if (limit != null && limit > 0) {
                         val pct = (node.trafficUsedBytes.toFloat() / limit.toFloat() * 100f).coerceIn(0f, 100f)
@@ -499,7 +500,7 @@ private fun NodeDetailScreen(
 
             item {
                 FwDetailCard {
-                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic_history), Icons.Rounded.ShowChart)
+                    DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic_history), Icons.Rounded.ShowChart, MaterialTheme.colorScheme.secondary)
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         TimeRange.entries.forEachIndexed { index, range ->
                             SegmentedButton(
@@ -548,7 +549,7 @@ private fun NodeDetailScreen(
                 node.memoryFreeBytes != null || node.arch != null || node.platform != null ||
                 node.uptimeSeconds != null || node.loadAvg1 != null || node.hostname != null) {
                 item {
-                    FwExpandableCard(stringResource(Res.string.nodes_detail_hardware), Icons.Rounded.Memory) {
+                    FwExpandableCard(stringResource(Res.string.nodes_detail_hardware), Icons.Rounded.Memory, MaterialTheme.colorScheme.tertiary) {
                         node.cpuModel?.takeIf { it.isNotBlank() }?.let { DetailRow(stringResource(Res.string.nodes_detail_cpu_model), it, monoFont) }
                         node.cpus?.let { DetailRow(stringResource(Res.string.nodes_detail_cpu_cores), it.toString(), monoFont) }
                         node.arch?.takeIf { it.isNotBlank() }?.let { DetailRow(stringResource(Res.string.nodes_detail_arch), it, monoFont) }
@@ -564,7 +565,7 @@ private fun NodeDetailScreen(
             }
 
             item {
-                FwExpandableCard(stringResource(Res.string.nodes_detail_metadata), Icons.Rounded.Info) {
+                FwExpandableCard(stringResource(Res.string.nodes_detail_metadata), Icons.Rounded.Info, MaterialTheme.colorScheme.secondary) {
                     DetailRow(stringResource(Res.string.nodes_detail_uuid), node.uuid, monoFont)
                     if (node.countryCode.isNotBlank()) DetailRow(stringResource(Res.string.nodes_detail_country), "${node.countryCode} ${countryFlag(node.countryCode)}", monoFont)
                     if (node.tags.isNotEmpty()) DetailRow(stringResource(Res.string.nodes_detail_tags), node.tags.joinToString(", "), monoFont)
@@ -691,6 +692,7 @@ private fun VersionChip(icon: ImageVector, text: String, tint: Color) {
 private fun FwExpandableCard(
     title: String,
     icon: ImageVector? = null,
+    tint: Color = MaterialTheme.colorScheme.primary,
     initiallyExpanded: Boolean = false,
     content: @Composable () -> Unit,
 ) {
@@ -707,7 +709,7 @@ private fun FwExpandableCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                DetailSectionTitle(title, icon)
+                DetailSectionTitle(title, icon, tint)
                 Icon(
                     Icons.Rounded.ExpandMore,
                     contentDescription = null,
@@ -809,18 +811,17 @@ private fun FwDetailCard(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun DetailSectionTitle(title: String, icon: ImageVector? = null) {
+private fun DetailSectionTitle(
+    title: String,
+    icon: ImageVector? = null,
+    tint: Color = MaterialTheme.colorScheme.primary,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         if (icon != null) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp),
-            )
+            FwSectionIcon(icon, tint)
         }
         Text(title, style = MaterialTheme.typography.titleSmall)
     }

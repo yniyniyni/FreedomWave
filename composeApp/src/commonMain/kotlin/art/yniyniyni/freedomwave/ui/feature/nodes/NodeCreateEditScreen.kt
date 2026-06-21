@@ -50,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
@@ -58,6 +59,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
+import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.util.countryFlag
@@ -173,7 +175,7 @@ internal fun NodeCreateEditScreen(
             }
 
             item {
-                FormCard(stringResource(Res.string.nodes_form_config_profile), Icons.Rounded.Settings) {
+                FormCard(stringResource(Res.string.nodes_form_config_profile), Icons.Rounded.Settings, MaterialTheme.colorScheme.tertiary) {
                     if (state.profiles.isEmpty()) {
                         Text(stringResource(Res.string.nodes_form_no_profiles),
                             style = MaterialTheme.typography.bodySmall,
@@ -253,7 +255,7 @@ internal fun NodeCreateEditScreen(
 
             state.secretKey?.let { key ->
                 item {
-                    FormCard(stringResource(Res.string.nodes_form_secret_key), Icons.Rounded.Key) {
+                    FormCard(stringResource(Res.string.nodes_form_secret_key), Icons.Rounded.Key, MaterialTheme.colorScheme.secondary) {
                         Text(stringResource(Res.string.nodes_form_secret_key_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -324,7 +326,7 @@ internal fun NodeCreateEditScreen(
             }
 
             item {
-                FormCard(stringResource(Res.string.nodes_form_tags), Icons.Rounded.Sell) {
+                FormCard(stringResource(Res.string.nodes_form_tags), Icons.Rounded.Sell, MaterialTheme.colorScheme.tertiary) {
                     OutlinedTextField(
                         value = state.tags, onValueChange = vm::onTags,
                         label = { Text(stringResource(Res.string.nodes_form_tags)) },
@@ -361,16 +363,20 @@ internal fun NodeCreateEditScreen(
 }
 
 @Composable
-private fun FormCard(title: String, icon: ImageVector, content: @Composable () -> Unit) {
+private fun FormCard(
+    title: String,
+    icon: ImageVector,
+    tint: Color = MaterialTheme.colorScheme.primary,
+    content: @Composable () -> Unit,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(modifier = Modifier.padding(16.dp).animateContentSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.heightIn(max = 18.dp))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                FwSectionIcon(icon, tint)
                 Text(title, style = MaterialTheme.typography.titleSmall)
             }
             content()

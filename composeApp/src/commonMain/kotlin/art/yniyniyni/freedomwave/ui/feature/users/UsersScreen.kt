@@ -77,6 +77,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
+import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import art.yniyniyni.freedomwave.ui.components.TrafficDonut
 import androidx.compose.runtime.Composable
@@ -661,7 +662,7 @@ private fun UserDetailScreen(
             // ── Traffic donut ─────────────────────────────────────────────────
             item {
                 FwDetailCard {
-                    DetailSectionTitle(stringResource(Res.string.users_detail_traffic), Icons.Rounded.DataUsage)
+                    DetailSectionTitle(stringResource(Res.string.users_detail_traffic), Icons.Rounded.DataUsage, MaterialTheme.colorScheme.tertiary)
                     Spacer(Modifier.height(8.dp))
                     TrafficDonut(
                         usedBytes     = user.usedTrafficBytes,
@@ -684,7 +685,7 @@ private fun UserDetailScreen(
             if (user.subscriptionUrl.isNotBlank()) {
                 item {
                     FwDetailCard {
-                        DetailSectionTitle(stringResource(Res.string.users_detail_subscription), Icons.Rounded.Link)
+                        DetailSectionTitle(stringResource(Res.string.users_detail_subscription), Icons.Rounded.Link, MaterialTheme.colorScheme.secondary)
                         Spacer(Modifier.height(4.dp))
                         Row(
                             modifier = Modifier
@@ -719,7 +720,7 @@ private fun UserDetailScreen(
             if (user.activeSquads.isNotEmpty()) {
                 item {
                     FwDetailCard {
-                        DetailSectionTitle(stringResource(Res.string.users_detail_squads), Icons.Rounded.Groups)
+                        DetailSectionTitle(stringResource(Res.string.users_detail_squads), Icons.Rounded.Groups, MaterialTheme.colorScheme.primary)
                         user.activeSquads.forEach {
                             Text(it, style = MaterialTheme.typography.bodyMedium)
                         }
@@ -739,7 +740,7 @@ private fun UserDetailScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            DetailSectionTitle(stringResource(Res.string.users_detail_devices), Icons.Rounded.Devices)
+                            DetailSectionTitle(stringResource(Res.string.users_detail_devices), Icons.Rounded.Devices, MaterialTheme.colorScheme.tertiary)
                             if (!detailState.devicesLoading) {
                                 Badge { Text("${detailState.devices.size}") }
                             }
@@ -799,7 +800,7 @@ private fun UserDetailScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            DetailSectionTitle(stringResource(Res.string.users_detail_ip_addresses), Icons.Rounded.Public)
+                            DetailSectionTitle(stringResource(Res.string.users_detail_ip_addresses), Icons.Rounded.Public, MaterialTheme.colorScheme.secondary)
                             if (!detailState.ipLoading) {
                                 Badge {
                                     Text(
@@ -1279,18 +1280,17 @@ private fun FwDetailCard(content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
-private fun DetailSectionTitle(title: String, icon: ImageVector? = null) {
+private fun DetailSectionTitle(
+    title: String,
+    icon: ImageVector? = null,
+    tint: Color = MaterialTheme.colorScheme.primary,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         if (icon != null) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp),
-            )
+            FwSectionIcon(icon, tint)
         }
         Text(title, style = MaterialTheme.typography.titleSmall)
     }
