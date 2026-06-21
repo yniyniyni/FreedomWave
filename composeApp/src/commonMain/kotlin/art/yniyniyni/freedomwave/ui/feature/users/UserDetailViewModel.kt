@@ -92,7 +92,7 @@ class UserDetailViewModel(
     fun toggleDevicesExpanded() = _state.update { it.copy(devicesExpanded = !it.devicesExpanded) }
     fun toggleIpExpanded()      = _state.update { it.copy(ipExpanded = !it.ipExpanded) }
 
-    // ── Quick-edit: Revoke Subscription ──────────────────────────────────────
+    // Quick-edit: Revoke Subscription
 
     fun revokeSubscription(onUpdated: (User) -> Unit) {
         viewModelScope.launch {
@@ -105,7 +105,7 @@ class UserDetailViewModel(
         }
     }
 
-    // ── Quick-edit: Set Traffic Limit ─────────────────────────────────────────
+    // Quick-edit: Set Traffic Limit
 
     fun openSetLimitDialog(currentBytes: Long) {
         val gb = if (currentBytes == 0L) "" else {
@@ -138,7 +138,7 @@ class UserDetailViewModel(
         }
     }
 
-    // ── Quick-edit: Set Expiry ────────────────────────────────────────────────
+    // Quick-edit: Set Expiry
 
     fun openSetExpiryDialog(currentMillis: Long) =
         _state.update { it.copy(showSetExpiryDialog = true, setExpiryMillis = currentMillis) }
@@ -160,7 +160,7 @@ class UserDetailViewModel(
         }
     }
 
-    // ── Quick-edit: Device Limit stepper ──────────────────────────────────────
+    // Quick-edit: Device Limit stepper
 
     fun adjustDeviceLimit(current: Int?, delta: Int, onUpdated: (User) -> Unit) {
         val newLimit = ((current ?: 0) + delta).coerceAtLeast(0)

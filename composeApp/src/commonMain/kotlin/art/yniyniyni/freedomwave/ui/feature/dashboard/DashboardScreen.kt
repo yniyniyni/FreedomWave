@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import art.yniyniyni.freedomwave.ui.components.FwDetailCard
 import art.yniyniyni.freedomwave.domain.model.DashboardStats
 import freedomwave.composeapp.generated.resources.Res
 import freedomwave.composeapp.generated.resources.common_empty_dash
@@ -103,6 +104,7 @@ import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.uptimeParts
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -162,7 +164,7 @@ private fun StatsList(
 ) {
     // 1s ticker for freshness pill
     val now by produceState(initialValue = lastUpdatedAt ?: 0L, lastUpdatedAt) {
-        while (true) {
+        while (isActive) {
             value = Clock.System.now().toEpochMilliseconds()
             delay(1000)
         }
@@ -187,7 +189,7 @@ private fun StatsList(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // ── 1. Live header + 2×2 tile grid ────────────────────────────────────
+        // 1. Live header + 2x2 tile grid
         item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 // Header row
@@ -321,9 +323,9 @@ private fun StatsList(
             }
         }
 
-        // ── 2. Online Activity card ────────────────────────────────────────────
+        // 2. Online Activity card
         item {
-            FwCard {
+            FwDetailCard {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     SectionTitle(stringResource(Res.string.dashboard_online_activity), Icons.Rounded.BarChart)
 
@@ -399,10 +401,10 @@ private fun StatsList(
             }
         }
 
-        // ── 3. Traffic sparkline (moved here, after activity card) ─────────────
+        // 3. Traffic sparkline (moved here, after activity card)
         if (sparklineData.isNotEmpty()) {
             item {
-                FwCard {
+                FwDetailCard {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -423,7 +425,7 @@ private fun StatsList(
             }
         }
 
-        // ── 4. Detail cards: Panel, Nodes, System ─────────────────────────────
+        // 4. Detail cards: Panel, Nodes, System
         item {
             StatCard(title = stringResource(Res.string.dashboard_panel), icon = Icons.Rounded.Public) {
                 StatRow(stringResource(Res.string.dashboard_version), stats.panelVersion)
@@ -447,7 +449,7 @@ private fun StatsList(
     }
 }
 
-// ── Private composables ────────────────────────────────────────────────────────
+// Private composables
 
 @Composable
 private fun LiveTile(
@@ -605,17 +607,6 @@ private fun StatusBar(
 }
 
 @Composable
-private fun FwCard(content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape    = MaterialTheme.shapes.large,
-        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(modifier = Modifier.padding(16.dp), content = { content() })
-    }
-}
-
-@Composable
 private fun SectionTitle(title: String, icon: ImageVector) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -633,7 +624,7 @@ private fun SectionTitle(title: String, icon: ImageVector) {
 
 @Composable
 private fun StatCard(title: String, icon: ImageVector, content: @Composable () -> Unit) {
-    FwCard {
+    FwDetailCard {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             SectionTitle(title, icon)
             content()

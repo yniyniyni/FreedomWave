@@ -66,20 +66,21 @@ val networkModule = module {
 
     // Plain (no-auth) client: verification sets the bearer explicitly per request.
     single { AuthService(get(qualifier = org.koin.core.qualifier.named("plain"))) }
-    single { BandwidthService(get()) }
-    single { DashboardService(get()) }
-    single { UserService(get()) }
-    single { NodeService(get()) }
-    single { ConfigProfileService(get()) }
-    single { HostService(get()) }
-    single { SquadService(get()) }
-    single { InfraBillingService(get()) }
-    single { HwidService(get()) }
-    single { TemplateService(get()) }
-    single { SubPageConfigService(get()) }
+    single { BandwidthService(get(), get()) }
+    single { DashboardService(get(), get()) }
+    single { UserService(get(), get()) }
+    single { NodeService(get(), get()) }
+    single { ConfigProfileService(get(), get()) }
+    single { HostService(get(), get()) }
+    single { SquadService(get(), get()) }
+    single { InfraBillingService(get(), get()) }
+    single { HwidService(get(), get()) }
+    single { TemplateService(get(), get()) }
+    single { SubPageConfigService(get(), get()) }
     single { SubHistoryService(
         panelClient = get(),
-        plainClient = get(qualifier = org.koin.core.qualifier.named("plain"))
+        plainClient = get(qualifier = org.koin.core.qualifier.named("plain")),
+        prefs = get()
     ) }
 }
 

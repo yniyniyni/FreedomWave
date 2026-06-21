@@ -1,16 +1,7 @@
-@file:OptIn(ExperimentalTransitionApi::class)
-
 package art.yniyniyni.freedomwave.ui.feature.nodes
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.ExperimentalTransitionApi
-import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
-import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
+import art.yniyniyni.freedomwave.ui.components.FwNavDestination
+import art.yniyniyni.freedomwave.ui.components.FwNavigationContainer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -68,11 +60,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import art.yniyniyni.freedomwave.ui.components.DetailRow
+import art.yniyniyni.freedomwave.ui.components.DetailSectionTitle
+import art.yniyniyni.freedomwave.ui.components.FwDetailCard
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -171,17 +165,17 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private sealed interface NodesNav {
+private sealed interface NodesNav : FwNavDestination {
     data object List : NodesNav
     data class Detail(val node: Node) : NodesNav
     data class Form(val node: Node?, val epoch: Int) : NodesNav   // null = create
 
-    val depth: Int get() = when (this) {
+    override val depth: Int get() = when (this) {
         List -> 0
         is Detail -> 1
         is Form -> if (node == null) 1 else 2
     }
-    val key: String get() = when (this) {
+    override val key: String get() = when (this) {
         List -> "list"
         is Detail -> "detail:${node.uuid}"
         is Form -> "form:${node?.uuid ?: "new"}:$epoch"
@@ -196,45 +190,22 @@ fun NodesScreen(
 ) {
     val state by vm.state.collectAsState()
     val bandwidthState by bandwidthVm.state.collectAsState()
-    val snackbar = remember { SnackbarHostState() }
 
-    var stack by remember { mutableStateOf<kotlin.collections.List<NodesNav>>(listOf(NodesNav.List)) }
     var formEpoch by remember { mutableStateOf(0) }
-    val top = stack.last()
-    val canGoBack = stack.size > 1
 
-    val actionErrorText = state.actionError?.resolve()
-    LaunchedEffect(actionErrorText) {
-        actionErrorText?.let { snackbar.showSnackbar(it); vm.clearActionError() }
-    }
-
-    val transitionState = remember { SeekableTransitionState<NodesNav>(NodesNav.List) }
-    val transition = rememberTransition(transitionState, label = "nodes_nav")
-    LaunchedEffect(top) { if (transitionState.currentState != top) transitionState.animateTo(top) }
-
-    BackGestureEffect(
-        enabled    = canGoBack,
-        onProgress = { fraction -> transitionState.seekTo(fraction, stack[stack.size - 2]) },
-        onCommit   = { val t = stack[stack.size - 2]; transitionState.animateTo(t); stack = stack.dropLast(1) },
-        onCancel   = { transitionState.animateTo(top) },
-    )
-
-    transition.AnimatedContent(
+    FwNavigationContainer<NodesNav>(
+        navLabel = "nodes_nav",
+        rootState = NodesNav.List,
+        initialStack = listOf(NodesNav.List),
+        actionError = state.actionError,
+        onClearActionError = vm::clearActionError,
         contentKey = { it.key },
-        transitionSpec = {
-            val deeper = targetState.depth > initialState.depth
-            if (deeper) {
-                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
-            } else {
-                slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
-            }.apply { targetContentZIndex = if (deeper) 1f else 0f }
-        },
-    ) { navEntry ->
+    ) { navEntry, push, pop, currentStack, snackbarHost ->
         when (navEntry) {
             is NodesNav.List -> NodesListContent(
-                state = state, vm = vm, snackbar = snackbar,
-                onOpenDetail = { node -> stack = stack + NodesNav.Detail(node) },
-                onCreate = { formEpoch++; stack = stack + NodesNav.Form(null, formEpoch) },
+                state = state, vm = vm, snackbar = snackbarHost,
+                onOpenDetail = { node -> push(NodesNav.Detail(node)) },
+                onCreate = { formEpoch++; push(NodesNav.Form(null, formEpoch)) },
             )
             is NodesNav.Detail -> {
                 val live = state.nodes.find { it.uuid == navEntry.node.uuid } ?: navEntry.node
@@ -242,13 +213,13 @@ fun NodesScreen(
                     node           = live,
                     bandwidthState = bandwidthState,
                     onRangeChange  = bandwidthVm::setRange,
-                    onBack         = { stack = stack.dropLast(1) },
-                    onEdit         = { formEpoch++; stack = stack + NodesNav.Form(live, formEpoch) },
+                    onBack         = { pop() },
+                    onEdit         = { formEpoch++; push(NodesNav.Form(live, formEpoch)) },
                     onEnable       = { vm.enableNode(live.uuid) },
                     onDisable      = { vm.disableNode(live.uuid) },
                     onRestart      = { vm.restartNode(live.uuid) },
                     onReset        = { vm.resetTraffic(live.uuid) },
-                    onDelete       = { vm.deleteNode(live.uuid); stack = stack.dropLast(1) },
+                    onDelete       = { vm.deleteNode(live.uuid); pop() },
                 )
             }
             is NodesNav.Form -> {
@@ -256,11 +227,11 @@ fun NodesScreen(
                 val formVm: NodeFormViewModel = koinViewModel(key = "node-form-${navEntry.epoch}") { parametersOf(uuid) }
                 NodeCreateEditScreen(
                     vm = formVm,
-                    onBack = { stack = stack.dropLast(1) },
+                    onBack = { pop() },
                     onSaved = {
                         vm.load()
-                        if (stack.lastOrNull() is NodesNav.Form) {
-                            stack = if (uuid == null) listOf(NodesNav.List) else stack.dropLast(1)
+                        if (currentStack().lastOrNull() is NodesNav.Form) {
+                            pop()
                         }
                     },
                 )
@@ -502,11 +473,12 @@ private fun NodeDetailScreen(
                 FwDetailCard {
                     DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic_history), Icons.Rounded.ShowChart, MaterialTheme.colorScheme.secondary)
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                        TimeRange.entries.forEachIndexed { index, range ->
+                        val timeRanges = remember { TimeRange.entries }
+                        timeRanges.forEachIndexed { index, range ->
                             SegmentedButton(
                                 selected = bandwidthState.selectedRange == range,
                                 onClick  = { onRangeChange(range) },
-                                shape    = SegmentedButtonDefaults.itemShape(index, TimeRange.entries.size),
+                                shape    = SegmentedButtonDefaults.itemShape(index, timeRanges.size),
                                 label    = { Text(range.label()) }
                             )
                         }
@@ -792,53 +764,5 @@ private fun NodeActions(
             shape = RoundedCornerShape(percent = 50),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
         ) { Text(stringResource(Res.string.nodes_delete)) }
-    }
-}
-
-@Composable
-private fun FwDetailCard(content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape    = MaterialTheme.shapes.large,
-        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            content = { content() },
-        )
-    }
-}
-
-@Composable
-private fun DetailSectionTitle(
-    title: String,
-    icon: ImageVector? = null,
-    tint: Color = MaterialTheme.colorScheme.primary,
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        if (icon != null) {
-            FwSectionIcon(icon, tint)
-        }
-        Text(title, style = MaterialTheme.typography.titleSmall)
-    }
-}
-
-@Composable
-private fun DetailRow(label: String, value: String, monoFont: androidx.compose.ui.text.font.FontFamily) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(
-            label,
-            style    = MaterialTheme.typography.bodyMedium,
-            color    = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = monoFont),
-        )
     }
 }

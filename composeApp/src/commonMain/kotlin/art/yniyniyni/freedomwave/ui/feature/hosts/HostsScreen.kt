@@ -1,14 +1,4 @@
-@file:OptIn(ExperimentalTransitionApi::class)
-
 package art.yniyniyni.freedomwave.ui.feature.hosts
-
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.ExperimentalTransitionApi
-import androidx.compose.animation.core.SeekableTransitionState
-import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +9,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
+import art.yniyniyni.freedomwave.ui.components.FwNavDestination
+import art.yniyniyni.freedomwave.ui.components.FwNavigationContainer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,12 +59,12 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private sealed interface HostsNav {
+private sealed interface HostsNav : FwNavDestination {
     data object List : HostsNav
     data class Editor(val host: Host?, val epoch: Int) : HostsNav   // null = create
 
-    val depth: Int get() = if (this is Editor) 1 else 0
-    val key: String get() = when (this) {
+    override val depth: Int get() = if (this is Editor) 1 else 0
+    override val key: String get() = when (this) {
         List -> "list"
         is Editor -> "editor:${host?.uuid ?: "new"}:$epoch"
     }
@@ -84,65 +74,39 @@ private sealed interface HostsNav {
 @Composable
 fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
-    val snackbar = remember { SnackbarHostState() }
 
-    var stack by remember { mutableStateOf<kotlin.collections.List<HostsNav>>(listOf(HostsNav.List)) }
     var formEpoch by remember { mutableStateOf(0) }
-    val top = stack.last()
-    val canGoBack = stack.size > 1
 
-    val actionErrorText = state.actionError?.resolve()
-    LaunchedEffect(actionErrorText) {
-        actionErrorText?.let {
-            snackbar.showSnackbar(it)
-            vm.clearActionError()
-        }
-    }
-
-    val transitionState = remember { SeekableTransitionState<HostsNav>(HostsNav.List) }
-    val transition = rememberTransition(transitionState, label = "hosts_nav")
-    LaunchedEffect(top) { if (transitionState.currentState != top) transitionState.animateTo(top) }
-
-    BackGestureEffect(
-        enabled    = canGoBack,
-        onProgress = { fraction -> transitionState.seekTo(fraction, stack[stack.size - 2]) },
-        onCommit   = { val t = stack[stack.size - 2]; transitionState.animateTo(t); stack = stack.dropLast(1) },
-        onCancel   = { transitionState.animateTo(top) },
-    )
-
-    transition.AnimatedContent(
+    FwNavigationContainer<HostsNav>(
+        navLabel = "hosts_nav",
+        rootState = HostsNav.List,
+        initialStack = listOf(HostsNav.List),
+        actionError = state.actionError,
+        onClearActionError = vm::clearActionError,
         contentKey = { it.key },
-        transitionSpec = {
-            val deeper = targetState.depth > initialState.depth
-            if (deeper) {
-                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
-            } else {
-                slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
-            }.apply { targetContentZIndex = if (deeper) 1f else 0f }
-        },
-    ) { navEntry ->
+    ) { navEntry, push, pop, currentStack, snackbarHost ->
         when (navEntry) {
             is HostsNav.List -> HostsListContent(
                 state    = state,
                 vm       = vm,
-                snackbar = snackbar,
-                onOpenHost = { host -> formEpoch++; stack = stack + HostsNav.Editor(host, formEpoch) },
-                onCreate   = { formEpoch++; stack = stack + HostsNav.Editor(null, formEpoch) },
+                snackbar = snackbarHost,
+                onOpenHost = { host -> formEpoch++; push(HostsNav.Editor(host, formEpoch)) },
+                onCreate   = { formEpoch++; push(HostsNav.Editor(null, formEpoch)) },
             )
             is HostsNav.Editor -> {
                 val uuid = navEntry.host?.uuid
                 val formVm: HostFormViewModel = koinViewModel(key = "host-form-${navEntry.epoch}") { parametersOf(uuid) }
                 HostCreateEditScreen(
                     vm      = formVm,
-                    onBack  = { stack = stack.dropLast(1) },
+                    onBack  = { pop() },
                     onSaved = {
                         vm.load()
-                        if (stack.lastOrNull() is HostsNav.Editor) stack = stack.dropLast(1)
+                        if (currentStack().lastOrNull() is HostsNav.Editor) pop()
                     },
                     onDelete = navEntry.host?.let { host ->
                         {
                             vm.delete(host)
-                            if (stack.lastOrNull() is HostsNav.Editor) stack = stack.dropLast(1)
+                            if (currentStack().lastOrNull() is HostsNav.Editor) pop()
                         }
                     },
                 )

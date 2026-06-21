@@ -11,6 +11,8 @@
     <string name="common_retry">Retry</string>
     <string name="common_connect">Connect</string>
     <string name="common_empty_dash">—</string>
+    <string name="common_minus_sign">−</string>
+    <string name="common_plus_sign">+</string>
     <string name="common_ok">OK</string>
     <string name="common_refresh">Refresh</string>
     <!-- brand wordmark: never translated, identical in every locale (locale-invariant: keep out of values-* files) -->
@@ -404,6 +406,10 @@
     <string name="hosts_form_no_nodes">No nodes available</string>
     <string name="hosts_form_remark_error">1–40 characters</string>
     <string name="hosts_form_port_error">Port 1–65535</string>
+    <string name="hosts_form_address_error">Address is required</string>
+    <string name="hosts_form_tag_error">Uppercase letters, numbers, underscores and colons, max 32 characters</string>
+    <string name="hosts_form_vless_route_error">0–65535, or leave empty</string>
+    <string name="hosts_form_server_desc_error">Max 30 characters</string>
     <string name="hosts_form_done">Done</string>
     <string name="hosts_detail_inbound">Inbound</string>
     <string name="hosts_detail_vless_route">VLESS Route ID</string>

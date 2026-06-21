@@ -193,11 +193,11 @@ class ExternalSquadEditViewModel(
         }
     }
 
-    // ── Name ──────────────────────────────────────────────────────────────────
+    // Name
 
     fun onName(v: String) = _state.update { it.copy(name = v, actionError = null) }
 
-    // ── Templates ─────────────────────────────────────────────────────────────
+    // Templates
 
     fun selectTemplate(type: String, uuid: String?) = _state.update { s ->
         s.copy(
@@ -208,7 +208,7 @@ class ExternalSquadEditViewModel(
         )
     }
 
-    // ── Subscription settings overrides ──────────────────────────────────────
+    // Subscription settings overrides
     // Pattern: toggle(on) sets a default when enabling, null when disabling.
     // onX(v) updates the text-field value only (no-op if override is off).
 
@@ -249,7 +249,7 @@ class ExternalSquadEditViewModel(
     fun setRandomizeHosts(v: Boolean) =
         _state.update { it.copy(randomizeHosts = v) }
 
-    // ── Host overrides ────────────────────────────────────────────────────────
+    // Host overrides
 
     fun toggleServerDescription(on: Boolean) =
         _state.update { it.copy(serverDescription = if (on) "" else null) }
@@ -260,7 +260,7 @@ class ExternalSquadEditViewModel(
     fun onVlessRouteId(v: String) =
         _state.update { it.copy(vlessRouteId = v.filter { c -> c.isDigit() }) }
 
-    // ── Response headers ──────────────────────────────────────────────────────
+    // Response headers
 
     fun addHeader() = _state.update { it.copy(headers = it.headers + ("" to "")) }
 
@@ -282,7 +282,7 @@ class ExternalSquadEditViewModel(
         })
     }
 
-    // ── HWID ─────────────────────────────────────────────────────────────────
+    // HWID
 
     fun setHwidOverride(v: Boolean) = _state.update { it.copy(hwidOverride = v) }
     fun setHwidEnabled(v: Boolean) = _state.update { it.copy(hwidEnabled = v) }
@@ -290,7 +290,7 @@ class ExternalSquadEditViewModel(
         _state.update { it.copy(hwidFallbackDeviceLimit = v.filter { c -> c.isDigit() }) }
     fun onHwidAnnounce(v: String) = _state.update { it.copy(hwidMaxDevicesAnnounce = v) }
 
-    // ── Remarks ───────────────────────────────────────────────────────────────
+    // Remarks
 
     fun setRemarksOverride(v: Boolean) = _state.update { it.copy(remarksOverride = v) }
 
@@ -322,11 +322,11 @@ class ExternalSquadEditViewModel(
         RemarkCategory.HWID_UNSUPPORTED -> copy(hwidNotSupported = transform(hwidNotSupported))
     }
 
-    // ── Subpage config ────────────────────────────────────────────────────────
+    // Subpage config
 
     fun selectSubpage(uuid: String?) = _state.update { it.copy(subpageConfigUuid = uuid) }
 
-    // ── Error ─────────────────────────────────────────────────────────────────
+    // Error
 
     fun clearError() = _state.update { it.copy(actionError = null) }
 
@@ -355,7 +355,7 @@ class ExternalSquadEditViewModel(
         }
     }
 
-    // ── Submit ────────────────────────────────────────────────────────────────
+    // Submit
 
     fun submit(onSaved: () -> Unit) {
         if (!_state.value.canSave) return

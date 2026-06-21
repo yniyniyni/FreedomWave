@@ -30,7 +30,7 @@ data class SquadsUiState(
     val dialogError: UiText? = null
 )
 
-class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
+class SquadsViewModel(private val repository: SquadRepository) : ViewModel() {
 
     private val _state = MutableStateFlow(SquadsUiState())
     val state: StateFlow<SquadsUiState> = _state.asStateFlow()
@@ -42,8 +42,8 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
             _state.update { it.copy(isLoading = true, error = null) }
             runCatching {
                 coroutineScope {
-                    val internal = async { repo.getInternalSquads() }
-                    val external = async { repo.getExternalSquads() }
+                    val internal = async { repository.getInternalSquads() }
+                    val external = async { repository.getExternalSquads() }
                     internal.await() to external.await()
                 }
             }.onSuccess { (internalResult, externalResult) ->
@@ -71,17 +71,21 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
     fun createSquad() {
         val s = _state.value
         if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = UiText.Res(Res.string.squads_name_required)) }; return }
+        createSquadInternal(s.dialogName.trim(), isInternal = s.activeTab == 0)
+    }
+
+    private fun createSquadInternal(name: String, isInternal: Boolean) {
         viewModelScope.launch {
             _state.update { it.copy(dialogIsLoading = true, dialogError = null) }
-            val result = if (s.activeTab == 0) repo.createInternalSquad(s.dialogName.trim())
-                         else repo.createExternalSquad(s.dialogName.trim())
+            val result = if (isInternal) repository.createInternalSquad(name)
+                         else repository.createExternalSquad(name)
             result
                 .onSuccess { created ->
                     _state.update { st ->
-                        val list = if (st.activeTab == 0) st.internalSquads + created
-                                   else st.externalSquads + created
-                        if (st.activeTab == 0) st.copy(dialogIsLoading = false, showCreateDialog = false, internalSquads = list)
-                        else st.copy(dialogIsLoading = false, showCreateDialog = false, externalSquads = list)
+                        if (isInternal) st.copy(dialogIsLoading = false, showCreateDialog = false,
+                            internalSquads = st.internalSquads + created)
+                        else st.copy(dialogIsLoading = false, showCreateDialog = false,
+                            externalSquads = st.externalSquads + created)
                     }
                 }
                 .onFailure { e -> _state.update { it.copy(dialogIsLoading = false, dialogError = e.toUiText()) } }
@@ -91,8 +95,8 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
     fun deleteSquad(squad: Squad) {
         viewModelScope.launch {
             _state.update { it.copy(actionInProgress = true) }
-            val result = if (squad.type == Squad.Type.INTERNAL) repo.deleteInternalSquad(squad.uuid)
-                         else repo.deleteExternalSquad(squad.uuid)
+            val result = if (squad.type == Squad.Type.INTERNAL) repository.deleteInternalSquad(squad.uuid)
+                         else repository.deleteExternalSquad(squad.uuid)
             result
                 .onSuccess {
                     _state.update { s ->

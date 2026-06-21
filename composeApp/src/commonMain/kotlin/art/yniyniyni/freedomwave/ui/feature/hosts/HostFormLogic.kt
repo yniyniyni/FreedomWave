@@ -5,6 +5,7 @@ import art.yniyniyni.freedomwave.data.api.dto.HostInboundBody
 import art.yniyniyni.freedomwave.data.api.dto.UpdateHostRequest
 
 private val HOST_TAG_REGEX = Regex("^[A-Z0-9_:]+$")
+private const val MAX_SERVER_DESC_LENGTH = 30
 
 data class HostFormInput(
     val configProfileUuid: String,
@@ -35,6 +36,15 @@ data class HostFormInput(
 fun remarkValid(s: String): Boolean = s.trim().length in 1..40
 fun addressValid(s: String): Boolean = s.trim().isNotEmpty()
 
+fun tagValid(s: String): Boolean = s.isEmpty() || parseHostTag(s) != null
+
+fun vlessRouteIdValid(s: String): Boolean {
+    if (s.isBlank()) return true // optional field, empty is valid
+    return vlessRouteIdOrNull(s) != null
+}
+
+fun serverDescriptionValid(s: String): Boolean = s.trim().length <= MAX_SERVER_DESC_LENGTH
+
 fun portOrNull(s: String): Int? {
     val n = s.trim().toIntOrNull() ?: return null
     return if (n in 1..65535) n else null
@@ -47,7 +57,7 @@ fun vlessRouteIdOrNull(s: String): Int? {
 }
 
 fun serverDescriptionOrNull(s: String): String? =
-    s.trim().take(30).ifBlank { null }
+    s.trim().take(MAX_SERVER_DESC_LENGTH).ifBlank { null }
 
 fun parseHostTag(raw: String): String? {
     val t = raw.trim().uppercase()

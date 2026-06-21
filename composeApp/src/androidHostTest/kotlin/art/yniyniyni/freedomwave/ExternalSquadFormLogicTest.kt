@@ -46,7 +46,7 @@ class ExternalSquadFormLogicTest {
         subpageConfigUuid = null,
     )
 
-    // ── nameValid ────────────────────────────────────────────────────────────
+    // nameValid
 
     @Test fun `nameValid rejects empty string`() {
         assertFalse(nameValid(""), "empty should be invalid")
@@ -64,7 +64,7 @@ class ExternalSquadFormLogicTest {
         assertFalse(nameValid("a".repeat(31)), "31 chars should be invalid")
     }
 
-    // ── updateIntervalOrNull ─────────────────────────────────────────────────
+    // updateIntervalOrNull
 
     @Test fun `updateIntervalOrNull rejects zero`() {
         assertNull(updateIntervalOrNull("0"))
@@ -82,7 +82,7 @@ class ExternalSquadFormLogicTest {
         assertNull(updateIntervalOrNull("x"))
     }
 
-    // ── announceValid ────────────────────────────────────────────────────────
+    // announceValid
 
     @Test fun `announceValid accepts 200-char string`() {
         assertTrue(announceValid("a".repeat(200)))
@@ -92,7 +92,7 @@ class ExternalSquadFormLogicTest {
         assertFalse(announceValid("a".repeat(201)), "201 chars should be invalid")
     }
 
-    // ── squadVlessRouteIdOrNull ──────────────────────────────────────────────
+    // squadVlessRouteIdOrNull
 
     @Test fun `squadVlessRouteIdOrNull returns null for blank`() {
         assertNull(squadVlessRouteIdOrNull(""))
@@ -110,7 +110,7 @@ class ExternalSquadFormLogicTest {
         assertNull(squadVlessRouteIdOrNull("70000"))
     }
 
-    // ── remarksValid ─────────────────────────────────────────────────────────
+    // remarksValid
 
     @Test fun `remarksValid returns true when override is off`() {
         assertTrue(remarksValid(baseline().copy(remarksOverride = false)))
@@ -142,7 +142,7 @@ class ExternalSquadFormLogicTest {
         assertFalse(remarksValid(input), "missing emptyHosts should make remarks invalid")
     }
 
-    // ── buildExternalSquadRequest ────────────────────────────────────────────
+    // buildExternalSquadRequest
 
     @Test fun `buildExternalSquadRequest maps profileTitle and leaves supportLink null`() {
         val input = baseline().copy(profileTitle = "t")

@@ -82,6 +82,7 @@ import art.yniyniyni.freedomwave.domain.model.BillingNode
 import art.yniyniyni.freedomwave.domain.model.BillingStats
 import art.yniyniyni.freedomwave.domain.model.InfraProvider
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
+import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.l10n.localized
 import art.yniyniyni.freedomwave.ui.l10n.resolve
@@ -186,7 +187,7 @@ fun InfraBillingScreen(vm: InfraBillingViewModel = koinViewModel(), onBack: (() 
                 IconButton(onClick = vm::load) { Icon(Icons.Rounded.Refresh, contentDescription = stringResource(Res.string.common_refresh)) }
             }
             if (onBack != null) FwDetailTopBar(title = stringResource(Res.string.infra_title), onBack = onBack, actions = refresh)
-            else FwDetailTopBar(title = stringResource(Res.string.infra_title), onBack = {}, actions = refresh)
+            else FwTopBar(title = stringResource(Res.string.infra_title), actions = refresh)
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -259,7 +260,7 @@ fun InfraBillingScreen(vm: InfraBillingViewModel = koinViewModel(), onBack: (() 
     }
 }
 
-// ── Stats grid (Dashboard LiveTile layout) ───────────────────────────────────
+// Stats grid (Dashboard LiveTile layout)
 
 @Composable
 private fun StatsGrid(stats: BillingStats?) {
@@ -324,7 +325,7 @@ private fun StatTile(modifier: Modifier, icon: ImageVector, tint: Color, label: 
     }
 }
 
-// ── Tab selector (Squads pill style, three segments) ─────────────────────────
+// Tab selector (Squads pill style, three segments)
 
 @Composable
 private fun BillingTabSelector(
@@ -369,7 +370,7 @@ private fun TabSegment(modifier: Modifier, selected: Boolean, label: String, cou
     }
 }
 
-// ── Generic tab list ─────────────────────────────────────────────────────────
+// Generic tab list
 
 @Composable
 private fun <T> TabList(
@@ -389,7 +390,7 @@ private fun <T> TabList(
     }
 }
 
-// ── Item cards ───────────────────────────────────────────────────────────────
+// Item cards
 
 @Composable
 private fun BillingNodeItem(node: BillingNode, onClick: () -> Unit, onDelete: () -> Unit) {
@@ -525,7 +526,7 @@ private fun OverflowDelete(onDelete: () -> Unit) {
     }
 }
 
-// ── Dialogs ──────────────────────────────────────────────────────────────────
+// Dialogs
 
 @Composable
 private fun ProviderDialog(state: InfraBillingUiState, vm: InfraBillingViewModel) {

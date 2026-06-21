@@ -1,21 +1,10 @@
-@file:OptIn(ExperimentalTransitionApi::class)
-
 package art.yniyniyni.freedomwave.ui.feature.users
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.ExperimentalTransitionApi
-import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,7 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
+import art.yniyniyni.freedomwave.ui.components.FwNavDestination
+import art.yniyniyni.freedomwave.ui.components.FwNavigationContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowDownward
@@ -76,6 +66,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import art.yniyniyni.freedomwave.ui.components.DetailRow
+import art.yniyniyni.freedomwave.ui.components.DetailSectionTitle
+import art.yniyniyni.freedomwave.ui.components.FwDetailCard
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
@@ -92,7 +85,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -111,6 +103,8 @@ import freedomwave.composeapp.generated.resources.Res
 import freedomwave.composeapp.generated.resources.common_cancel
 import freedomwave.composeapp.generated.resources.common_close
 import freedomwave.composeapp.generated.resources.common_copied
+import freedomwave.composeapp.generated.resources.common_minus_sign
+import freedomwave.composeapp.generated.resources.common_plus_sign
 import freedomwave.composeapp.generated.resources.common_copy
 import freedomwave.composeapp.generated.resources.common_delete
 import freedomwave.composeapp.generated.resources.common_retry
@@ -182,17 +176,17 @@ import kotlinx.datetime.Clock
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private sealed interface UsersNav {
+private sealed interface UsersNav : FwNavDestination {
     data object List : UsersNav
     data class Detail(val user: User) : UsersNav
     data class Form(val editing: User?) : UsersNav
 
-    val depth: Int get() = when (this) {
+    override val depth: Int get() = when (this) {
         is List -> 0
         is Detail -> 1
         is Form -> 2
     }
-    val key: String get() = when (this) {
+    override val key: String get() = when (this) {
         is List -> "list"
         is Detail -> "detail:${user.uuid}"
         is Form -> "form:${editing?.uuid ?: "new"}"
@@ -203,70 +197,34 @@ private sealed interface UsersNav {
 @Composable
 fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
-    val snackbar = remember { SnackbarHostState() }
 
-    var stack by remember { mutableStateOf<kotlin.collections.List<UsersNav>>(listOf(UsersNav.List)) }
-    val top = stack.last()
-    val canGoBack = stack.size > 1
-
-    val actionErrorText = state.actionError?.resolve()
-    LaunchedEffect(actionErrorText) {
-        actionErrorText?.let {
-            snackbar.showSnackbar(it)
-            vm.clearActionError()
-        }
-    }
-
-    val transitionState = remember { SeekableTransitionState<UsersNav>(UsersNav.List) }
-    val transition = rememberTransition(transitionState, label = "users_nav")
-
-    // Animate to the current top whenever it changes via forward navigation or a programmatic pop.
-    LaunchedEffect(top) {
-        if (transitionState.currentState != top) transitionState.animateTo(top)
-    }
-
-    // Predictive back: seek toward the previous entry, commit pops, cancel returns to top.
-    BackGestureEffect(
-        enabled = canGoBack,
-        onProgress = { fraction -> transitionState.seekTo(fraction, stack[stack.size - 2]) },
-        onCommit   = {
-            val target = stack[stack.size - 2]
-            transitionState.animateTo(target)
-            stack = stack.dropLast(1)
-        },
-        onCancel   = { transitionState.animateTo(top) },
-    )
-
-    transition.AnimatedContent(
+    FwNavigationContainer<UsersNav>(
+        navLabel = "users_nav",
+        rootState = UsersNav.List,
+        initialStack = listOf(UsersNav.List),
+        actionError = state.actionError,
+        onClearActionError = vm::clearActionError,
         contentKey = { it.key },
-        transitionSpec = {
-            val deeper = targetState.depth > initialState.depth
-            if (deeper) {
-                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
-            } else {
-                slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
-            }.apply { targetContentZIndex = if (deeper) 1f else 0f }
-        },
-    ) { navEntry ->
+    ) { navEntry, push, pop, currentStack, snackbarHost ->
         when (navEntry) {
             is UsersNav.List -> UsersListContent(
                 state = state,
                 vm = vm,
-                snackbar = snackbar,
-                onOpenCreate = { vm.openCreateForm(); stack = stack + UsersNav.Form(null) },
-                onOpenDetail = { user -> stack = stack + UsersNav.Detail(user) },
+                snackbar = snackbarHost,
+                onOpenCreate = { vm.openCreateForm(); push(UsersNav.Form(null)) },
+                onOpenDetail = { user -> push(UsersNav.Detail(user)) },
             )
             is UsersNav.Detail -> {
                 val live = state.users.find { it.uuid == navEntry.user.uuid } ?: navEntry.user
                 UserDetailScreen(
                     user           = live,
                     nodesByUuid    = state.nodesByUuid,
-                    onBack         = { stack = stack.dropLast(1) },
-                    onEdit         = { vm.openEditForm(live); stack = stack + UsersNav.Form(live) },
+                    onBack         = { pop() },
+                    onEdit         = { vm.openEditForm(live); push(UsersNav.Form(live)) },
                     onEnable       = { vm.enableUser(live.uuid) },
                     onDisable      = { vm.disableUser(live.uuid) },
                     onResetTraffic = { vm.resetTraffic(live.uuid) },
-                    onDelete       = { vm.deleteUser(live.uuid); stack = stack.dropLast(1) },
+                    onDelete       = { vm.deleteUser(live.uuid); pop() },
                     onApplyUpdate  = { updated -> vm.applyUserUpdate(updated) },
                 )
             }
@@ -276,7 +234,7 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                 // (twice) would empty the stack and crash stack.last(). Guarding makes both
                 // onBack and onSaved idempotent.
                 val dismissForm = {
-                    if (stack.lastOrNull() is UsersNav.Form) stack = stack.dropLast(1)
+                    if (currentStack().lastOrNull() is UsersNav.Form) pop()
                 }
                 UserCreateEditScreen(
                     state = state,
@@ -310,7 +268,8 @@ private fun UsersListContent(
                         Icon(Icons.Rounded.SwapVert, contentDescription = stringResource(Res.string.users_sort))
                     }
                     DropdownMenu(expanded = sortMenuOpen, onDismissRequest = { sortMenuOpen = false }) {
-                        UserSortField.entries.forEach { field ->
+                        val sortEntries = remember { UserSortField.entries }
+                        sortEntries.forEach { field ->
                             val active = state.sortField == field
                             DropdownMenuItem(
                                 text = { Text(field.label()) },
@@ -351,12 +310,13 @@ private fun UsersListContent(
                 shape         = MaterialTheme.shapes.medium,
                 modifier      = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             )
+            val categoryEntries = remember { UserCategory.entries }
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
             ) {
-                items(UserCategory.entries) { cat ->
+                items(categoryEntries) { cat ->
                     FilterChip(
                         selected = state.category == cat,
                         onClick  = { vm.onCategorySelected(cat) },
@@ -511,9 +471,7 @@ private fun StatusBadge(status: UserStatus) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // UserDetailScreen
-// ─────────────────────────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -544,7 +502,7 @@ private fun UserDetailScreen(
         detailActionSuccessText?.let { snackbar.showSnackbar(it); detailVm.clearMessages() }
     }
 
-    // ── Dialogs ────────────────────────────────────────────────────────────────
+    // Dialogs
     var showDeleteConfirm  by remember { mutableStateOf(false) }
     var showQrDialog       by remember { mutableStateOf(false) }
     var showCopiedSnackbar by remember { mutableStateOf(false) }
@@ -625,7 +583,7 @@ private fun UserDetailScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            // ── Info card ──────────────────────────────────────────────────────
+            // Info card
             item {
                 FwDetailCard {
                     // Compact header: title + status badge on one line.
@@ -659,7 +617,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── Traffic donut ─────────────────────────────────────────────────
+            // Traffic donut
             item {
                 FwDetailCard {
                     DetailSectionTitle(stringResource(Res.string.users_detail_traffic), Icons.Rounded.DataUsage, MaterialTheme.colorScheme.tertiary)
@@ -681,7 +639,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── Subscription URL ──────────────────────────────────────────────
+            // Subscription URL
             if (user.subscriptionUrl.isNotBlank()) {
                 item {
                     FwDetailCard {
@@ -716,7 +674,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── Squads ─────────────────────────────────────────────────────────
+            // Squads
             if (user.activeSquads.isNotEmpty()) {
                 item {
                     FwDetailCard {
@@ -728,7 +686,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── Devices section ───────────────────────────────────────────────
+            // Devices section
             item {
                 FwDetailCard {
                     Row(
@@ -746,7 +704,7 @@ private fun UserDetailScreen(
                             }
                         }
                         val devicesRotation by animateFloatAsState(
-                            if (detailState.devicesExpanded) 180f else 0f, label = "devices_chevron"
+                            if (detailState.devicesExpanded) 180f else 0f
                         )
                         Icon(
                             Icons.Rounded.ExpandMore,
@@ -788,7 +746,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── IP Addresses section ─────────────────────────────────────────
+            // IP Addresses section
             item {
                 FwDetailCard {
                     Row(
@@ -814,7 +772,7 @@ private fun UserDetailScreen(
                             }
                         }
                         val ipRotation by animateFloatAsState(
-                            if (detailState.ipExpanded) 180f else 0f, label = "ip_chevron"
+                            if (detailState.ipExpanded) 180f else 0f
                         )
                         Icon(
                             Icons.Rounded.ExpandMore,
@@ -856,7 +814,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── Manage card ───────────────────────────────────────────────────
+            // Manage card
             item {
                 ManageCard(
                     user           = user,
@@ -875,9 +833,7 @@ private fun UserDetailScreen(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Manage card — Status, Traffic & Expiration, Device limit, Danger zone
-// ─────────────────────────────────────────────────────────────────────────────
+// Manage card
 
 @Composable
 private fun ManageCard(
@@ -985,13 +941,13 @@ private fun ManageCard(
                 shape = RoundedCornerShape(percent = 50),
                 modifier = Modifier.size(40.dp),
                 contentPadding = PaddingValues(0.dp),
-            ) { Text("−") }
+            ) { Text(stringResource(Res.string.common_minus_sign)) }
             OutlinedButton(
                 onClick = { detailVm.adjustDeviceLimit(user.hwidDeviceLimit, +1, onApplyUpdate) },
                 shape = RoundedCornerShape(percent = 50),
                 modifier = Modifier.size(40.dp),
                 contentPadding = PaddingValues(0.dp),
-            ) { Text("+") }
+            ) { Text(stringResource(Res.string.common_plus_sign)) }
         }
 
         Spacer(Modifier.height(4.dp))
@@ -1028,9 +984,7 @@ private fun ManageSectionLabel(label: String) {
     )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Device row
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun DeviceRow(device: HwidDevice, monoFont: FontFamily) {
@@ -1080,9 +1034,7 @@ private fun DeviceRow(device: HwidDevice, monoFont: FontFamily) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // IP row
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun IpAddressRow(row: IpRow, monoFont: FontFamily) {
@@ -1138,9 +1090,7 @@ private fun IpAddressRow(row: IpRow, monoFont: FontFamily) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // QR dialog
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun QrDialog(url: String, onDismiss: () -> Unit) {
@@ -1175,9 +1125,7 @@ private fun QrDialog(url: String, onDismiss: () -> Unit) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Quick-edit dialogs
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun SetLimitDialog(
@@ -1262,55 +1210,3 @@ private fun SetExpiryDialog(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun FwDetailCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape    = MaterialTheme.shapes.large,
-        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp).animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            content = content,
-        )
-    }
-}
-
-@Composable
-private fun DetailSectionTitle(
-    title: String,
-    icon: ImageVector? = null,
-    tint: Color = MaterialTheme.colorScheme.primary,
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        if (icon != null) {
-            FwSectionIcon(icon, tint)
-        }
-        Text(title, style = MaterialTheme.typography.titleSmall)
-    }
-}
-
-@Composable
-private fun DetailRow(label: String, value: String, monoFont: FontFamily) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(
-            label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            value,
-            style      = MaterialTheme.typography.bodyMedium.copy(fontFamily = monoFont),
-            fontWeight = FontWeight.Medium,
-        )
-    }
-}

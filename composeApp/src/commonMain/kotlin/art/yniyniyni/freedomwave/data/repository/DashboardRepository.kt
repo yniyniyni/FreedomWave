@@ -1,6 +1,5 @@
 package art.yniyniyni.freedomwave.data.repository
 
-import art.yniyniyni.freedomwave.data.api.ApiError
 import art.yniyniyni.freedomwave.data.api.service.DashboardService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.DashboardStats
@@ -15,10 +14,9 @@ class DashboardRepository(
     private val prefs: AppPreferences
 ) {
     suspend fun getStats(): Result<DashboardStats> = runCatching {
-        val serverUrl = prefs.getServerUrl()
         coroutineScope {
-            val statsDeferred = async { service.getSystemStats(serverUrl) }
-            val recapDeferred = async { service.getRecap(serverUrl) }
+            val statsDeferred = async { service.getSystemStats() }
+            val recapDeferred = async { service.getRecap() }
             val nodesDeferred = async { nodeRepository.getNodes() }
             // "Today" traffic (and its delta vs yesterday) comes from the dedicated
             // bandwidth endpoint; the daily sparkline's last bucket would read ~0 in the
@@ -27,7 +25,7 @@ class DashboardRepository(
             // its own configured tz). Tolerate failure — the rest of the dashboard should
             // still load.
             val tz = TimeZone.currentSystemDefault().id
-            val bandwidthDeferred = async { runCatching { service.getBandwidthStats(serverUrl, tz) }.getOrNull() }
+            val bandwidthDeferred = async { runCatching { service.getBandwidthStats(tz) }.getOrNull() }
 
             val base = DashboardStats.from(statsDeferred.await().response, recapDeferred.await().response)
 
@@ -55,9 +53,5 @@ class DashboardRepository(
                 withNodes
             }
         }
-    }.also { result ->
-        if (result.exceptionOrNull() is ApiError.Unauthorized) {
-            prefs.clearCredentials()
-        }
-    }
+    }.clearOnUnauthorized(prefs)
 }

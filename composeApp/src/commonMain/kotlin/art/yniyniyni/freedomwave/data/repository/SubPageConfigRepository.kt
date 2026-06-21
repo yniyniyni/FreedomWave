@@ -1,6 +1,5 @@
 package art.yniyniyni.freedomwave.data.repository
 
-import art.yniyniyni.freedomwave.data.api.ApiError
 import art.yniyniyni.freedomwave.data.api.service.SubPageConfigService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.SubPageConfig
@@ -10,6 +9,6 @@ class SubPageConfigRepository(
     private val prefs: AppPreferences,
 ) {
     suspend fun getConfigs(): Result<List<SubPageConfig>> = runCatching {
-        service.getConfigs(prefs.getServerUrl()).response.configs.map { SubPageConfig(it.uuid, it.name) }
-    }.also { if (it.exceptionOrNull() is ApiError.Unauthorized) prefs.clearCredentials() }
+        service.getConfigs().response.configs.map { SubPageConfig(it.uuid, it.name) }
+    }.clearOnUnauthorized(prefs)
 }

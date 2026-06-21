@@ -1,9 +1,11 @@
 package art.yniyniyni.freedomwave.data.repository
 
-import art.yniyniyni.freedomwave.data.api.ApiError
 import art.yniyniyni.freedomwave.data.api.service.SubHistoryService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.IpRow
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class SubHistoryRepository(
     private val service: SubHistoryService,
@@ -14,7 +16,7 @@ class SubHistoryRepository(
      * then geo-enrich each unique IP (best-effort, failures leave geo fields null).
      */
     suspend fun getIpRows(userUuid: String): Result<List<IpRow>> = api {
-        val records = service.getSubHistory(prefs.getServerUrl(), userUuid).response.records
+        val records = service.getSubHistory(userUuid).response.records
 
         // Aggregate by IP
         val grouped = records
@@ -32,26 +34,30 @@ class SubHistoryRepository(
         // Geo lookup is opt-in: when off, never send client IPs to the third-party ipwho.is.
         if (!prefs.getGeoLookupEnabled()) return@api baseRows
 
-        // Geo-enrich unique IPs — best-effort
-        baseRows.map { row ->
-            val geo = service.getIpInfo(row.ip)
-            if (geo != null && geo.success) {
-                row.copy(
-                    city        = geo.city,
-                    region      = geo.region,
-                    country     = geo.country,
-                    countryCode = geo.countryCode,
-                    isp         = geo.connection?.isp ?: geo.connection?.org,
-                    geoLoaded   = true
-                )
-            } else {
-                row.copy(geoLoaded = true)
+        // Geo-enrich unique IPs — best-effort, batched to avoid throttling
+        coroutineScope {
+            baseRows.chunked(6).flatMap { chunk ->
+                chunk.map { row ->
+                    async {
+                        val geo = service.getIpInfo(row.ip)
+                        if (geo != null && geo.success) {
+                            row.copy(
+                                city        = geo.city,
+                                region      = geo.region,
+                                country     = geo.country,
+                                countryCode = geo.countryCode,
+                                isp         = geo.connection?.isp ?: geo.connection?.org,
+                                geoLoaded   = true
+                            )
+                        } else {
+                            row.copy(geoLoaded = true)
+                        }
+                    }
+                }.awaitAll()
             }
         }
     }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =
-        runCatching { block() }.also { result ->
-            if (result.exceptionOrNull() is ApiError.Unauthorized) prefs.clearCredentials()
-        }
+        runCatching { block() }.clearOnUnauthorized(prefs)
 }

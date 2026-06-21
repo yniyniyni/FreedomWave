@@ -2,7 +2,6 @@
 
 package art.yniyniyni.freedomwave.ui.feature.nodes
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,14 +49,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import art.yniyniyni.freedomwave.ui.components.DetailSectionTitle
+import art.yniyniyni.freedomwave.ui.components.FwDetailCard
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.l10n.resolve
@@ -137,7 +136,8 @@ internal fun NodeCreateEditScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                FormCard(stringResource(Res.string.nodes_form_connection), Icons.Rounded.Wifi) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.nodes_form_connection), Icons.Rounded.Wifi)
                     OutlinedTextField(
                         value = state.name, onValueChange = vm::onName,
                         shape = MaterialTheme.shapes.medium,
@@ -179,7 +179,8 @@ internal fun NodeCreateEditScreen(
             }
 
             item {
-                FormCard(stringResource(Res.string.nodes_form_config_profile), Icons.Rounded.Settings, MaterialTheme.colorScheme.tertiary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.nodes_form_config_profile), Icons.Rounded.Settings, MaterialTheme.colorScheme.tertiary)
                     if (state.profiles.isEmpty()) {
                         Text(stringResource(Res.string.nodes_form_no_profiles),
                             style = MaterialTheme.typography.bodySmall,
@@ -259,7 +260,8 @@ internal fun NodeCreateEditScreen(
 
             state.secretKey?.let { key ->
                 item {
-                    FormCard(stringResource(Res.string.nodes_form_secret_key), Icons.Rounded.Key, MaterialTheme.colorScheme.secondary) {
+                    FwDetailCard {
+                        DetailSectionTitle(stringResource(Res.string.nodes_form_secret_key), Icons.Rounded.Key, MaterialTheme.colorScheme.secondary)
                         Text(stringResource(Res.string.nodes_form_secret_key_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -284,7 +286,8 @@ internal fun NodeCreateEditScreen(
             }
 
             item {
-                FormCard(stringResource(Res.string.nodes_form_traffic), Icons.Rounded.SwapVert) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.nodes_form_traffic), Icons.Rounded.SwapVert)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -334,7 +337,8 @@ internal fun NodeCreateEditScreen(
             }
 
             item {
-                FormCard(stringResource(Res.string.nodes_form_tags), Icons.Rounded.Sell, MaterialTheme.colorScheme.tertiary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.nodes_form_tags), Icons.Rounded.Sell, MaterialTheme.colorScheme.tertiary)
                     OutlinedTextField(
                         value = state.tags, onValueChange = vm::onTags,
                         shape = MaterialTheme.shapes.medium,
@@ -367,28 +371,6 @@ internal fun NodeCreateEditScreen(
                     Text(stringResource(if (isEdit) Res.string.nodes_form_save else Res.string.nodes_form_create))
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun FormCard(
-    title: String,
-    icon: ImageVector,
-    tint: Color = MaterialTheme.colorScheme.primary,
-    content: @Composable () -> Unit,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(modifier = Modifier.padding(16.dp).animateContentSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                FwSectionIcon(icon, tint)
-                Text(title, style = MaterialTheme.typography.titleSmall)
-            }
-            content()
         }
     }
 }

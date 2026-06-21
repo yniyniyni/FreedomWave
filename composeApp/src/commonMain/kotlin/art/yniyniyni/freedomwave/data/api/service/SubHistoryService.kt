@@ -2,6 +2,7 @@ package art.yniyniyni.freedomwave.data.api.service
 
 import art.yniyniyni.freedomwave.data.api.dto.IpWhoIsResponse
 import art.yniyniyni.freedomwave.data.api.dto.SubHistoryResponse
+import art.yniyniyni.freedomwave.data.store.AppPreferences
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -12,11 +13,12 @@ class SubHistoryService(
     /** Auth client — used for panel API calls only. */
     private val panelClient: HttpClient,
     /** Plain client (no auth headers) — used for geo lookups at ipwho.is. */
-    private val plainClient: HttpClient
+    private val plainClient: HttpClient,
+    private val prefs: AppPreferences
 ) {
 
-    suspend fun getSubHistory(serverUrl: String, userUuid: String): SubHistoryResponse =
-        panelClient.get("$serverUrl/api/users/$userUuid/subscription-request-history").body()
+    suspend fun getSubHistory(userUuid: String): SubHistoryResponse =
+        panelClient.get("${prefs.getServerUrl()}/api/users/$userUuid/subscription-request-history").body()
 
     /** Enrich a single IP via ipwho.is. Returns null on any failure. */
     suspend fun getIpInfo(ip: String): IpWhoIsResponse? = runCatching {

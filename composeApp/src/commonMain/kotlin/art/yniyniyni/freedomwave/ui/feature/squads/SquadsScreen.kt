@@ -1,15 +1,8 @@
-@file:OptIn(ExperimentalTransitionApi::class)
-
 package art.yniyniyni.freedomwave.ui.feature.squads
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.ExperimentalTransitionApi
-import androidx.compose.animation.core.SeekableTransitionState
-import androidx.compose.animation.core.rememberTransition
+import art.yniyniyni.freedomwave.ui.components.FwNavDestination
+import art.yniyniyni.freedomwave.ui.components.FwNavigationContainer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
@@ -55,7 +48,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -91,13 +83,13 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private sealed interface SquadsNav {
+private sealed interface SquadsNav : FwNavDestination {
     data object List : SquadsNav
     data class InternalEditor(val squad: Squad, val epoch: Int) : SquadsNav
     data class ExternalEditor(val squad: Squad, val epoch: Int) : SquadsNav
 
-    val depth: Int get() = if (this is List) 0 else 1
-    val key: String get() = when (this) {
+    override val depth: Int get() = if (this is List) 0 else 1
+    override val key: String get() = when (this) {
         List -> "list"
         is InternalEditor -> "int:${squad.uuid}:$epoch"
         is ExternalEditor -> "ext:${squad.uuid}:$epoch"
@@ -108,52 +100,31 @@ private sealed interface SquadsNav {
 @Composable
 fun SquadsScreen(vm: SquadsViewModel = koinViewModel(), onBack: (() -> Unit)? = null) {
     val state by vm.state.collectAsState()
-    val snackbar = remember { SnackbarHostState() }
 
-    var stack by remember { mutableStateOf<kotlin.collections.List<SquadsNav>>(listOf(SquadsNav.List)) }
     var formEpoch by remember { mutableStateOf(0) }
-    val top = stack.last()
-    val canGoBack = stack.size > 1
 
-    val actionErrorText = state.actionError?.resolve()
-    LaunchedEffect(actionErrorText) {
-        actionErrorText?.let { snackbar.showSnackbar(it); vm.clearActionError() }
-    }
-
-    val transitionState = remember { SeekableTransitionState<SquadsNav>(SquadsNav.List) }
-    val transition = rememberTransition(transitionState, label = "squads_nav")
-    LaunchedEffect(top) { if (transitionState.currentState != top) transitionState.animateTo(top) }
-
-    art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect(
-        enabled    = canGoBack,
-        onProgress = { fraction -> transitionState.seekTo(fraction, stack[stack.size - 2]) },
-        onCommit   = { val t = stack[stack.size - 2]; transitionState.animateTo(t); stack = stack.dropLast(1) },
-        onCancel   = { transitionState.animateTo(top) },
-    )
-
-    transition.AnimatedContent(
+    FwNavigationContainer<SquadsNav>(
+        navLabel = "squads_nav",
+        rootState = SquadsNav.List,
+        initialStack = listOf(SquadsNav.List),
+        actionError = state.actionError,
+        onClearActionError = vm::clearActionError,
         contentKey = { it.key },
-        transitionSpec = {
-            val deeper = targetState.depth > initialState.depth
-            if (deeper) {
-                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
-            } else {
-                slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
-            }.apply { targetContentZIndex = if (deeper) 1f else 0f }
-        },
-    ) { navEntry ->
+    ) { navEntry, push, pop, currentStack, snackbarHost ->
         when (navEntry) {
             is SquadsNav.List -> SquadsListContent(
                 vm = vm,
                 state = state,
-                snackbar = snackbar,
+                snackbar = snackbarHost,
                 onBack = onBack,
                 onOpenSquad = { squad ->
                     formEpoch++
-                    stack = stack + if (squad.type == Squad.Type.INTERNAL)
-                        SquadsNav.InternalEditor(squad, formEpoch)
-                    else
-                        SquadsNav.ExternalEditor(squad, formEpoch)
+                    push(
+                        if (squad.type == Squad.Type.INTERNAL)
+                            SquadsNav.InternalEditor(squad, formEpoch)
+                        else
+                            SquadsNav.ExternalEditor(squad, formEpoch)
+                    )
                 },
             )
             is SquadsNav.InternalEditor -> {
@@ -161,9 +132,9 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel(), onBack: (() -> Unit)? = 
                     koinViewModel(key = "int-squad-${navEntry.epoch}") { parametersOf(navEntry.squad.uuid) }
                 InternalSquadEditScreen(
                     vm = editVm,
-                    onBack = { stack = stack.dropLast(1) },
-                    onSaved = { vm.load(); if (stack.lastOrNull() is SquadsNav.InternalEditor) stack = stack.dropLast(1) },
-                    onDelete = { vm.deleteSquad(navEntry.squad); if (stack.lastOrNull() is SquadsNav.InternalEditor) stack = stack.dropLast(1) },
+                    onBack = { pop() },
+                    onSaved = { vm.load(); if (currentStack().lastOrNull() is SquadsNav.InternalEditor) pop() },
+                    onDelete = { vm.deleteSquad(navEntry.squad); if (currentStack().lastOrNull() is SquadsNav.InternalEditor) pop() },
                 )
             }
             is SquadsNav.ExternalEditor -> {
@@ -171,9 +142,9 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel(), onBack: (() -> Unit)? = 
                     koinViewModel(key = "ext-squad-${navEntry.epoch}") { parametersOf(navEntry.squad.uuid) }
                 ExternalSquadEditScreen(
                     vm = editVm,
-                    onBack = { stack = stack.dropLast(1) },
-                    onSaved = { vm.load(); if (stack.lastOrNull() is SquadsNav.ExternalEditor) stack = stack.dropLast(1) },
-                    onDelete = { vm.deleteSquad(navEntry.squad); if (stack.lastOrNull() is SquadsNav.ExternalEditor) stack = stack.dropLast(1) },
+                    onBack = { pop() },
+                    onSaved = { vm.load(); if (currentStack().lastOrNull() is SquadsNav.ExternalEditor) pop() },
+                    onDelete = { vm.deleteSquad(navEntry.squad); if (currentStack().lastOrNull() is SquadsNav.ExternalEditor) pop() },
                 )
             }
         }

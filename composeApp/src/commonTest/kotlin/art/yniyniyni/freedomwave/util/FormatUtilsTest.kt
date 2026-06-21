@@ -10,6 +10,7 @@ class FormatUtilsTest {
 
     @Test fun flag_for_DE() = assertEquals("🇩🇪", countryFlag("DE"))
     @Test fun flag_lowercase_us() = assertEquals("🇺🇸", countryFlag("us"))
+    @Test fun flag_xx_returns_empty() = assertEquals("", countryFlag("XX"))
     @Test fun flag_empty_for_bad_input() {
         assertEquals("", countryFlag(""))
         assertEquals("", countryFlag("X"))

@@ -2,7 +2,6 @@
 
 package art.yniyniyni.freedomwave.ui.feature.hosts
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -63,14 +62,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import art.yniyniyni.freedomwave.domain.model.ConfigProfile
 import art.yniyniyni.freedomwave.domain.model.Node
+import art.yniyniyni.freedomwave.ui.components.DetailSectionTitle
+import art.yniyniyni.freedomwave.ui.components.FwDetailCard
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.l10n.resolve
@@ -232,7 +231,8 @@ internal fun HostCreateEditScreen(
 
             // 1. Basic
             item {
-                FormCard(stringResource(Res.string.hosts_form_basic), Icons.Rounded.Tune, MaterialTheme.colorScheme.primary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.hosts_form_basic), Icons.Rounded.Tune, MaterialTheme.colorScheme.primary)
                     SwitchRow(stringResource(Res.string.hosts_form_enabled), !state.isDisabled) { vm.setDisabled(!it) }
                     OutlinedTextField(
                         value = state.remark,
@@ -265,6 +265,8 @@ internal fun HostCreateEditScreen(
                             label = { Text(stringResource(Res.string.hosts_form_address)) },
                             placeholder = { Text("example.com") },
                             singleLine = true,
+                            isError = state.addressError != null,
+                            supportingText = state.addressError?.let { { Text(it.resolve()) } },
                             modifier = Modifier.weight(2f),
                         )
                         OutlinedTextField(
@@ -286,6 +288,8 @@ internal fun HostCreateEditScreen(
                         label = { Text(stringResource(Res.string.hosts_form_tag)) },
                         placeholder = { Text(stringResource(Res.string.hosts_form_tag_hint)) },
                         singleLine = true,
+                        isError = state.tagError != null,
+                        supportingText = state.tagError?.let { { Text(it.resolve()) } },
                         modifier = Modifier.fillMaxWidth(),
                     )
                     SwitchRow(stringResource(Res.string.hosts_form_hidden), state.isHidden, vm::setHidden)
@@ -294,7 +298,8 @@ internal fun HostCreateEditScreen(
 
             // 2. Connection Overrides
             item {
-                FormCard(stringResource(Res.string.hosts_form_overrides), Icons.Rounded.Link, MaterialTheme.colorScheme.tertiary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.hosts_form_overrides), Icons.Rounded.Link, MaterialTheme.colorScheme.tertiary)
                     OutlinedTextField(
                         value = state.sni,
                         onValueChange = vm::onSni,
@@ -359,7 +364,11 @@ internal fun HostCreateEditScreen(
                         onValueChange = vm::onVlessRouteId,
                         shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_vless_route_id)) },
-                        supportingText = { Text(stringResource(Res.string.hosts_form_vless_route_hint)) },
+                        isError = state.vlessRouteIdError != null,
+                        supportingText = {
+                            if (state.vlessRouteIdError != null) Text(state.vlessRouteIdError!!.resolve())
+                            else Text(stringResource(Res.string.hosts_form_vless_route_hint))
+                        },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -371,13 +380,18 @@ internal fun HostCreateEditScreen(
 
             // 3. Misc Settings
             item {
-                FormCard(stringResource(Res.string.hosts_form_misc), Icons.Rounded.Settings, MaterialTheme.colorScheme.secondary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.hosts_form_misc), Icons.Rounded.Settings, MaterialTheme.colorScheme.secondary)
                     OutlinedTextField(
                         value = state.serverDescription,
                         onValueChange = vm::onServerDescription,
                         shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_server_desc)) },
-                        supportingText = { Text(stringResource(Res.string.hosts_form_server_desc_hint)) },
+                        isError = state.serverDescriptionError != null,
+                        supportingText = {
+                            if (state.serverDescriptionError != null) Text(state.serverDescriptionError!!.resolve())
+                            else Text(stringResource(Res.string.hosts_form_server_desc_hint))
+                        },
                         modifier = Modifier.fillMaxWidth(),
                     )
                     SwitchRow(stringResource(Res.string.hosts_form_shuffle), state.shuffleHost, vm::setShuffleHost)
@@ -387,7 +401,8 @@ internal fun HostCreateEditScreen(
 
             // 4. Xray JSON & Raw
             item {
-                FormCard(stringResource(Res.string.hosts_form_xray), Icons.Rounded.Description, MaterialTheme.colorScheme.primary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.hosts_form_xray), Icons.Rounded.Description, MaterialTheme.colorScheme.primary)
                     DropdownPicker(
                         label = stringResource(Res.string.hosts_form_xray_template),
                         selectedValue = state.xrayTemplateUuid,
@@ -399,7 +414,8 @@ internal fun HostCreateEditScreen(
 
             // 5. Assigned Nodes
             item {
-                FormCard(stringResource(Res.string.hosts_form_assigned_nodes), Icons.Rounded.Dns, MaterialTheme.colorScheme.tertiary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.hosts_form_assigned_nodes), Icons.Rounded.Dns, MaterialTheme.colorScheme.tertiary)
                     if (state.nodes.isEmpty()) {
                         Text(
                             stringResource(Res.string.hosts_form_no_nodes),
@@ -512,26 +528,6 @@ private fun HostHeaderCard(remark: String, address: String, port: String, isDisa
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun FormCard(title: String, icon: ImageVector, tint: Color, content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp).animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                FwSectionIcon(icon, tint)
-                Text(title, style = MaterialTheme.typography.titleSmall)
-            }
-            content()
         }
     }
 }
