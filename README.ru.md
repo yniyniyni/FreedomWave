@@ -2,7 +2,7 @@
 
 [English](README.md) | **Русский**
 
-Нативный Android-клиент для администрирования [Remnawave](https://remna.st) — self-hosted панели управления VPN/proxy. Написан на Kotlin Multiplatform и Compose Multiplatform: весь UI и бизнес-логика — в общем коде (iOS-таргет собирается как framework-заглушка).
+Нативный Android-клиент для администрирования [Remnawave](https://remna.st) — self-hosted панели управления VPN/proxy. Написан на Kotlin Multiplatform и Compose Multiplatform: весь UI и бизнес-логика — в общем коде (iOS-таргет собирается как framework).
 
 ## Возможности
 
@@ -10,9 +10,11 @@
 - **Пользователи** — полный CRUD, поиск, фильтры и сортировка, лимиты трафика и срок действия, членство в сквадах, ссылка на подписку с QR-кодом, HWID-устройства
 - **Ноды** — мониторинг статуса и аптайма, включение/отключение/перезапуск, статистика трафика
 - **Хосты** — управление хостами с настройкой VLESS и security layer
-- **Сквады** — управление внутренними сквадами, массовое добавление/удаление пользователей
+- **Сквады** — управление внутренними и внешними сквадами, массовое добавление/удаление пользователей
 - **Трафик** — графики трафика по нодам
-- **Безопасность** — биометрическая блокировка приложения
+- **Биллинг инфраструктуры** — провайдеры, ноды и история начислений
+- **Безопасность** — биометрическая блокировка; API-ключ шифруется при хранении (Android Keystore / iOS Keychain)
+- **Локализация** — английский и русский
 - **Темы** — Material 3, динамические цвета на Android
 
 ## Начало работы
@@ -33,7 +35,7 @@
 ./gradlew :app:assembleRelease
 
 # Юнит-тесты
-./gradlew :composeApp:testDebugUnitTest
+./gradlew :composeApp:testAndroidHostTest
 
 # iOS framework (требуется полный Xcode)
 ./gradlew :composeApp:linkDebugFrameworkIosArm64
@@ -50,7 +52,7 @@
 | `:app` | Тонкий Android-лаунчер — `MainActivity`, `Application`, манифест, ресурсы |
 | `:composeApp` | Весь общий код: Compose UI, домен, данные, DI. Собирается в Android AAR и iOS framework |
 
-Внутри `:composeApp/commonMain`: MVVM на `StateFlow`, Ktor-клиент с Bearer-авторизацией для REST API Remnawave, репозитории с маппингом DTO в доменные модели, Koin для DI, DataStore для настроек.
+Внутри `:composeApp/commonMain`: MVVM на `StateFlow`, Ktor-клиент с Bearer-авторизацией для REST API Remnawave, репозитории с маппингом DTO в доменные модели, Koin для DI и DataStore для настроек. Навигация — нижний навбар с master-detail внутри экранов (без `navigation-compose`). API-ключ шифруется при хранении через платформенный `SecretStore` (Android Keystore / iOS Keychain).
 
 ### Стек
 
@@ -62,6 +64,7 @@
 | Хранилище | AndroidX DataStore (multiplatform) |
 | ViewModel | JetBrains lifecycle-viewmodel-compose |
 | Изображения / QR | Coil 3, qrose |
+| Дата/время | kotlinx.datetime |
 | Логирование | Kermit |
 
 ## Лицензия

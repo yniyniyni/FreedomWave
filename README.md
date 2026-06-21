@@ -2,7 +2,7 @@
 
 **English** | [Русский](README.ru.md)
 
-A native Android admin client for [Remnawave](https://remna.st) — a self-hosted VPN/proxy management panel. Built with Kotlin Multiplatform and Compose Multiplatform, with the entire UI and business logic in shared code (an iOS target compiles as a framework stub).
+A native Android admin client for [Remnawave](https://remna.st) — a self-hosted VPN/proxy management panel. Built with Kotlin Multiplatform and Compose Multiplatform, with the entire UI and business logic in shared code (an iOS target compiles as a framework).
 
 ## Features
 
@@ -10,9 +10,11 @@ A native Android admin client for [Remnawave](https://remna.st) — a self-hoste
 - **Users** — full CRUD, search, filters and sorting, traffic limits and expiry, squad membership, subscription link with QR code, HWID devices
 - **Nodes** — status and uptime monitoring, enable/disable/restart, traffic stats
 - **Hosts** — host management with VLESS/security-layer configuration
-- **Squads** — internal squad management, bulk add/remove users
+- **Squads** — internal and external squad management, bulk add/remove users
 - **Bandwidth** — per-node bandwidth charts
-- **Security** — biometric app lock
+- **Infra billing** — providers, nodes, and billing history
+- **Security** — biometric app lock; API key encrypted at rest (Android Keystore / iOS Keychain)
+- **Localization** — English and Russian
 - **Theming** — Material 3, dynamic color on Android
 
 ## Getting started
@@ -33,7 +35,7 @@ A native Android admin client for [Remnawave](https://remna.st) — a self-hoste
 ./gradlew :app:assembleRelease
 
 # Unit tests
-./gradlew :composeApp:testDebugUnitTest
+./gradlew :composeApp:testAndroidHostTest
 
 # iOS framework (requires full Xcode)
 ./gradlew :composeApp:linkDebugFrameworkIosArm64
@@ -50,7 +52,7 @@ Two-module layout (AGP 9+ forbids `com.android.application` + `kotlin.multiplatf
 | `:app` | Thin Android launcher — `MainActivity`, `Application`, manifest, resources |
 | `:composeApp` | All shared code: Compose UI, domain, data, DI. Produces an Android AAR and an iOS framework |
 
-Inside `:composeApp/commonMain`: MVVM with `StateFlow`, Ktor client with Bearer auth for the Remnawave REST API, repositories mapping DTOs to domain models, Koin for DI, DataStore for preferences.
+Inside `:composeApp/commonMain`: MVVM with `StateFlow`, Ktor client with Bearer auth for the Remnawave REST API, repositories mapping DTOs to domain models, Koin for DI, and DataStore for preferences. Navigation is a bottom navigation bar with per-screen master-detail (no `navigation-compose`). The API key is encrypted at rest via a platform `SecretStore` (Android Keystore / iOS Keychain).
 
 ### Stack
 
@@ -62,6 +64,7 @@ Inside `:composeApp/commonMain`: MVVM with `StateFlow`, Ktor client with Bearer 
 | Storage | AndroidX DataStore (multiplatform) |
 | ViewModel | JetBrains lifecycle-viewmodel-compose |
 | Images / QR | Coil 3, qrose |
+| Date/time | kotlinx.datetime |
 | Logging | Kermit |
 
 ## License
