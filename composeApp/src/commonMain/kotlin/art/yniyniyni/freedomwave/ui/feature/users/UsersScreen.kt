@@ -200,7 +200,7 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
 
     FwNavigationContainer<UsersNav>(
         navLabel = "users_nav",
-        initialState = UsersNav.List,
+        rootState = UsersNav.List,
         initialStack = listOf(UsersNav.List),
         actionError = state.actionError,
         onClearActionError = vm::clearActionError,

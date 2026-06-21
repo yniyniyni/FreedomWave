@@ -105,7 +105,7 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel(), onBack: (() -> Unit)? = 
 
     FwNavigationContainer<SquadsNav>(
         navLabel = "squads_nav",
-        initialState = SquadsNav.List,
+        rootState = SquadsNav.List,
         initialStack = listOf(SquadsNav.List),
         actionError = state.actionError,
         onClearActionError = vm::clearActionError,

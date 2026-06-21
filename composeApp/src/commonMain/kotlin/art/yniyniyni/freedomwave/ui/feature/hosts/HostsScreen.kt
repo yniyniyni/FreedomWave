@@ -79,7 +79,7 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
 
     FwNavigationContainer<HostsNav>(
         navLabel = "hosts_nav",
-        initialState = HostsNav.List,
+        rootState = HostsNav.List,
         initialStack = listOf(HostsNav.List),
         actionError = state.actionError,
         onClearActionError = vm::clearActionError,

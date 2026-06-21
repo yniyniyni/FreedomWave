@@ -38,7 +38,7 @@ interface FwNavDestination {
 @Composable
 fun <T : FwNavDestination> FwNavigationContainer(
     navLabel: String,
-    initialState: T,
+    rootState: T,
     initialStack: List<T>,
     actionError: UiText?,
     onClearActionError: () -> Unit,
@@ -65,7 +65,7 @@ fun <T : FwNavDestination> FwNavigationContainer(
         }
     }
 
-    val transitionState = remember { SeekableTransitionState<T>(initialState) }
+    val transitionState = remember { SeekableTransitionState<T>(rootState) }
     val transition = rememberTransition(transitionState, label = navLabel)
 
     LaunchedEffect(top) {
@@ -84,7 +84,7 @@ fun <T : FwNavDestination> FwNavigationContainer(
     )
 
     val push = remember { { entry: T -> stack = stack + entry } }
-    val pop = remember { { stack = stack.dropLast(1) } }
+    val pop = remember { { if (stack.size > 1) stack = stack.dropLast(1) } }
     val currentStack = remember { { stack } }
 
     transition.AnimatedContent(

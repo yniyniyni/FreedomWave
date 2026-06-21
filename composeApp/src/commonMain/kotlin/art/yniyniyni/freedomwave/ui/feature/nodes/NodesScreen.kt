@@ -195,7 +195,7 @@ fun NodesScreen(
 
     FwNavigationContainer<NodesNav>(
         navLabel = "nodes_nav",
-        initialState = NodesNav.List,
+        rootState = NodesNav.List,
         initialStack = listOf(NodesNav.List),
         actionError = state.actionError,
         onClearActionError = vm::clearActionError,
