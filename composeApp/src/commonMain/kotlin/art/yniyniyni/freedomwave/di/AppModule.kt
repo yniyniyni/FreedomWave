@@ -7,6 +7,7 @@ import art.yniyniyni.freedomwave.data.api.service.BandwidthService
 import art.yniyniyni.freedomwave.data.api.service.DashboardService
 import art.yniyniyni.freedomwave.data.api.service.HostService
 import art.yniyniyni.freedomwave.data.api.service.HwidService
+import art.yniyniyni.freedomwave.data.api.service.InfraBillingService
 import art.yniyniyni.freedomwave.data.api.service.ConfigProfileService
 import art.yniyniyni.freedomwave.data.api.service.NodeService
 import art.yniyniyni.freedomwave.data.api.service.SquadService
@@ -19,6 +20,7 @@ import art.yniyniyni.freedomwave.data.repository.BandwidthRepository
 import art.yniyniyni.freedomwave.data.repository.DashboardRepository
 import art.yniyniyni.freedomwave.data.repository.HostRepository
 import art.yniyniyni.freedomwave.data.repository.HwidRepository
+import art.yniyniyni.freedomwave.data.repository.InfraBillingRepository
 import art.yniyniyni.freedomwave.data.repository.ConfigProfileRepository
 import art.yniyniyni.freedomwave.data.repository.NodeRepository
 import art.yniyniyni.freedomwave.data.repository.SquadRepository
@@ -35,6 +37,7 @@ import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.dashboard.DashboardViewModel
 import art.yniyniyni.freedomwave.ui.feature.hosts.HostFormViewModel
 import art.yniyniyni.freedomwave.ui.feature.hosts.HostsViewModel
+import art.yniyniyni.freedomwave.ui.feature.infrabilling.InfraBillingViewModel
 import art.yniyniyni.freedomwave.ui.feature.login.LoginViewModel
 import art.yniyniyni.freedomwave.ui.feature.nodes.NodeFormViewModel
 import art.yniyniyni.freedomwave.ui.feature.nodes.NodesViewModel
@@ -70,6 +73,7 @@ val networkModule = module {
     single { ConfigProfileService(get()) }
     single { HostService(get()) }
     single { SquadService(get()) }
+    single { InfraBillingService(get()) }
     single { HwidService(get()) }
     single { TemplateService(get()) }
     single { SubPageConfigService(get()) }
@@ -88,6 +92,7 @@ val repositoryModule = module {
     single { ConfigProfileRepository(get(), get()) }
     single { HostRepository(get(), get()) }
     single { SquadRepository(get(), get()) }
+    single { InfraBillingRepository(get(), get()) }
     single { HwidRepository(get(), get()) }
     single { SubHistoryRepository(get(), get()) }
     single { TemplateRepository(get(), get()) }
@@ -105,6 +110,7 @@ val viewModelModule = module {
     viewModel { (uuid: String?) -> HostFormViewModel(uuid, get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { SquadsViewModel(get()) }
+    viewModel { InfraBillingViewModel(get()) }
     viewModel { (uuid: String) -> InternalSquadEditViewModel(uuid, get(), get()) }
     viewModel { (uuid: String) -> ExternalSquadEditViewModel(uuid, get(), get(), get()) }
     viewModel { (userUuid: String) ->

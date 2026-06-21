@@ -73,7 +73,9 @@ data class ExternalSquadInfoDto(
 @Serializable
 data class CreateInternalSquadRequest(
     @SerialName("name")     val name: String,
-    @SerialName("inbounds") val inbounds: List<String> = emptyList()
+    // No default: the backend requires `inbounds` to be present, and with encodeDefaults=false
+    // a default-valued field would be dropped from the JSON, causing a 400 "Validation failed".
+    @SerialName("inbounds") val inbounds: List<String>
 )
 
 @Serializable
