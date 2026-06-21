@@ -11,6 +11,8 @@
     <string name="common_retry">Retry</string>
     <string name="common_connect">Connect</string>
     <string name="common_empty_dash">—</string>
+    <string name="common_minus_sign">−</string>
+    <string name="common_plus_sign">+</string>
     <string name="common_ok">OK</string>
     <string name="common_refresh">Refresh</string>
     <!-- brand wordmark: never translated, identical in every locale (locale-invariant: keep out of values-* files) -->

@@ -12,6 +12,8 @@
     <string name="common_connect">Подключиться</string>
     <string name="common_ok">ОК</string>
     <string name="common_refresh">Обновить</string>
+    <string name="common_minus_sign">−</string>
+    <string name="common_plus_sign">+</string>
 
     <!-- settings -->
     <string name="settings_title">Настройки</string>

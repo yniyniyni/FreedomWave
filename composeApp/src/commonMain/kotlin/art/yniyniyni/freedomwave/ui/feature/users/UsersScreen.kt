@@ -111,6 +111,8 @@ import freedomwave.composeapp.generated.resources.Res
 import freedomwave.composeapp.generated.resources.common_cancel
 import freedomwave.composeapp.generated.resources.common_close
 import freedomwave.composeapp.generated.resources.common_copied
+import freedomwave.composeapp.generated.resources.common_minus_sign
+import freedomwave.composeapp.generated.resources.common_plus_sign
 import freedomwave.composeapp.generated.resources.common_copy
 import freedomwave.composeapp.generated.resources.common_delete
 import freedomwave.composeapp.generated.resources.common_retry
@@ -205,7 +207,7 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
-    var stack by remember { mutableStateOf<kotlin.collections.List<UsersNav>>(listOf(UsersNav.List)) }
+    var stack by remember { mutableStateOf<List<UsersNav>>(listOf(UsersNav.List)) }
     val top = stack.last()
     val canGoBack = stack.size > 1
 
@@ -985,13 +987,13 @@ private fun ManageCard(
                 shape = RoundedCornerShape(percent = 50),
                 modifier = Modifier.size(40.dp),
                 contentPadding = PaddingValues(0.dp),
-            ) { Text("−") }
+            ) { Text(stringResource(Res.string.common_minus_sign)) }
             OutlinedButton(
                 onClick = { detailVm.adjustDeviceLimit(user.hwidDeviceLimit, +1, onApplyUpdate) },
                 shape = RoundedCornerShape(percent = 50),
                 modifier = Modifier.size(40.dp),
                 contentPadding = PaddingValues(0.dp),
-            ) { Text("+") }
+            ) { Text(stringResource(Res.string.common_plus_sign)) }
         }
 
         Spacer(Modifier.height(4.dp))

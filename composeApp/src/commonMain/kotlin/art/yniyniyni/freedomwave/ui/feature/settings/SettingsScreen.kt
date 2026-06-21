@@ -110,11 +110,10 @@ import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.currentAppLanguageTag
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
+import art.yniyniyni.freedomwave.APP_VERSION
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-
-private const val APP_VERSION = "1.0.0"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

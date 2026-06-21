@@ -110,7 +110,7 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel(), onBack: (() -> Unit)? = 
     val state by vm.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
-    var stack by remember { mutableStateOf<kotlin.collections.List<SquadsNav>>(listOf(SquadsNav.List)) }
+    var stack by remember { mutableStateOf<List<SquadsNav>>(listOf(SquadsNav.List)) }
     var formEpoch by remember { mutableStateOf(0) }
     val top = stack.last()
     val canGoBack = stack.size > 1

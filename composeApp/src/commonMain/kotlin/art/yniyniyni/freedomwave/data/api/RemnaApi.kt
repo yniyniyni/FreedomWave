@@ -28,7 +28,7 @@ private fun extractApiMessage(body: String): String? = runCatching {
     when (val msg = root["message"]) {
         is JsonArray -> msg.joinToString("; ") { it.jsonPrimitive.content }
         null         -> root["error"]?.jsonPrimitive?.content
-        else         -> msg.jsonPrimitive.content
+        else         -> if (msg is kotlinx.serialization.json.JsonPrimitive) msg.content else msg.toString()
     }
 }.getOrNull()?.takeIf { it.isNotBlank() }
 

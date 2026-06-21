@@ -86,7 +86,7 @@ fun HostsScreen(vm: HostsViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
-    var stack by remember { mutableStateOf<kotlin.collections.List<HostsNav>>(listOf(HostsNav.List)) }
+    var stack by remember { mutableStateOf<List<HostsNav>>(listOf(HostsNav.List)) }
     var formEpoch by remember { mutableStateOf(0) }
     val top = stack.last()
     val canGoBack = stack.size > 1
