@@ -8,11 +8,15 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlin.concurrent.Volatile
 
 class AppPreferences(
     private val dataStore: DataStore<Preferences>,
     private val secretStore: SecretStore
 ) {
+
+    @Volatile
+    private var cachedServerUrl: String? = null
 
     companion object {
         private val KEY_SERVER_URL  = stringPreferencesKey("server_url")
@@ -38,7 +42,12 @@ class AppPreferences(
     // Off by default: when off, client IPs are never sent to the third-party ipwho.is service.
     val geoLookupEnabled: Flow<Boolean> = dataStore.data.map { it[KEY_GEO_LOOKUP] ?: false }
 
-    suspend fun getServerUrl(): String  = dataStore.data.first()[KEY_SERVER_URL] ?: ""
+    suspend fun getServerUrl(): String {
+        cachedServerUrl?.let { return it }
+        val url = dataStore.data.first()[KEY_SERVER_URL] ?: ""
+        cachedServerUrl = url
+        return url
+    }
     suspend fun getGeoLookupEnabled(): Boolean = dataStore.data.first()[KEY_GEO_LOOKUP] ?: false
     suspend fun getThemeMode(): String  = dataStore.data.first()[KEY_THEME_MODE] ?: THEME_SYSTEM
 
@@ -53,9 +62,10 @@ class AppPreferences(
     }
 
     suspend fun saveApiKey(serverUrl: String, apiKey: String) {
+        cachedServerUrl = serverUrl.trimEnd('/') // warm cache immediately
         val token = secretStore.encrypt(apiKey.trim())
         dataStore.edit {
-            it[KEY_SERVER_URL] = serverUrl.trimEnd('/')
+            it[KEY_SERVER_URL] = cachedServerUrl!!
             it[KEY_API_KEY]    = token
         }
     }
@@ -73,6 +83,7 @@ class AppPreferences(
     }
 
     suspend fun clearCredentials() {
+        cachedServerUrl = null
         dataStore.edit { it.remove(KEY_API_KEY) }
     }
 }
