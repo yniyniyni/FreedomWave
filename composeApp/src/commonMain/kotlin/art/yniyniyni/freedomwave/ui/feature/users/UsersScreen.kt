@@ -1,15 +1,6 @@
-@file:OptIn(ExperimentalTransitionApi::class)
-
 package art.yniyniyni.freedomwave.ui.feature.users
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.ExperimentalTransitionApi
-import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import art.yniyniyni.freedomwave.ui.navigation.BackGestureEffect
+import art.yniyniyni.freedomwave.ui.components.FwNavDestination
+import art.yniyniyni.freedomwave.ui.components.FwNavigationContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowDownward
@@ -184,17 +176,17 @@ import kotlinx.datetime.Clock
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private sealed interface UsersNav {
+private sealed interface UsersNav : FwNavDestination {
     data object List : UsersNav
     data class Detail(val user: User) : UsersNav
     data class Form(val editing: User?) : UsersNav
 
-    val depth: Int get() = when (this) {
+    override val depth: Int get() = when (this) {
         is List -> 0
         is Detail -> 1
         is Form -> 2
     }
-    val key: String get() = when (this) {
+    override val key: String get() = when (this) {
         is List -> "list"
         is Detail -> "detail:${user.uuid}"
         is Form -> "form:${editing?.uuid ?: "new"}"
@@ -205,70 +197,34 @@ private sealed interface UsersNav {
 @Composable
 fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
     val state by vm.state.collectAsState()
-    val snackbar = remember { SnackbarHostState() }
 
-    var stack by remember { mutableStateOf<List<UsersNav>>(listOf(UsersNav.List)) }
-    val top = stack.last()
-    val canGoBack = stack.size > 1
-
-    val actionErrorText = state.actionError?.resolve()
-    LaunchedEffect(actionErrorText) {
-        actionErrorText?.let {
-            snackbar.showSnackbar(it)
-            vm.clearActionError()
-        }
-    }
-
-    val transitionState = remember { SeekableTransitionState<UsersNav>(UsersNav.List) }
-    val transition = rememberTransition(transitionState, label = "users_nav")
-
-    // Animate to the current top whenever it changes via forward navigation or a programmatic pop.
-    LaunchedEffect(top) {
-        if (transitionState.currentState != top) transitionState.animateTo(top)
-    }
-
-    // Predictive back: seek toward the previous entry, commit pops, cancel returns to top.
-    BackGestureEffect(
-        enabled = canGoBack,
-        onProgress = { fraction -> transitionState.seekTo(fraction, stack[stack.size - 2]) },
-        onCommit   = {
-            val target = stack[stack.size - 2]
-            transitionState.animateTo(target)
-            stack = stack.dropLast(1)
-        },
-        onCancel   = { transitionState.animateTo(top) },
-    )
-
-    transition.AnimatedContent(
+    FwNavigationContainer<UsersNav>(
+        navLabel = "users_nav",
+        initialState = UsersNav.List,
+        initialStack = listOf(UsersNav.List),
+        actionError = state.actionError,
+        onClearActionError = vm::clearActionError,
         contentKey = { it.key },
-        transitionSpec = {
-            val deeper = targetState.depth > initialState.depth
-            if (deeper) {
-                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
-            } else {
-                slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
-            }.apply { targetContentZIndex = if (deeper) 1f else 0f }
-        },
-    ) { navEntry ->
+    ) { navEntry, push, pop, currentStack, snackbarHost ->
         when (navEntry) {
             is UsersNav.List -> UsersListContent(
                 state = state,
                 vm = vm,
-                snackbar = snackbar,
-                onOpenCreate = { vm.openCreateForm(); stack = stack + UsersNav.Form(null) },
-                onOpenDetail = { user -> stack = stack + UsersNav.Detail(user) },
+                snackbar = snackbarHost,
+                onOpenCreate = { vm.openCreateForm(); push(UsersNav.Form(null)) },
+                onOpenDetail = { user -> push(UsersNav.Detail(user)) },
             )
             is UsersNav.Detail -> {
                 val live = state.users.find { it.uuid == navEntry.user.uuid } ?: navEntry.user
                 UserDetailScreen(
                     user           = live,
                     nodesByUuid    = state.nodesByUuid,
-                    onBack         = { stack = stack.dropLast(1) },
-                    onEdit         = { vm.openEditForm(live); stack = stack + UsersNav.Form(live) },
+                    onBack         = { pop() },
+                    onEdit         = { vm.openEditForm(live); push(UsersNav.Form(live)) },
                     onEnable       = { vm.enableUser(live.uuid) },
                     onDisable      = { vm.disableUser(live.uuid) },
                     onResetTraffic = { vm.resetTraffic(live.uuid) },
-                    onDelete       = { vm.deleteUser(live.uuid); stack = stack.dropLast(1) },
+                    onDelete       = { vm.deleteUser(live.uuid); pop() },
                     onApplyUpdate  = { updated -> vm.applyUserUpdate(updated) },
                 )
             }
@@ -278,7 +234,7 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                 // (twice) would empty the stack and crash stack.last(). Guarding makes both
                 // onBack and onSaved idempotent.
                 val dismissForm = {
-                    if (stack.lastOrNull() is UsersNav.Form) stack = stack.dropLast(1)
+                    if (currentStack().lastOrNull() is UsersNav.Form) pop()
                 }
                 UserCreateEditScreen(
                     state = state,
