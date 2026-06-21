@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 
 class HostFormLogicTest {
 
-    // ── remarkValid ──────────────────────────────────────────────────────────
+    // remarkValid
 
     @Test fun `remarkValid rejects empty string`() {
         assertFalse(remarkValid(""))
@@ -34,7 +34,7 @@ class HostFormLogicTest {
         assertFalse(remarkValid("a".repeat(41)))
     }
 
-    // ── portOrNull ───────────────────────────────────────────────────────────
+    // portOrNull
 
     @Test fun `portOrNull parses valid port`() {
         assertEquals(443, portOrNull("443"))
@@ -56,7 +56,7 @@ class HostFormLogicTest {
         assertNull(portOrNull("abc"))
     }
 
-    // ── vlessRouteIdOrNull ───────────────────────────────────────────────────
+    // vlessRouteIdOrNull
 
     @Test fun `vlessRouteIdOrNull returns null for blank`() {
         assertNull(vlessRouteIdOrNull(""))
@@ -74,7 +74,7 @@ class HostFormLogicTest {
         assertNull(vlessRouteIdOrNull("70000"))
     }
 
-    // ── parseHostTag ─────────────────────────────────────────────────────────
+    // parseHostTag
 
     @Test fun `parseHostTag uppercases valid tag`() {
         assertEquals("MY:TAG_1", parseHostTag("my:tag_1"))
@@ -88,7 +88,7 @@ class HostFormLogicTest {
         assertNull(parseHostTag(""))
     }
 
-    // ── serverDescriptionOrNull ──────────────────────────────────────────────
+    // serverDescriptionOrNull
 
     @Test fun `serverDescriptionOrNull returns null for blank`() {
         assertNull(serverDescriptionOrNull("  "))
@@ -102,7 +102,7 @@ class HostFormLogicTest {
         assertEquals(30, serverDescriptionOrNull("a".repeat(40))?.length)
     }
 
-    // ── buildCreateRequest ───────────────────────────────────────────────────
+    // buildCreateRequest
 
     private fun sampleInput(
         alpn: String? = "h2",
@@ -146,7 +146,7 @@ class HostFormLogicTest {
         assertEquals("OK", req.tag)
     }
 
-    // ── buildUpdateRequest ───────────────────────────────────────────────────
+    // buildUpdateRequest
 
     @Test fun `buildUpdateRequest sets uuid and reflects isHidden and shuffleHost`() {
         val req = buildUpdateRequest("host-uuid-123", sampleInput(isHidden = true, shuffleHost = true))

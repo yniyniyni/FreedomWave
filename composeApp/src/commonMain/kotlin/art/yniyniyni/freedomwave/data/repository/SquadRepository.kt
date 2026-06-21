@@ -53,10 +53,12 @@ class SquadRepository(
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun updateInternalSquadFull(req: UpdateInternalSquadFullRequest): Result<Unit> = runCatching {
-        service.updateInternalSquadFull(prefs.getServerUrl(), req); Unit
+        service.updateInternalSquadFull(prefs.getServerUrl(), req)
+        Unit
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun updateExternalSquadFull(req: UpdateExternalSquadRequest): Result<Unit> = runCatching {
-        service.updateExternalSquadFull(prefs.getServerUrl(), req); Unit
+        service.updateExternalSquadFull(prefs.getServerUrl(), req)
+        Unit
     }.also { it.clearOnUnauthorized(prefs) }
 }

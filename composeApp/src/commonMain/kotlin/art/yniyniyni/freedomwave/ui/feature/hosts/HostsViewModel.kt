@@ -20,7 +20,7 @@ data class HostsUiState(
     val actionInProgress: Boolean = false
 )
 
-class HostsViewModel(private val repo: HostRepository) : ViewModel() {
+class HostsViewModel(private val repository: HostRepository) : ViewModel() {
 
     private val _state = MutableStateFlow(HostsUiState())
     val state: StateFlow<HostsUiState> = _state.asStateFlow()
@@ -30,7 +30,7 @@ class HostsViewModel(private val repo: HostRepository) : ViewModel() {
     fun load() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            repo.getHosts()
+            repository.getHosts()
                 .onSuccess { hosts -> _state.update { it.copy(isLoading = false, hosts = hosts) } }
                 .onFailure { e -> _state.update { it.copy(isLoading = false, error = e.toUiText()) } }
         }
@@ -41,7 +41,7 @@ class HostsViewModel(private val repo: HostRepository) : ViewModel() {
     fun delete(host: Host) {
         viewModelScope.launch {
             _state.update { it.copy(actionInProgress = true) }
-            repo.deleteHost(host.uuid)
+            repository.deleteHost(host.uuid)
                 .onSuccess {
                     _state.update { s ->
                         s.copy(

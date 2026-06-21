@@ -3,7 +3,7 @@ package art.yniyniyni.freedomwave.data.api.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// ── Internal squads ──────────────────────────────────────────────────────────
+// Internal squads
 
 @Serializable
 data class InternalSquadListResponse(
@@ -36,7 +36,7 @@ data class InternalSquadInfoDto(
     @SerialName("inboundsCount") val inboundsCount: Int
 )
 
-// ── External squads ──────────────────────────────────────────────────────────
+// External squads
 
 @Serializable
 data class ExternalSquadListResponse(
@@ -68,7 +68,7 @@ data class ExternalSquadInfoDto(
     @SerialName("membersCount") val membersCount: Int
 )
 
-// ── Requests ─────────────────────────────────────────────────────────────────
+// Requests
 
 @Serializable
 data class CreateInternalSquadRequest(
@@ -89,7 +89,7 @@ data class UpdateSquadRequest(
     @SerialName("name") val name: String
 )
 
-// ── Detail (GET by-uuid) ─────────────────────────────────────────────────────
+// Detail (GET by-uuid)
 
 @Serializable data class InternalSquadDetailResponse(@SerialName("response") val response: InternalSquadDetailDto)
 @Serializable data class InternalSquadDetailDto(
@@ -157,7 +157,7 @@ data class UpdateSquadRequest(
     @SerialName("HWIDNotSupported")      val hwidNotSupported: List<String> = emptyList(),
 )
 
-// ── Update requests ──────────────────────────────────────────────────────────
+// Update requests
 
 @Serializable data class UpdateInternalSquadFullRequest(
     @SerialName("uuid")     val uuid: String,

@@ -265,6 +265,8 @@ internal fun HostCreateEditScreen(
                             label = { Text(stringResource(Res.string.hosts_form_address)) },
                             placeholder = { Text("example.com") },
                             singleLine = true,
+                            isError = state.addressError != null,
+                            supportingText = state.addressError?.let { { Text(it.resolve()) } },
                             modifier = Modifier.weight(2f),
                         )
                         OutlinedTextField(
@@ -286,6 +288,8 @@ internal fun HostCreateEditScreen(
                         label = { Text(stringResource(Res.string.hosts_form_tag)) },
                         placeholder = { Text(stringResource(Res.string.hosts_form_tag_hint)) },
                         singleLine = true,
+                        isError = state.tagError != null,
+                        supportingText = state.tagError?.let { { Text(it.resolve()) } },
                         modifier = Modifier.fillMaxWidth(),
                     )
                     SwitchRow(stringResource(Res.string.hosts_form_hidden), state.isHidden, vm::setHidden)
@@ -360,7 +364,11 @@ internal fun HostCreateEditScreen(
                         onValueChange = vm::onVlessRouteId,
                         shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_vless_route_id)) },
-                        supportingText = { Text(stringResource(Res.string.hosts_form_vless_route_hint)) },
+                        isError = state.vlessRouteIdError != null,
+                        supportingText = {
+                            if (state.vlessRouteIdError != null) Text(state.vlessRouteIdError!!.resolve())
+                            else Text(stringResource(Res.string.hosts_form_vless_route_hint))
+                        },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -379,7 +387,11 @@ internal fun HostCreateEditScreen(
                         onValueChange = vm::onServerDescription,
                         shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_server_desc)) },
-                        supportingText = { Text(stringResource(Res.string.hosts_form_server_desc_hint)) },
+                        isError = state.serverDescriptionError != null,
+                        supportingText = {
+                            if (state.serverDescriptionError != null) Text(state.serverDescriptionError!!.resolve())
+                            else Text(stringResource(Res.string.hosts_form_server_desc_hint))
+                        },
                         modifier = Modifier.fillMaxWidth(),
                     )
                     SwitchRow(stringResource(Res.string.hosts_form_shuffle), state.shuffleHost, vm::setShuffleHost)

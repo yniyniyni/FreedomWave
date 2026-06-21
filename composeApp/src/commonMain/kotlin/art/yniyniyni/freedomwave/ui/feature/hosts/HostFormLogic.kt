@@ -35,6 +35,18 @@ data class HostFormInput(
 fun remarkValid(s: String): Boolean = s.trim().length in 1..40
 fun addressValid(s: String): Boolean = s.trim().isNotEmpty()
 
+fun tagValid(s: String): Boolean {
+    if (s.isBlank()) return true // optional field, empty is valid
+    return s.trim().length <= 32 && HOST_TAG_REGEX.matches(s.trim().uppercase())
+}
+
+fun vlessRouteIdValid(s: String): Boolean {
+    if (s.isBlank()) return true // optional field, empty is valid
+    return vlessRouteIdOrNull(s) != null
+}
+
+fun serverDescriptionValid(s: String): Boolean = s.trim().length <= 30
+
 fun portOrNull(s: String): Int? {
     val n = s.trim().toIntOrNull() ?: return null
     return if (n in 1..65535) n else null

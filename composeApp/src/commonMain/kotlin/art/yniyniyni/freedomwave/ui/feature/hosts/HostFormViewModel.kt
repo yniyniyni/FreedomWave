@@ -12,8 +12,12 @@ import art.yniyniyni.freedomwave.domain.model.XrayTemplate
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.hosts_form_address_error
 import freedomwave.composeapp.generated.resources.hosts_form_port_error
 import freedomwave.composeapp.generated.resources.hosts_form_remark_error
+import freedomwave.composeapp.generated.resources.hosts_form_server_desc_error
+import freedomwave.composeapp.generated.resources.hosts_form_tag_error
+import freedomwave.composeapp.generated.resources.hosts_form_vless_route_error
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -63,14 +67,28 @@ data class HostFormUiState(
     val remarkError: UiText?
         get() = if (remark.isNotBlank() && !remarkValid(remark)) UiText.Res(Res.string.hosts_form_remark_error) else null
 
+    val addressError: UiText?
+        get() = if (address.isNotBlank() && !addressValid(address)) UiText.Res(Res.string.hosts_form_address_error) else null
+
     val portError: UiText?
         get() = if (port.isNotBlank() && portOrNull(port) == null) UiText.Res(Res.string.hosts_form_port_error) else null
+
+    val tagError: UiText?
+        get() = if (tag.isNotBlank() && !tagValid(tag)) UiText.Res(Res.string.hosts_form_tag_error) else null
+
+    val vlessRouteIdError: UiText?
+        get() = if (vlessRouteId.isNotBlank() && !vlessRouteIdValid(vlessRouteId)) UiText.Res(Res.string.hosts_form_vless_route_error) else null
+
+    val serverDescriptionError: UiText?
+        get() = if (serverDescription.isNotBlank() && !serverDescriptionValid(serverDescription)) UiText.Res(Res.string.hosts_form_server_desc_error) else null
 
     val selectedInboundTag: String?
         get() = profiles.flatMap { it.inbounds }.find { it.uuid == selectedInboundUuid }?.tag
 
     val canSave: Boolean
         get() = remarkValid(remark) && addressValid(address) && portOrNull(port) != null &&
+            tagValid(tag) && vlessRouteIdValid(vlessRouteId) &&
+            serverDescriptionValid(serverDescription) &&
             selectedProfileUuid != null && selectedInboundUuid != null && !isSaving
 }
 

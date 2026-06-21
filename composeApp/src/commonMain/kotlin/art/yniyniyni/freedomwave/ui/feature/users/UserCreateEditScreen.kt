@@ -397,7 +397,8 @@ internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long)
     }
 
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        ExpiryPreset.entries.forEach { preset ->
+        val presets = remember { ExpiryPreset.entries }
+        presets.forEach { preset ->
             OutlinedButton(
                 onClick = { onChange(presetExpiryMillis(preset)) },
                 enabled = enabled,

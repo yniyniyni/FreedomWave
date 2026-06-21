@@ -18,24 +18,24 @@ class InfraBillingRepository(
     private val service: InfraBillingService,
     private val prefs: AppPreferences,
 ) {
-    // Providers
     suspend fun getProviders(): Result<List<InfraProvider>> = runCatching {
         service.getProviders(prefs.getServerUrl()).response.providers.map { InfraProvider.from(it) }
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun createProvider(name: String, faviconLink: String?, loginUrl: String?): Result<Unit> = runCatching {
-        service.createProvider(prefs.getServerUrl(), CreateInfraProviderRequest(name, faviconLink, loginUrl)); Unit
+        service.createProvider(prefs.getServerUrl(), CreateInfraProviderRequest(name, faviconLink, loginUrl))
+        Unit
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun updateProvider(uuid: String, name: String, faviconLink: String?, loginUrl: String?): Result<Unit> = runCatching {
-        service.updateProvider(prefs.getServerUrl(), UpdateInfraProviderRequest(uuid, name, faviconLink, loginUrl)); Unit
+        service.updateProvider(prefs.getServerUrl(), UpdateInfraProviderRequest(uuid, name, faviconLink, loginUrl))
+        Unit
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun deleteProvider(uuid: String): Result<Unit> = runCatching {
         service.deleteProvider(prefs.getServerUrl(), uuid)
     }.also { it.clearOnUnauthorized(prefs) }
 
-    // Billing nodes
     suspend fun getBillingNodes(): Result<BillingNodesBundle> = runCatching {
         val data = service.getBillingNodes(prefs.getServerUrl()).response
         BillingNodesBundle(
@@ -46,24 +46,26 @@ class InfraBillingRepository(
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun createBillingNode(providerUuid: String, nodeUuid: String, nextBillingAt: String?): Result<Unit> = runCatching {
-        service.createBillingNode(prefs.getServerUrl(), CreateBillingNodeRequest(providerUuid, nodeUuid, nextBillingAt)); Unit
+        service.createBillingNode(prefs.getServerUrl(), CreateBillingNodeRequest(providerUuid, nodeUuid, nextBillingAt))
+        Unit
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun updateBillingNodeDate(uuid: String, nextBillingAt: String): Result<Unit> = runCatching {
-        service.updateBillingNode(prefs.getServerUrl(), UpdateBillingNodeRequest(listOf(uuid), nextBillingAt)); Unit
+        service.updateBillingNode(prefs.getServerUrl(), UpdateBillingNodeRequest(listOf(uuid), nextBillingAt))
+        Unit
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun deleteBillingNode(uuid: String): Result<Unit> = runCatching {
         service.deleteBillingNode(prefs.getServerUrl(), uuid)
     }.also { it.clearOnUnauthorized(prefs) }
 
-    // Billing history
     suspend fun getHistory(): Result<List<BillRecord>> = runCatching {
         service.getHistory(prefs.getServerUrl()).response.records.map { BillRecord.from(it) }
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun createHistory(providerUuid: String, amount: Double, billedAt: String): Result<Unit> = runCatching {
-        service.createHistory(prefs.getServerUrl(), CreateBillRecordRequest(providerUuid, amount, billedAt)); Unit
+        service.createHistory(prefs.getServerUrl(), CreateBillRecordRequest(providerUuid, amount, billedAt))
+        Unit
     }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun deleteHistory(uuid: String): Result<Unit> = runCatching {

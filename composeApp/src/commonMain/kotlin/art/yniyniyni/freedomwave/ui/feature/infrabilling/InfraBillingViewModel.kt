@@ -101,7 +101,7 @@ class InfraBillingViewModel(private val repo: InfraBillingRepository) : ViewMode
     fun setTab(index: Int) = _state.update { it.copy(activeTab = index) }
     fun clearActionError() = _state.update { it.copy(actionError = null) }
 
-    // ── Dialog open/close ────────────────────────────────────────────────────
+    // Dialog open/close
 
     /** Opens the add dialog appropriate for the active tab. */
     fun openAddDialog() {
@@ -151,7 +151,7 @@ class InfraBillingViewModel(private val repo: InfraBillingRepository) : ViewMode
 
     fun dismissDialog() = _state.update { it.copy(dialog = null, dialogError = null, dialogIsLoading = false) }
 
-    // ── Form field setters ───────────────────────────────────────────────────
+    // Form field setters
 
     fun onName(v: String)        = _state.update { it.copy(formName = v, dialogError = null) }
     fun onFavicon(v: String)     = _state.update { it.copy(formFavicon = v) }
@@ -161,7 +161,7 @@ class InfraBillingViewModel(private val repo: InfraBillingRepository) : ViewMode
     fun onNode(uuid: String)     = _state.update { it.copy(formNodeUuid = uuid, dialogError = null) }
     fun onDate(millis: Long)     = _state.update { it.copy(formDateMillis = millis) }
 
-    // ── Submit ───────────────────────────────────────────────────────────────
+    // Submit
 
     fun submitDialog() {
         val s = _state.value
@@ -226,7 +226,7 @@ class InfraBillingViewModel(private val repo: InfraBillingRepository) : ViewMode
         }
     }
 
-    // ── Delete ───────────────────────────────────────────────────────────────
+    // Delete
 
     fun requestDelete(pending: PendingDelete) = _state.update { it.copy(pendingDelete = pending) }
     fun dismissDelete() = _state.update { it.copy(pendingDelete = null) }

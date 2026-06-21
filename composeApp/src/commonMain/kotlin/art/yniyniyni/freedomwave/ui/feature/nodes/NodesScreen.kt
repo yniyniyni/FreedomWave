@@ -505,11 +505,12 @@ private fun NodeDetailScreen(
                 FwDetailCard {
                     DetailSectionTitle(stringResource(Res.string.nodes_detail_traffic_history), Icons.Rounded.ShowChart, MaterialTheme.colorScheme.secondary)
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                        TimeRange.entries.forEachIndexed { index, range ->
+                        val timeRanges = remember { TimeRange.entries }
+                        timeRanges.forEachIndexed { index, range ->
                             SegmentedButton(
                                 selected = bandwidthState.selectedRange == range,
                                 onClick  = { onRangeChange(range) },
-                                shape    = SegmentedButtonDefaults.itemShape(index, TimeRange.entries.size),
+                                shape    = SegmentedButtonDefaults.itemShape(index, timeRanges.size),
                                 label    = { Text(range.label()) }
                             )
                         }

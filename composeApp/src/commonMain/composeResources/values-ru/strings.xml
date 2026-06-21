@@ -394,6 +394,10 @@
     <string name="hosts_form_no_nodes">Нет доступных нод</string>
     <string name="hosts_form_remark_error">1–40 символов</string>
     <string name="hosts_form_port_error">Порт 1–65535</string>
+    <string name="hosts_form_address_error">Укажите адрес</string>
+    <string name="hosts_form_tag_error">Заглавные буквы, цифры, подчёркивания и двоеточия, до 32 символов</string>
+    <string name="hosts_form_vless_route_error">0–65535, или оставьте пустым</string>
+    <string name="hosts_form_server_desc_error">Максимум 30 символов</string>
     <string name="hosts_form_done">Готово</string>
     <string name="hosts_detail_inbound">Инбаунд</string>
     <string name="hosts_detail_vless_route">VLESS Route ID</string>

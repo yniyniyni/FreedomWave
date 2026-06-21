@@ -30,7 +30,7 @@ data class SquadsUiState(
     val dialogError: UiText? = null
 )
 
-class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
+class SquadsViewModel(private val repository: SquadRepository) : ViewModel() {
 
     private val _state = MutableStateFlow(SquadsUiState())
     val state: StateFlow<SquadsUiState> = _state.asStateFlow()
@@ -42,8 +42,8 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
             _state.update { it.copy(isLoading = true, error = null) }
             runCatching {
                 coroutineScope {
-                    val internal = async { repo.getInternalSquads() }
-                    val external = async { repo.getExternalSquads() }
+                    val internal = async { repository.getInternalSquads() }
+                    val external = async { repository.getExternalSquads() }
                     internal.await() to external.await()
                 }
             }.onSuccess { (internalResult, externalResult) ->
@@ -77,8 +77,8 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
     private fun createSquadInternal(name: String, isInternal: Boolean) {
         viewModelScope.launch {
             _state.update { it.copy(dialogIsLoading = true, dialogError = null) }
-            val result = if (isInternal) repo.createInternalSquad(name)
-                         else repo.createExternalSquad(name)
+            val result = if (isInternal) repository.createInternalSquad(name)
+                         else repository.createExternalSquad(name)
             result
                 .onSuccess { created ->
                     _state.update { st ->
@@ -95,8 +95,8 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
     fun deleteSquad(squad: Squad) {
         viewModelScope.launch {
             _state.update { it.copy(actionInProgress = true) }
-            val result = if (squad.type == Squad.Type.INTERNAL) repo.deleteInternalSquad(squad.uuid)
-                         else repo.deleteExternalSquad(squad.uuid)
+            val result = if (squad.type == Squad.Type.INTERNAL) repository.deleteInternalSquad(squad.uuid)
+                         else repository.deleteExternalSquad(squad.uuid)
             result
                 .onSuccess {
                     _state.update { s ->

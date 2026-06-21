@@ -184,19 +184,6 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             return@AnimatedContent
         }
 
-    if (state.showChangeKeyDialog) {
-        ChangeKeyDialog(
-            serverUrl = state.dialogServerUrl,
-            apiKey = state.dialogApiKey,
-            isLoading = state.dialogIsLoading,
-            error = state.dialogError,
-            onServerUrlChange = vm::onDialogServerUrlChange,
-            onApiKeyChange = vm::onDialogApiKeyChange,
-            onConfirm = vm::saveApiKey,
-            onDismiss = vm::dismissChangeKeyDialog
-        )
-    }
-
     Scaffold(
         contentWindowInsets = WindowInsets(0),
         topBar = { FwTopBar(title = stringResource(Res.string.settings_title)) }
@@ -308,7 +295,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                     Text(stringResource(Res.string.settings_language), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
                     var current by remember { mutableStateOf(AppLanguage.fromTag(currentAppLanguageTag())) }
-                    val languages = AppLanguage.entries
+                    val languages = remember { AppLanguage.entries }
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         languages.forEachIndexed { i, lang ->
                             SegmentedButton(
@@ -418,6 +405,20 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             }
         }
     }
+    }
+
+    // Dialog rendered outside AnimatedContent so it is not recreated on every content transition
+    if (state.showChangeKeyDialog) {
+        ChangeKeyDialog(
+            serverUrl = state.dialogServerUrl,
+            apiKey = state.dialogApiKey,
+            isLoading = state.dialogIsLoading,
+            error = state.dialogError,
+            onServerUrlChange = vm::onDialogServerUrlChange,
+            onApiKeyChange = vm::onDialogApiKeyChange,
+            onConfirm = vm::saveApiKey,
+            onDismiss = vm::dismissChangeKeyDialog
+        )
     }
 }
 

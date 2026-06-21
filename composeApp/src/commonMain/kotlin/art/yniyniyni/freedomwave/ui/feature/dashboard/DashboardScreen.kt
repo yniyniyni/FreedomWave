@@ -189,7 +189,7 @@ private fun StatsList(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // ── 1. Live header + 2×2 tile grid ────────────────────────────────────
+        // 1. Live header + 2x2 tile grid
         item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 // Header row
@@ -323,7 +323,7 @@ private fun StatsList(
             }
         }
 
-        // ── 2. Online Activity card ────────────────────────────────────────────
+        // 2. Online Activity card
         item {
             FwDetailCard {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -401,7 +401,7 @@ private fun StatsList(
             }
         }
 
-        // ── 3. Traffic sparkline (moved here, after activity card) ─────────────
+        // 3. Traffic sparkline (moved here, after activity card)
         if (sparklineData.isNotEmpty()) {
             item {
                 FwDetailCard {
@@ -425,7 +425,7 @@ private fun StatsList(
             }
         }
 
-        // ── 4. Detail cards: Panel, Nodes, System ─────────────────────────────
+        // 4. Detail cards: Panel, Nodes, System
         item {
             StatCard(title = stringResource(Res.string.dashboard_panel), icon = Icons.Rounded.Public) {
                 StatRow(stringResource(Res.string.dashboard_version), stats.panelVersion)
@@ -449,7 +449,7 @@ private fun StatsList(
     }
 }
 
-// ── Private composables ────────────────────────────────────────────────────────
+// Private composables
 
 @Composable
 private fun LiveTile(

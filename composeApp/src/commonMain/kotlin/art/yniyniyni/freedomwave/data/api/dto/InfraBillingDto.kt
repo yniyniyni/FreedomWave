@@ -3,7 +3,7 @@ package art.yniyniyni.freedomwave.data.api.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// ── Providers ────────────────────────────────────────────────────────────────
+// Providers
 
 @Serializable
 data class InfraProvidersResponse(
@@ -46,7 +46,7 @@ data class ProviderNodeRefDto(
     @SerialName("countryCode") val countryCode: String = ""
 )
 
-// ── Billing nodes ────────────────────────────────────────────────────────────
+// Billing nodes
 
 @Serializable
 data class BillingNodesResponse(
@@ -103,7 +103,7 @@ data class AvailableNodeDto(
     @SerialName("countryCode") val countryCode: String = ""
 )
 
-// ── Billing history ──────────────────────────────────────────────────────────
+// Billing history
 
 @Serializable
 data class BillingHistoryResponse(
@@ -132,7 +132,7 @@ data class BillRecordProviderDto(
     @SerialName("faviconLink") val faviconLink: String? = null
 )
 
-// ── Requests ─────────────────────────────────────────────────────────────────
+// Requests
 
 @Serializable
 data class CreateInfraProviderRequest(

@@ -312,7 +312,8 @@ private fun UsersListContent(
                         Icon(Icons.Rounded.SwapVert, contentDescription = stringResource(Res.string.users_sort))
                     }
                     DropdownMenu(expanded = sortMenuOpen, onDismissRequest = { sortMenuOpen = false }) {
-                        UserSortField.entries.forEach { field ->
+                        val sortEntries = remember { UserSortField.entries }
+                        sortEntries.forEach { field ->
                             val active = state.sortField == field
                             DropdownMenuItem(
                                 text = { Text(field.label()) },
@@ -353,12 +354,13 @@ private fun UsersListContent(
                 shape         = MaterialTheme.shapes.medium,
                 modifier      = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             )
+            val categoryEntries = remember { UserCategory.entries }
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
             ) {
-                items(UserCategory.entries) { cat ->
+                items(categoryEntries) { cat ->
                     FilterChip(
                         selected = state.category == cat,
                         onClick  = { vm.onCategorySelected(cat) },
@@ -513,9 +515,7 @@ private fun StatusBadge(status: UserStatus) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // UserDetailScreen
-// ─────────────────────────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -546,7 +546,7 @@ private fun UserDetailScreen(
         detailActionSuccessText?.let { snackbar.showSnackbar(it); detailVm.clearMessages() }
     }
 
-    // ── Dialogs ────────────────────────────────────────────────────────────────
+    // Dialogs
     var showDeleteConfirm  by remember { mutableStateOf(false) }
     var showQrDialog       by remember { mutableStateOf(false) }
     var showCopiedSnackbar by remember { mutableStateOf(false) }
@@ -627,7 +627,7 @@ private fun UserDetailScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            // ── Info card ──────────────────────────────────────────────────────
+            // Info card
             item {
                 FwDetailCard {
                     // Compact header: title + status badge on one line.
@@ -661,7 +661,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── Traffic donut ─────────────────────────────────────────────────
+            // Traffic donut
             item {
                 FwDetailCard {
                     DetailSectionTitle(stringResource(Res.string.users_detail_traffic), Icons.Rounded.DataUsage, MaterialTheme.colorScheme.tertiary)
@@ -683,7 +683,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── Subscription URL ──────────────────────────────────────────────
+            // Subscription URL
             if (user.subscriptionUrl.isNotBlank()) {
                 item {
                     FwDetailCard {
@@ -718,7 +718,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── Squads ─────────────────────────────────────────────────────────
+            // Squads
             if (user.activeSquads.isNotEmpty()) {
                 item {
                     FwDetailCard {
@@ -730,7 +730,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── Devices section ───────────────────────────────────────────────
+            // Devices section
             item {
                 FwDetailCard {
                     Row(
@@ -748,7 +748,7 @@ private fun UserDetailScreen(
                             }
                         }
                         val devicesRotation by animateFloatAsState(
-                            if (detailState.devicesExpanded) 180f else 0f, label = "devices_chevron"
+                            if (detailState.devicesExpanded) 180f else 0f
                         )
                         Icon(
                             Icons.Rounded.ExpandMore,
@@ -790,7 +790,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── IP Addresses section ─────────────────────────────────────────
+            // IP Addresses section
             item {
                 FwDetailCard {
                     Row(
@@ -816,7 +816,7 @@ private fun UserDetailScreen(
                             }
                         }
                         val ipRotation by animateFloatAsState(
-                            if (detailState.ipExpanded) 180f else 0f, label = "ip_chevron"
+                            if (detailState.ipExpanded) 180f else 0f
                         )
                         Icon(
                             Icons.Rounded.ExpandMore,
@@ -858,7 +858,7 @@ private fun UserDetailScreen(
                 }
             }
 
-            // ── Manage card ───────────────────────────────────────────────────
+            // Manage card
             item {
                 ManageCard(
                     user           = user,
@@ -877,9 +877,7 @@ private fun UserDetailScreen(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Manage card — Status, Traffic & Expiration, Device limit, Danger zone
-// ─────────────────────────────────────────────────────────────────────────────
+// Manage card
 
 @Composable
 private fun ManageCard(
@@ -1030,9 +1028,7 @@ private fun ManageSectionLabel(label: String) {
     )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Device row
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun DeviceRow(device: HwidDevice, monoFont: FontFamily) {
@@ -1082,9 +1078,7 @@ private fun DeviceRow(device: HwidDevice, monoFont: FontFamily) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // IP row
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun IpAddressRow(row: IpRow, monoFont: FontFamily) {
@@ -1140,9 +1134,7 @@ private fun IpAddressRow(row: IpRow, monoFont: FontFamily) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // QR dialog
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun QrDialog(url: String, onDismiss: () -> Unit) {
@@ -1177,9 +1169,7 @@ private fun QrDialog(url: String, onDismiss: () -> Unit) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Quick-edit dialogs
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun SetLimitDialog(
