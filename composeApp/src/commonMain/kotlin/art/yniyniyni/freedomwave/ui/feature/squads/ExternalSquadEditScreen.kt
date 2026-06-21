@@ -171,6 +171,7 @@ internal fun ExternalSquadEditScreen(
                     OutlinedTextField(
                         value = state.name,
                         onValueChange = vm::onName,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.squads_name)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
@@ -295,6 +296,7 @@ internal fun ExternalSquadEditScreen(
                             OutlinedTextField(
                                 value = pair.first,
                                 onValueChange = { vm.updateHeaderName(index, it) },
+                                shape = MaterialTheme.shapes.medium,
                                 label = { Text(stringResource(Res.string.squads_edit_header_name)) },
                                 singleLine = true,
                                 modifier = Modifier.weight(1f),
@@ -302,6 +304,7 @@ internal fun ExternalSquadEditScreen(
                             OutlinedTextField(
                                 value = pair.second,
                                 onValueChange = { vm.updateHeaderValue(index, it) },
+                                shape = MaterialTheme.shapes.medium,
                                 label = { Text(stringResource(Res.string.squads_edit_header_value)) },
                                 singleLine = true,
                                 modifier = Modifier.weight(1f),
@@ -327,6 +330,7 @@ internal fun ExternalSquadEditScreen(
                         OutlinedTextField(
                             value = state.hwidFallbackDeviceLimit,
                             onValueChange = vm::onHwidFallback,
+                            shape = MaterialTheme.shapes.medium,
                             label = { Text(stringResource(Res.string.squads_edit_fallback_limit)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -335,6 +339,7 @@ internal fun ExternalSquadEditScreen(
                         OutlinedTextField(
                             value = state.hwidMaxDevicesAnnounce,
                             onValueChange = vm::onHwidAnnounce,
+                            shape = MaterialTheme.shapes.medium,
                             label = { Text(stringResource(Res.string.squads_edit_max_announce)) },
                             supportingText = { Text(stringResource(Res.string.squads_edit_max_announce_hint)) },
                             modifier = Modifier.fillMaxWidth(),
@@ -363,6 +368,7 @@ internal fun ExternalSquadEditScreen(
                                     OutlinedTextField(
                                         value = value,
                                         onValueChange = { vm.updateRemark(cat, index, it) },
+                                        shape = MaterialTheme.shapes.medium,
                                         label = { Text(stringResource(Res.string.squads_edit_remark_hint)) },
                                         singleLine = true,
                                         modifier = Modifier.weight(1f),

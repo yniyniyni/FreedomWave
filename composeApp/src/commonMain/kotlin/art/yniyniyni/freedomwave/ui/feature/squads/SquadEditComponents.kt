@@ -81,6 +81,7 @@ internal fun OverrideTextRow(
             OutlinedTextField(
                 value = value,
                 onValueChange = onValue,
+                shape = MaterialTheme.shapes.medium,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
                 supportingText = hint?.let { { Text(it) } },
@@ -138,6 +139,7 @@ internal fun SquadDropdown(
         OutlinedTextField(
             value = displayText,
             onValueChange = {},
+            shape = MaterialTheme.shapes.medium,
             readOnly = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },

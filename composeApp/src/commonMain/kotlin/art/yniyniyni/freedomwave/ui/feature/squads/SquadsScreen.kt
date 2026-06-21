@@ -198,6 +198,7 @@ private fun SquadsListContent(
                     OutlinedTextField(
                         value = state.dialogName,
                         onValueChange = vm::onDialogNameChange,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.squads_name)) },
                         singleLine = true,
                         enabled = !state.dialogIsLoading,

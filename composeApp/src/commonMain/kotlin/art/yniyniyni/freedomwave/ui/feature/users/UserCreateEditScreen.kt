@@ -132,6 +132,7 @@ internal fun UserCreateEditScreen(
                     OutlinedTextField(
                         value = state.formUsername,
                         onValueChange = if (isCreate) vm::onFormUsername else { _ -> },
+                        shape = MaterialTheme.shapes.medium,
                         label = {
                             Text(
                                 stringResource(
@@ -148,6 +149,7 @@ internal fun UserCreateEditScreen(
                     OutlinedTextField(
                         value = state.formTag,
                         onValueChange = vm::onFormTag,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.users_detail_tag)) },
                         singleLine = true,
                         enabled = !state.formIsLoading,
@@ -158,6 +160,7 @@ internal fun UserCreateEditScreen(
                     OutlinedTextField(
                         value = state.formEmail,
                         onValueChange = vm::onFormEmail,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.users_detail_email)) },
                         singleLine = true,
                         enabled = !state.formIsLoading,
@@ -169,6 +172,7 @@ internal fun UserCreateEditScreen(
                     OutlinedTextField(
                         value = state.formDescription,
                         onValueChange = vm::onFormDescription,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.users_form_description)) },
                         enabled = !state.formIsLoading,
                         maxLines = 3,
@@ -208,6 +212,7 @@ internal fun UserCreateEditScreen(
                     OutlinedTextField(
                         value = state.formTrafficGb,
                         onValueChange = vm::onFormTrafficGb,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.users_limit_gb)) },
                         supportingText = { Text(stringResource(Res.string.users_zero_unlimited)) },
                         singleLine = true,
@@ -240,6 +245,7 @@ internal fun UserCreateEditScreen(
                     OutlinedTextField(
                         value = state.formHwid,
                         onValueChange = vm::onFormHwid,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.users_hwid_limit)) },
                         supportingText = { Text(stringResource(Res.string.users_blank_zero_unlimited)) },
                         singleLine = true,
@@ -335,6 +341,7 @@ private fun StrategyDropdown(selected: String, enabled: Boolean, onSelect: (Stri
         OutlinedTextField(
             value = trafficStrategyLabel(selected),
             onValueChange = {},
+            shape = MaterialTheme.shapes.medium,
             readOnly = true,
             enabled = enabled,
             label = { Text(stringResource(Res.string.users_reset_strategy)) },
@@ -373,6 +380,7 @@ internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long)
         Box(modifier = Modifier.weight(1f)) {
             OutlinedTextField(
                 value = dateStr, onValueChange = {}, readOnly = true, enabled = enabled,
+                shape = MaterialTheme.shapes.medium,
                 label = { Text(stringResource(Res.string.users_date)) },
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -390,6 +398,7 @@ internal fun ExpiryEditor(expireMillis: Long, enabled: Boolean, onChange: (Long)
         Box(modifier = Modifier.weight(1f)) {
             OutlinedTextField(
                 value = timeStr, onValueChange = {}, readOnly = true, enabled = enabled,
+                shape = MaterialTheme.shapes.medium,
                 label = { Text(stringResource(Res.string.users_time)) },
                 modifier = Modifier.fillMaxWidth(),
             )

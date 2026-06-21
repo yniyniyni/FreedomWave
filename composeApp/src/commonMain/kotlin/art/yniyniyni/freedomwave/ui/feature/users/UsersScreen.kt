@@ -1193,6 +1193,7 @@ private fun SetLimitDialog(
             OutlinedTextField(
                 value         = input,
                 onValueChange = onInput,
+                shape         = MaterialTheme.shapes.medium,
                 label         = { Text(stringResource(Res.string.users_limit_gb)) },
                 supportingText = { Text(stringResource(Res.string.users_zero_unlimited)) },
                 singleLine    = true,
@@ -1219,6 +1220,7 @@ private fun DeviceLimitDialog(
             OutlinedTextField(
                 value         = input,
                 onValueChange = onInput,
+                shape         = MaterialTheme.shapes.medium,
                 label         = { Text(stringResource(Res.string.users_detail_devices)) },
                 supportingText = { Text(stringResource(Res.string.users_zero_unlimited)) },
                 singleLine    = true,

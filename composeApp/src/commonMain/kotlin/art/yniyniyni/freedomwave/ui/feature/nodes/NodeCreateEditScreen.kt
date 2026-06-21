@@ -140,6 +140,7 @@ internal fun NodeCreateEditScreen(
                 FormCard(stringResource(Res.string.nodes_form_connection), Icons.Rounded.Wifi) {
                     OutlinedTextField(
                         value = state.name, onValueChange = vm::onName,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.nodes_form_internal_name)) },
                         placeholder = { Text(stringResource(Res.string.nodes_form_internal_name_hint)) },
                         singleLine = true, isError = state.nameError != null,
@@ -149,6 +150,7 @@ internal fun NodeCreateEditScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedTextField(
                             value = state.address, onValueChange = vm::onAddress,
+                            shape = MaterialTheme.shapes.medium,
                             label = { Text(stringResource(Res.string.nodes_form_address)) },
                             placeholder = { Text("192.168.1.1") },
                             singleLine = true, isError = state.addressError != null,
@@ -157,6 +159,7 @@ internal fun NodeCreateEditScreen(
                         )
                         OutlinedTextField(
                             value = state.port, onValueChange = vm::onPort,
+                            shape = MaterialTheme.shapes.medium,
                             label = { Text(stringResource(Res.string.nodes_form_port)) },
                             placeholder = { Text("2222") },
                             singleLine = true, isError = state.portError != null,
@@ -168,6 +171,7 @@ internal fun NodeCreateEditScreen(
                     OutlinedTextField(
                         value = "${countryFlag(country.code)} ${country.name} (${country.code})",
                         onValueChange = {}, readOnly = true, enabled = false,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.nodes_form_country)) },
                         modifier = Modifier.fillMaxWidth().clickable { showCountryPicker = true },
                     )
@@ -292,6 +296,7 @@ internal fun NodeCreateEditScreen(
                     }
                     OutlinedTextField(
                         value = state.multiplier, onValueChange = vm::onMultiplier,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.nodes_form_multiplier)) },
                         placeholder = { Text("1.0") }, singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -300,6 +305,7 @@ internal fun NodeCreateEditScreen(
                     if (state.trackingActive) {
                         OutlinedTextField(
                             value = state.trafficLimitGb, onValueChange = vm::onTrafficLimitGb,
+                            shape = MaterialTheme.shapes.medium,
                             label = { Text(stringResource(Res.string.nodes_form_traffic_limit_gb)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -308,6 +314,7 @@ internal fun NodeCreateEditScreen(
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedTextField(
                                 value = state.resetDay, onValueChange = vm::onResetDay,
+                                shape = MaterialTheme.shapes.medium,
                                 label = { Text(stringResource(Res.string.nodes_form_reset_day)) },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -315,6 +322,7 @@ internal fun NodeCreateEditScreen(
                             )
                             OutlinedTextField(
                                 value = state.notifyPercent, onValueChange = vm::onNotifyPercent,
+                                shape = MaterialTheme.shapes.medium,
                                 label = { Text(stringResource(Res.string.nodes_form_notify_at)) },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -329,6 +337,7 @@ internal fun NodeCreateEditScreen(
                 FormCard(stringResource(Res.string.nodes_form_tags), Icons.Rounded.Sell, MaterialTheme.colorScheme.tertiary) {
                     OutlinedTextField(
                         value = state.tags, onValueChange = vm::onTags,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.nodes_form_tags)) },
                         placeholder = { Text(stringResource(Res.string.nodes_form_tags_hint)) },
                         singleLine = true, modifier = Modifier.fillMaxWidth(),
@@ -400,6 +409,7 @@ private fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit)
                 verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = query, onValueChange = { query = it },
+                    shape = MaterialTheme.shapes.medium,
                     label = { Text(stringResource(Res.string.nodes_form_country_search)) },
                     singleLine = true, modifier = Modifier.fillMaxWidth(),
                 )

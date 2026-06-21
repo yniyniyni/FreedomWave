@@ -120,6 +120,7 @@ internal fun InternalSquadEditScreen(
                     OutlinedTextField(
                         value = state.name,
                         onValueChange = vm::onName,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.squads_name)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),

@@ -237,6 +237,7 @@ internal fun HostCreateEditScreen(
                     OutlinedTextField(
                         value = state.remark,
                         onValueChange = vm::onRemark,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_remark)) },
                         placeholder = { Text(stringResource(Res.string.hosts_form_remark_hint)) },
                         singleLine = true,
@@ -248,6 +249,7 @@ internal fun HostCreateEditScreen(
                     OutlinedTextField(
                         value = state.selectedInboundTag ?: "",
                         onValueChange = {},
+                        shape = MaterialTheme.shapes.medium,
                         readOnly = true,
                         enabled = false,
                         label = { Text(stringResource(Res.string.hosts_form_inbound)) },
@@ -259,6 +261,7 @@ internal fun HostCreateEditScreen(
                         OutlinedTextField(
                             value = state.address,
                             onValueChange = vm::onAddress,
+                            shape = MaterialTheme.shapes.medium,
                             label = { Text(stringResource(Res.string.hosts_form_address)) },
                             placeholder = { Text("example.com") },
                             singleLine = true,
@@ -267,6 +270,7 @@ internal fun HostCreateEditScreen(
                         OutlinedTextField(
                             value = state.port,
                             onValueChange = vm::onPort,
+                            shape = MaterialTheme.shapes.medium,
                             label = { Text(stringResource(Res.string.hosts_form_port)) },
                             placeholder = { Text("443") },
                             singleLine = true,
@@ -278,6 +282,7 @@ internal fun HostCreateEditScreen(
                     OutlinedTextField(
                         value = state.tag,
                         onValueChange = vm::onTag,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_tag)) },
                         placeholder = { Text(stringResource(Res.string.hosts_form_tag_hint)) },
                         singleLine = true,
@@ -293,6 +298,7 @@ internal fun HostCreateEditScreen(
                     OutlinedTextField(
                         value = state.sni,
                         onValueChange = vm::onSni,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_sni)) },
                         supportingText = { Text(stringResource(Res.string.hosts_form_sni_hint)) },
                         modifier = Modifier.fillMaxWidth(),
@@ -300,6 +306,7 @@ internal fun HostCreateEditScreen(
                     OutlinedTextField(
                         value = state.host,
                         onValueChange = vm::onHost,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_host)) },
                         placeholder = { Text(stringResource(Res.string.hosts_form_host_hint)) },
                         modifier = Modifier.fillMaxWidth(),
@@ -307,6 +314,7 @@ internal fun HostCreateEditScreen(
                     OutlinedTextField(
                         value = state.path,
                         onValueChange = vm::onPath,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_path)) },
                         placeholder = { Text(stringResource(Res.string.hosts_form_path_hint)) },
                         modifier = Modifier.fillMaxWidth(),
@@ -349,6 +357,7 @@ internal fun HostCreateEditScreen(
                     OutlinedTextField(
                         value = state.vlessRouteId,
                         onValueChange = vm::onVlessRouteId,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_vless_route_id)) },
                         supportingText = { Text(stringResource(Res.string.hosts_form_vless_route_hint)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -366,6 +375,7 @@ internal fun HostCreateEditScreen(
                     OutlinedTextField(
                         value = state.serverDescription,
                         onValueChange = vm::onServerDescription,
+                        shape = MaterialTheme.shapes.medium,
                         label = { Text(stringResource(Res.string.hosts_form_server_desc)) },
                         supportingText = { Text(stringResource(Res.string.hosts_form_server_desc_hint)) },
                         modifier = Modifier.fillMaxWidth(),
@@ -401,6 +411,7 @@ internal fun HostCreateEditScreen(
                         OutlinedTextField(
                             value = if (nodeCount > 0) nodeCount.toString() else "",
                             onValueChange = {},
+                            shape = MaterialTheme.shapes.medium,
                             readOnly = true,
                             enabled = false,
                             label = { Text(stringResource(Res.string.hosts_form_assigned_nodes)) },
@@ -550,6 +561,7 @@ private fun DropdownPicker(
         OutlinedTextField(
             value = displayText,
             onValueChange = {},
+            shape = MaterialTheme.shapes.medium,
             readOnly = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
