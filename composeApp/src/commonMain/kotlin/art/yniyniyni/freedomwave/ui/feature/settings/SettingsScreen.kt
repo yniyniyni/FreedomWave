@@ -27,8 +27,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -63,6 +61,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import art.yniyniyni.freedomwave.ui.components.DetailRow
+import art.yniyniyni.freedomwave.ui.components.FwDetailCard
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_DARK
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_LIGHT
@@ -208,11 +208,11 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                FwCard {
+                FwDetailCard {
                     Text(stringResource(Res.string.settings_connection), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(4.dp))
-                    InfoRow(stringResource(Res.string.settings_server), serverUrl.ifBlank { emptyDash }, monoFont)
-                    InfoRow(stringResource(Res.string.settings_api_key), maskedKey, monoFont)
+                    DetailRow(stringResource(Res.string.settings_server), serverUrl.ifBlank { emptyDash }, monoFont)
+                    DetailRow(stringResource(Res.string.settings_api_key), maskedKey, monoFont)
                     Spacer(Modifier.height(4.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(
@@ -231,7 +231,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             }
 
             item {
-                FwCard {
+                FwDetailCard {
                     Row(
                         modifier = Modifier.fillMaxWidth().clickable { stack = stack + SettingsNav.Squads },
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -257,7 +257,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             }
 
             item {
-                FwCard {
+                FwDetailCard {
                     Row(
                         modifier = Modifier.fillMaxWidth().clickable { stack = stack + SettingsNav.InfraBilling },
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -283,7 +283,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             }
 
             item {
-                FwCard {
+                FwDetailCard {
                     Text(stringResource(Res.string.settings_appearance), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
                     val modes  = listOf(THEME_SYSTEM, THEME_LIGHT, THEME_DARK)
@@ -305,7 +305,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             }
 
             item {
-                FwCard {
+                FwDetailCard {
                     Text(stringResource(Res.string.settings_language), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
                     var current by remember { mutableStateOf(AppLanguage.fromTag(currentAppLanguageTag())) }
@@ -323,7 +323,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             }
 
             item {
-                FwCard {
+                FwDetailCard {
                     Text(stringResource(Res.string.settings_security), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
                     Row(
@@ -350,7 +350,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             }
 
             item {
-                FwCard {
+                FwDetailCard {
                     Text(stringResource(Res.string.settings_privacy), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
                     Row(
@@ -375,10 +375,10 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             }
 
             item {
-                FwCard {
+                FwDetailCard {
                     Text(stringResource(Res.string.settings_about), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
-                    InfoRow(stringResource(Res.string.settings_version), APP_VERSION, monoFont)
+                    DetailRow(stringResource(Res.string.settings_version), APP_VERSION, monoFont)
                     Spacer(Modifier.height(8.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth().clickable { uriHandler.openUri(GITHUB_URL) },
@@ -437,29 +437,6 @@ private sealed interface SettingsNav {
         Licenses -> "licenses"
         Squads -> "squads"
         InfraBilling -> "infra_billing"
-    }
-}
-
-@Composable
-private fun FwCard(content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape    = MaterialTheme.shapes.large,
-        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            content = { content() },
-        )
-    }
-}
-
-@Composable
-private fun InfoRow(label: String, value: String, monoFont: androidx.compose.ui.text.font.FontFamily) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.bodySmall.copy(fontFamily = monoFont), maxLines = 1)
     }
 }
 

@@ -3,7 +3,6 @@
 package art.yniyniyni.freedomwave.ui.feature.users
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -15,7 +14,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -76,6 +74,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import art.yniyniyni.freedomwave.ui.components.DetailRow
+import art.yniyniyni.freedomwave.ui.components.DetailSectionTitle
+import art.yniyniyni.freedomwave.ui.components.FwDetailCard
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
@@ -92,7 +93,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -1262,55 +1262,3 @@ private fun SetExpiryDialog(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun FwDetailCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape    = MaterialTheme.shapes.large,
-        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp).animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            content = content,
-        )
-    }
-}
-
-@Composable
-private fun DetailSectionTitle(
-    title: String,
-    icon: ImageVector? = null,
-    tint: Color = MaterialTheme.colorScheme.primary,
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        if (icon != null) {
-            FwSectionIcon(icon, tint)
-        }
-        Text(title, style = MaterialTheme.typography.titleSmall)
-    }
-}
-
-@Composable
-private fun DetailRow(label: String, value: String, monoFont: FontFamily) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(
-            label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            value,
-            style      = MaterialTheme.typography.bodyMedium.copy(fontFamily = monoFont),
-            fontWeight = FontWeight.Medium,
-        )
-    }
-}

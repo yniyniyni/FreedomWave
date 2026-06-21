@@ -4,6 +4,9 @@ import art.yniyniyni.freedomwave.data.api.ApiError
 import art.yniyniyni.freedomwave.data.api.service.SubHistoryService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.IpRow
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class SubHistoryRepository(
     private val service: SubHistoryService,
@@ -32,21 +35,25 @@ class SubHistoryRepository(
         // Geo lookup is opt-in: when off, never send client IPs to the third-party ipwho.is.
         if (!prefs.getGeoLookupEnabled()) return@api baseRows
 
-        // Geo-enrich unique IPs — best-effort
-        baseRows.map { row ->
-            val geo = service.getIpInfo(row.ip)
-            if (geo != null && geo.success) {
-                row.copy(
-                    city        = geo.city,
-                    region      = geo.region,
-                    country     = geo.country,
-                    countryCode = geo.countryCode,
-                    isp         = geo.connection?.isp ?: geo.connection?.org,
-                    geoLoaded   = true
-                )
-            } else {
-                row.copy(geoLoaded = true)
-            }
+        // Geo-enrich unique IPs — best-effort, parallelized
+        coroutineScope {
+            baseRows.map { row ->
+                async {
+                    val geo = service.getIpInfo(row.ip)
+                    if (geo != null && geo.success) {
+                        row.copy(
+                            city        = geo.city,
+                            region      = geo.region,
+                            country     = geo.country,
+                            countryCode = geo.countryCode,
+                            isp         = geo.connection?.isp ?: geo.connection?.org,
+                            geoLoaded   = true
+                        )
+                    } else {
+                        row.copy(geoLoaded = true)
+                    }
+                }
+            }.awaitAll()
         }
     }
 

@@ -11,6 +11,9 @@ import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.domain.model.XrayTemplate
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
+import freedomwave.composeapp.generated.resources.Res
+import freedomwave.composeapp.generated.resources.hosts_form_port_error
+import freedomwave.composeapp.generated.resources.hosts_form_remark_error
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,10 +61,10 @@ data class HostFormUiState(
     val xrayTemplateUuid: String? = null,
 ) {
     val remarkError: UiText?
-        get() = if (remark.isNotBlank() && !remarkValid(remark)) UiText.Raw("1–40 characters") else null
+        get() = if (remark.isNotBlank() && !remarkValid(remark)) UiText.Res(Res.string.hosts_form_remark_error) else null
 
     val portError: UiText?
-        get() = if (port.isNotBlank() && portOrNull(port) == null) UiText.Raw("Port 1–65535") else null
+        get() = if (port.isNotBlank() && portOrNull(port) == null) UiText.Res(Res.string.hosts_form_port_error) else null
 
     val selectedInboundTag: String?
         get() = profiles.flatMap { it.inbounds }.find { it.uuid == selectedInboundUuid }?.tag

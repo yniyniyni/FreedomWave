@@ -68,6 +68,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import art.yniyniyni.freedomwave.ui.components.DetailRow
+import art.yniyniyni.freedomwave.ui.components.DetailSectionTitle
+import art.yniyniyni.freedomwave.ui.components.FwDetailCard
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
@@ -792,53 +795,5 @@ private fun NodeActions(
             shape = RoundedCornerShape(percent = 50),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
         ) { Text(stringResource(Res.string.nodes_delete)) }
-    }
-}
-
-@Composable
-private fun FwDetailCard(content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape    = MaterialTheme.shapes.large,
-        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            content = { content() },
-        )
-    }
-}
-
-@Composable
-private fun DetailSectionTitle(
-    title: String,
-    icon: ImageVector? = null,
-    tint: Color = MaterialTheme.colorScheme.primary,
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        if (icon != null) {
-            FwSectionIcon(icon, tint)
-        }
-        Text(title, style = MaterialTheme.typography.titleSmall)
-    }
-}
-
-@Composable
-private fun DetailRow(label: String, value: String, monoFont: androidx.compose.ui.text.font.FontFamily) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(
-            label,
-            style    = MaterialTheme.typography.bodyMedium,
-            color    = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = monoFont),
-        )
     }
 }

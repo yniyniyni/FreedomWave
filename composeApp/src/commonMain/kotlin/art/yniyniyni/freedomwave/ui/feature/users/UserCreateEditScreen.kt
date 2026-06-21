@@ -25,7 +25,6 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,8 +46,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
@@ -87,6 +84,8 @@ import freedomwave.composeapp.generated.resources.users_time
 import freedomwave.composeapp.generated.resources.users_username
 import freedomwave.composeapp.generated.resources.users_username_required
 import freedomwave.composeapp.generated.resources.users_zero_unlimited
+import art.yniyniyni.freedomwave.ui.components.DetailSectionTitle
+import art.yniyniyni.freedomwave.ui.components.FwDetailCard
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.ui.l10n.resolve
@@ -128,7 +127,8 @@ internal fun UserCreateEditScreen(
         ) {
             // Identity
             item {
-                FormCard(stringResource(Res.string.users_form_identity), Icons.Rounded.Person) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.users_form_identity), Icons.Rounded.Person)
                     OutlinedTextField(
                         value = state.formUsername,
                         onValueChange = if (isCreate) vm::onFormUsername else { _ -> },
@@ -183,7 +183,8 @@ internal fun UserCreateEditScreen(
 
             // Access
             item {
-                FormCard(stringResource(Res.string.users_form_access), Icons.Rounded.Key, MaterialTheme.colorScheme.tertiary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.users_form_access), Icons.Rounded.Key, MaterialTheme.colorScheme.tertiary)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -208,7 +209,8 @@ internal fun UserCreateEditScreen(
 
             // Traffic
             item {
-                FormCard(stringResource(Res.string.users_detail_traffic), Icons.Rounded.DataUsage, MaterialTheme.colorScheme.secondary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.users_detail_traffic), Icons.Rounded.DataUsage, MaterialTheme.colorScheme.secondary)
                     OutlinedTextField(
                         value = state.formTrafficGb,
                         onValueChange = vm::onFormTrafficGb,
@@ -230,7 +232,8 @@ internal fun UserCreateEditScreen(
 
             // Expiry
             item {
-                FormCard(stringResource(Res.string.users_form_expiry), Icons.Rounded.Schedule, MaterialTheme.colorScheme.primary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.users_form_expiry), Icons.Rounded.Schedule, MaterialTheme.colorScheme.primary)
                     ExpiryEditor(
                         expireMillis = state.formExpireMillis,
                         enabled = !state.formIsLoading,
@@ -241,7 +244,8 @@ internal fun UserCreateEditScreen(
 
             // Devices
             item {
-                FormCard(stringResource(Res.string.users_detail_devices), Icons.Rounded.Devices, MaterialTheme.colorScheme.tertiary) {
+                FwDetailCard {
+                    DetailSectionTitle(stringResource(Res.string.users_detail_devices), Icons.Rounded.Devices, MaterialTheme.colorScheme.tertiary)
                     OutlinedTextField(
                         value = state.formHwid,
                         onValueChange = vm::onFormHwid,
@@ -259,7 +263,8 @@ internal fun UserCreateEditScreen(
             // Squads
             if (state.formSquads.isNotEmpty()) {
                 item {
-                    FormCard(stringResource(Res.string.users_detail_squads), Icons.Rounded.Groups, MaterialTheme.colorScheme.secondary) {
+                    FwDetailCard {
+                        DetailSectionTitle(stringResource(Res.string.users_detail_squads), Icons.Rounded.Groups, MaterialTheme.colorScheme.secondary)
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             state.formSquads.forEach { squad ->
                                 FilterChip(
@@ -305,30 +310,6 @@ internal fun UserCreateEditScreen(
             }
 
             item { Spacer(Modifier.height(32.dp)) }
-        }
-    }
-}
-
-@Composable
-private fun FormCard(
-    title: String,
-    icon: ImageVector? = null,
-    tint: Color = MaterialTheme.colorScheme.primary,
-    content: @Composable () -> Unit,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape    = MaterialTheme.shapes.large,
-        colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                if (icon != null) {
-                    FwSectionIcon(icon, tint)
-                }
-                Text(title, style = MaterialTheme.typography.titleSmall)
-            }
-            content()
         }
     }
 }
