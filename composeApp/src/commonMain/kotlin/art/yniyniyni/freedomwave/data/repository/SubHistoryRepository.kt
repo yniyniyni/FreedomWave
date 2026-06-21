@@ -34,28 +34,30 @@ class SubHistoryRepository(
         // Geo lookup is opt-in: when off, never send client IPs to the third-party ipwho.is.
         if (!prefs.getGeoLookupEnabled()) return@api baseRows
 
-        // Geo-enrich unique IPs — best-effort, parallelized
+        // Geo-enrich unique IPs — best-effort, batched to avoid throttling
         coroutineScope {
-            baseRows.map { row ->
-                async {
-                    val geo = service.getIpInfo(row.ip)
-                    if (geo != null && geo.success) {
-                        row.copy(
-                            city        = geo.city,
-                            region      = geo.region,
-                            country     = geo.country,
-                            countryCode = geo.countryCode,
-                            isp         = geo.connection?.isp ?: geo.connection?.org,
-                            geoLoaded   = true
-                        )
-                    } else {
-                        row.copy(geoLoaded = true)
+            baseRows.chunked(6).flatMap { chunk ->
+                chunk.map { row ->
+                    async {
+                        val geo = service.getIpInfo(row.ip)
+                        if (geo != null && geo.success) {
+                            row.copy(
+                                city        = geo.city,
+                                region      = geo.region,
+                                country     = geo.country,
+                                countryCode = geo.countryCode,
+                                isp         = geo.connection?.isp ?: geo.connection?.org,
+                                geoLoaded   = true
+                            )
+                        } else {
+                            row.copy(geoLoaded = true)
+                        }
                     }
-                }
-            }.awaitAll()
+                }.awaitAll()
+            }
         }
     }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =
-        runCatching { block() }.also { it.clearOnUnauthorized(prefs) }
+        runCatching { block() }.clearOnUnauthorized(prefs)
 }
