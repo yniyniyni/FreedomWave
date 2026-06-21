@@ -1,5 +1,6 @@
 package art.yniyniyni.freedomwave
 
+import art.yniyniyni.freedomwave.data.api.dto.CreateInternalSquadRequest
 import art.yniyniyni.freedomwave.data.api.dto.CustomRemarksDto
 import art.yniyniyni.freedomwave.data.api.dto.ExternalSquadDetailDto
 import art.yniyniyni.freedomwave.data.api.dto.HwidSettingsDto
@@ -25,6 +26,14 @@ class SquadDtoSerializationTest {
         assertTrue(out.contains("\"profileTitle\""), "profileTitle must be present")
         assertFalse(out.contains("\"supportLink\""), "supportLink must be omitted when null")
         assertFalse(out.contains("\"randomizeHosts\""), "randomizeHosts must be omitted when null")
+    }
+
+    @Test
+    fun `internal create request always includes inbounds`() {
+        // Backend requires `inbounds` to be present; with encodeDefaults=false a plain
+        // default would be dropped, producing a 400 "Validation failed".
+        val out = json.encodeToString(CreateInternalSquadRequest(name = "testsquad", inbounds = emptyList()))
+        assertTrue(out.contains("\"inbounds\":[]"), "inbounds must be present even when empty")
     }
 
     @Test

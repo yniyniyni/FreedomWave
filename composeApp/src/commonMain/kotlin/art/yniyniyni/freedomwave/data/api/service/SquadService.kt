@@ -27,7 +27,7 @@ class SquadService(private val client: HttpClient) {
 
     suspend fun createInternalSquad(serverUrl: String, name: String): InternalSquadResponse =
         client.post("$serverUrl/api/internal-squads") {
-            setBody(CreateInternalSquadRequest(name))
+            setBody(CreateInternalSquadRequest(name, emptyList()))
         }.body()
 
     suspend fun updateInternalSquad(serverUrl: String, uuid: String, name: String): InternalSquadResponse =
