@@ -22,11 +22,9 @@ data class SquadsUiState(
     val externalSquads: List<Squad> = emptyList(),
     val isLoading: Boolean = false,
     val error: UiText? = null,
-    val selected: Squad? = null,
     val actionInProgress: Boolean = false,
     val actionError: UiText? = null,
     val showCreateDialog: Boolean = false,
-    val showEditDialog: Boolean = false,
     val dialogName: String = "",
     val dialogIsLoading: Boolean = false,
     val dialogError: UiText? = null
@@ -63,14 +61,11 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
         }
     }
 
-    fun setTab(index: Int) = _state.update { it.copy(activeTab = index, selected = null) }
-    fun select(squad: Squad) = _state.update { it.copy(selected = squad) }
-    fun clearSelection() = _state.update { it.copy(selected = null) }
+    fun setTab(index: Int) = _state.update { it.copy(activeTab = index) }
     fun clearActionError() = _state.update { it.copy(actionError = null) }
 
     fun openCreateDialog() = _state.update { it.copy(showCreateDialog = true, dialogName = "", dialogError = null) }
-    fun openEditDialog(squad: Squad) = _state.update { it.copy(showEditDialog = true, dialogName = squad.name, dialogError = null) }
-    fun dismissDialog() = _state.update { it.copy(showCreateDialog = false, showEditDialog = false, dialogError = null) }
+    fun dismissDialog() = _state.update { it.copy(showCreateDialog = false, dialogError = null) }
     fun onDialogNameChange(v: String) = _state.update { it.copy(dialogName = v, dialogError = null) }
 
     fun createSquad() {
@@ -93,29 +88,6 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
         }
     }
 
-    fun updateSquad() {
-        val s = _state.value
-        val squad = s.selected ?: return
-        if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = UiText.Res(Res.string.squads_name_required)) }; return }
-        viewModelScope.launch {
-            _state.update { it.copy(dialogIsLoading = true, dialogError = null) }
-            val result = if (squad.type == Squad.Type.INTERNAL) repo.updateInternalSquad(squad.uuid, s.dialogName.trim())
-                         else repo.updateExternalSquad(squad.uuid, s.dialogName.trim())
-            result
-                .onSuccess { updated ->
-                    _state.update { st ->
-                        if (squad.type == Squad.Type.INTERNAL)
-                            st.copy(dialogIsLoading = false, showEditDialog = false, selected = updated,
-                                internalSquads = st.internalSquads.map { if (it.uuid == updated.uuid) updated else it })
-                        else
-                            st.copy(dialogIsLoading = false, showEditDialog = false, selected = updated,
-                                externalSquads = st.externalSquads.map { if (it.uuid == updated.uuid) updated else it })
-                    }
-                }
-                .onFailure { e -> _state.update { it.copy(dialogIsLoading = false, dialogError = e.toUiText()) } }
-        }
-    }
-
     fun deleteSquad(squad: Squad) {
         viewModelScope.launch {
             _state.update { it.copy(actionInProgress = true) }
@@ -125,10 +97,10 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
                 .onSuccess {
                     _state.update { s ->
                         if (squad.type == Squad.Type.INTERNAL)
-                            s.copy(actionInProgress = false, selected = null,
+                            s.copy(actionInProgress = false,
                                 internalSquads = s.internalSquads.filter { it.uuid != squad.uuid })
                         else
-                            s.copy(actionInProgress = false, selected = null,
+                            s.copy(actionInProgress = false,
                                 externalSquads = s.externalSquads.filter { it.uuid != squad.uuid })
                     }
                 }
