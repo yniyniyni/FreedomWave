@@ -10,5 +10,5 @@ class SubPageConfigRepository(
 ) {
     suspend fun getConfigs(): Result<List<SubPageConfig>> = runCatching {
         service.getConfigs().response.configs.map { SubPageConfig(it.uuid, it.name) }
-    }.also { it.clearOnUnauthorized(prefs) }
+    }.clearOnUnauthorized(prefs)
 }

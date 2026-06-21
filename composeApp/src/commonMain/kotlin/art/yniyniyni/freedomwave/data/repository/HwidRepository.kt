@@ -14,5 +14,5 @@ class HwidRepository(
     }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =
-        runCatching { block() }.also { it.clearOnUnauthorized(prefs) }
+        runCatching { block() }.clearOnUnauthorized(prefs)
 }

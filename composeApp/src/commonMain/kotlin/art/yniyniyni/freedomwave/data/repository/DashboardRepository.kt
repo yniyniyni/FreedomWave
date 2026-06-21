@@ -53,5 +53,5 @@ class DashboardRepository(
                 withNodes
             }
         }
-    }.also { it.clearOnUnauthorized(prefs) }
+    }.clearOnUnauthorized(prefs)
 }

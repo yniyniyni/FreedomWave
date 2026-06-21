@@ -11,5 +11,5 @@ class BandwidthRepository(
     suspend fun getNodesStats(start: String, end: String): Result<BandwidthNodesData> =
         runCatching {
             service.getNodesStats(start, end).response
-        }.also { it.clearOnUnauthorized(prefs) }
+        }.clearOnUnauthorized(prefs)
 }

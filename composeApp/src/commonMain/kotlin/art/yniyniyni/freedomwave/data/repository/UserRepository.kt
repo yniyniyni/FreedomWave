@@ -18,7 +18,6 @@ private const val USERS_PAGE_SIZE = 500
  * - Deduplicates by [UserDto.uuid] so overlapping pages don't produce duplicates.
  * - Caps iterations at [maxIterations] to guard against an inflated `total`.
  * - Breaks on an empty page even when `total` claims more records exist.
- * - Logs a warning when collected count diverges from the advertised `total`.
  */
 internal suspend fun collectAllUsers(
     pageSize: Int = USERS_PAGE_SIZE,
@@ -45,14 +44,6 @@ internal suspend fun collectAllUsers(
         }
         offset += page.users.size
         iterations++
-    }
-
-    if (iterations >= maxIterations) {
-        println("[UserRepository] collectAllUsers: reached maxIterations ($maxIterations) — total may be corrupted (advertised: ${first.total})")
-    }
-
-    if (all.size != first.total) {
-        println("[UserRepository] collectAllUsers: collected ${all.size} users but total was ${first.total}")
     }
 
     return all
@@ -100,5 +91,5 @@ class UserRepository(
     }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =
-        runCatching { block() }.also { it.clearOnUnauthorized(prefs) }
+        runCatching { block() }.clearOnUnauthorized(prefs)
 }

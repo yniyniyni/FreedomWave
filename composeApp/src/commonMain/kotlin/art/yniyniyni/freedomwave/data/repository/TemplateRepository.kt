@@ -13,11 +13,11 @@ class TemplateRepository(
         service.getTemplates().response.templates
             .filter { it.templateType == "XRAY_JSON" }
             .map { XrayTemplate(it.uuid, it.name) }
-    }.also { it.clearOnUnauthorized(prefs) }
+    }.clearOnUnauthorized(prefs)
 
     suspend fun getTemplatesByType(): Result<Map<String, List<SubscriptionTemplate>>> = runCatching {
         service.getTemplates().response.templates
             .map { SubscriptionTemplate(it.uuid, it.name, it.templateType) }
             .groupBy { it.type }
-    }.also { it.clearOnUnauthorized(prefs) }
+    }.clearOnUnauthorized(prefs)
 }
