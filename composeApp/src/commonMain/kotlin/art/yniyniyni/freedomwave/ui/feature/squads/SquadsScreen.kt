@@ -47,6 +47,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -97,7 +98,7 @@ private sealed interface SquadsNav {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
+fun SquadsScreen(vm: SquadsViewModel = koinViewModel(), onBack: (() -> Unit)? = null) {
     val state by vm.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
@@ -138,6 +139,7 @@ fun SquadsScreen(vm: SquadsViewModel = koinViewModel()) {
                 vm = vm,
                 state = state,
                 snackbar = snackbar,
+                onBack = onBack,
                 onOpenSquad = { squad ->
                     formEpoch++
                     stack = stack + if (squad.type == Squad.Type.INTERNAL)
@@ -176,6 +178,7 @@ private fun SquadsListContent(
     vm: SquadsViewModel,
     state: SquadsUiState,
     snackbar: SnackbarHostState,
+    onBack: (() -> Unit)?,
     onOpenSquad: (Squad) -> Unit,
 ) {
     if (state.showCreateDialog) {
@@ -225,10 +228,14 @@ private fun SquadsListContent(
     Scaffold(
         contentWindowInsets = WindowInsets(0),
         topBar = {
-            FwTopBar(
-                title = stringResource(Res.string.squads_title),
-                actions = { IconButton(onClick = vm::load) { Icon(Icons.Rounded.Refresh, contentDescription = stringResource(Res.string.common_refresh)) } },
-            )
+            val refresh: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {
+                IconButton(onClick = vm::load) { Icon(Icons.Rounded.Refresh, contentDescription = stringResource(Res.string.common_refresh)) }
+            }
+            if (onBack != null) {
+                FwDetailTopBar(title = stringResource(Res.string.squads_title), onBack = onBack, actions = refresh)
+            } else {
+                FwTopBar(title = stringResource(Res.string.squads_title), actions = refresh)
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
