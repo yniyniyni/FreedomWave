@@ -3,15 +3,19 @@
 package art.yniyniyni.freedomwave.ui.feature.squads
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.rememberTransition
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.CellTower
+import androidx.compose.material.icons.rounded.Groups
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,8 +30,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -42,8 +49,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -58,6 +63,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -68,14 +76,14 @@ import freedomwave.composeapp.generated.resources.common_create
 import freedomwave.composeapp.generated.resources.common_refresh
 import freedomwave.composeapp.generated.resources.common_retry
 import freedomwave.composeapp.generated.resources.squads_empty
-import freedomwave.composeapp.generated.resources.squads_external_count
 import freedomwave.composeapp.generated.resources.squads_inbound_hint
 import freedomwave.composeapp.generated.resources.squads_inbounds
-import freedomwave.composeapp.generated.resources.squads_internal_count
 import freedomwave.composeapp.generated.resources.squads_members
 import freedomwave.composeapp.generated.resources.squads_name
 import freedomwave.composeapp.generated.resources.squads_new_squad
 import freedomwave.composeapp.generated.resources.squads_title
+import freedomwave.composeapp.generated.resources.squads_type_external
+import freedomwave.composeapp.generated.resources.squads_type_internal
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import org.jetbrains.compose.resources.pluralStringResource
@@ -248,12 +256,12 @@ private fun SquadsListContent(
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            TabRow(selectedTabIndex = state.activeTab) {
-                Tab(selected = state.activeTab == 0, onClick = { vm.setTab(0) },
-                    text = { Text(stringResource(Res.string.squads_internal_count, state.internalSquads.size)) })
-                Tab(selected = state.activeTab == 1, onClick = { vm.setTab(1) },
-                    text = { Text(stringResource(Res.string.squads_external_count, state.externalSquads.size)) })
-            }
+            SquadTypeSelector(
+                activeTab = state.activeTab,
+                internalCount = state.internalSquads.size,
+                externalCount = state.externalSquads.size,
+                onSelect = vm::setTab,
+            )
 
             when {
                 state.isLoading && currentList.isEmpty() -> ShimmerList()
@@ -293,6 +301,87 @@ private fun SquadsListContent(
                         }
                     }
             }
+        }
+    }
+}
+
+@Composable
+private fun SquadTypeSelector(
+    activeTab: Int,
+    internalCount: Int,
+    externalCount: Int,
+    onSelect: (Int) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(percent = 50))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        SquadSegment(
+            modifier = Modifier.weight(1f),
+            selected = activeTab == 0,
+            accent = MaterialTheme.colorScheme.primary,
+            onAccent = MaterialTheme.colorScheme.onPrimary,
+            icon = Icons.Rounded.Groups,
+            label = stringResource(Res.string.squads_type_internal),
+            count = internalCount,
+            onClick = { onSelect(0) },
+        )
+        SquadSegment(
+            modifier = Modifier.weight(1f),
+            selected = activeTab == 1,
+            accent = MaterialTheme.colorScheme.tertiary,
+            onAccent = MaterialTheme.colorScheme.onTertiary,
+            icon = Icons.Rounded.CellTower,
+            label = stringResource(Res.string.squads_type_external),
+            count = externalCount,
+            onClick = { onSelect(1) },
+        )
+    }
+}
+
+@Composable
+private fun SquadSegment(
+    modifier: Modifier,
+    selected: Boolean,
+    accent: Color,
+    onAccent: Color,
+    icon: ImageVector,
+    label: String,
+    count: Int,
+    onClick: () -> Unit,
+) {
+    val bg by animateColorAsState(if (selected) accent else Color.Transparent, label = "squad_seg_bg")
+    val content = if (selected) onAccent else MaterialTheme.colorScheme.onSurfaceVariant
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(percent = 50))
+            .background(bg)
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp, horizontal = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(icon, contentDescription = null, tint = content, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(6.dp))
+        Text(
+            label,
+            style = MaterialTheme.typography.labelLarge,
+            color = content,
+            maxLines = 1,
+        )
+        Spacer(Modifier.width(6.dp))
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(percent = 50))
+                .background(if (selected) onAccent.copy(alpha = 0.22f) else MaterialTheme.colorScheme.surfaceContainerHighest)
+                .padding(horizontal = 6.dp, vertical = 1.dp),
+        ) {
+            Text("$count", style = MaterialTheme.typography.labelSmall, color = content)
         }
     }
 }
