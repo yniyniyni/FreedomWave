@@ -475,6 +475,45 @@
     <string name="squads_edit_delete">Delete squad</string>
     <string name="squads_edit_select_template">Select Template</string>
 
+    <!-- Infra Billing -->
+    <string name="infra_title">Infra Billing</string>
+    <string name="infra_tab_nodes">Nodes</string>
+    <string name="infra_tab_history">History</string>
+    <string name="infra_tab_providers">Providers</string>
+    <string name="infra_stat_nodes">Billing Nodes</string>
+    <string name="infra_stat_upcoming">Upcoming</string>
+    <string name="infra_stat_this_month">This Month</string>
+    <string name="infra_stat_total_spent">Total Spent</string>
+    <string name="infra_empty_nodes">No billing nodes. Tap + to add one.</string>
+    <string name="infra_empty_history">No payment records. Tap + to add one.</string>
+    <string name="infra_empty_providers">No providers. Tap + to add one.</string>
+    <string name="infra_next_billing">Next billing: %1$s</string>
+    <string name="infra_login_url">Login URL</string>
+    <string name="infra_provider_nodes">%1$d nodes</string>
+    <string name="infra_provider_bills">%1$d bills</string>
+    <string name="infra_add_provider">Add Provider</string>
+    <string name="infra_edit_provider">Edit Provider</string>
+    <string name="infra_add_node">Add Billing Node</string>
+    <string name="infra_add_payment">Add Payment Record</string>
+    <string name="infra_update_billing_date">Update Billing Date</string>
+    <string name="infra_provider_name">Provider Name</string>
+    <string name="infra_favicon_link">Favicon Link</string>
+    <string name="infra_provider">Provider</string>
+    <string name="infra_node">Node</string>
+    <string name="infra_amount">Amount, USD</string>
+    <string name="infra_billing_date">Billing Date</string>
+    <string name="infra_payment_date">Payment Date</string>
+    <string name="infra_no_available_nodes">No available nodes or providers. Add a provider and ensure unbilled nodes exist.</string>
+    <string name="infra_preset_today">Today</string>
+    <string name="infra_preset_tomorrow">Tomorrow</string>
+    <string name="infra_preset_month">+1 Month</string>
+    <string name="infra_delete_title">Delete</string>
+    <string name="infra_delete_confirm">Delete \"%1$s\"? This cannot be undone.</string>
+    <string name="infra_provider_name_required">Provider name is required</string>
+    <string name="infra_provider_required">Select a provider</string>
+    <string name="infra_node_required">Select a node</string>
+    <string name="infra_amount_invalid">Enter a valid amount</string>
+
     <plurals name="users_ip_unique">
         <item quantity="one">%1$d unique</item>
         <item quantity="other">%1$d unique</item>

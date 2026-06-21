@@ -13,6 +13,14 @@ const val FOREVER_DATE = "2099-12-31T23:59:59.000Z"
 fun parseInstant(iso: String?): Instant? =
     if (iso.isNullOrBlank()) null else runCatching { Instant.parse(iso) }.getOrNull()
 
+/** Locale-invariant `yyyy-MM-dd` rendering of an ISO instant in the device time zone; "—" on null/invalid. */
+fun formatDate(iso: String?, zone: TimeZone = TimeZone.currentSystemDefault()): String {
+    val instant = parseInstant(iso) ?: return "—"
+    val date = instant.toLocalDateTime(zone).date
+    fun p2(n: Int) = n.toString().padStart(2, '0')
+    return "${date.year}-${p2(date.monthNumber)}-${p2(date.dayOfMonth)}"
+}
+
 /** Regional-indicator flag emoji from a 2-letter ISO country code. KMP-safe (no java.lang.Character). */
 fun countryFlag(code: String): String {
     if (code.length != 2) return ""

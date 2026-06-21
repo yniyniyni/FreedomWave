@@ -463,6 +463,45 @@
     <string name="squads_edit_delete">Удалить сквад</string>
     <string name="squads_edit_select_template">Выберите шаблон</string>
 
+    <!-- Infra Billing -->
+    <string name="infra_title">Инфраструктура</string>
+    <string name="infra_tab_nodes">Ноды</string>
+    <string name="infra_tab_history">История</string>
+    <string name="infra_tab_providers">Провайдеры</string>
+    <string name="infra_stat_nodes">Оплачиваемые ноды</string>
+    <string name="infra_stat_upcoming">Скоро оплата</string>
+    <string name="infra_stat_this_month">За этот месяц</string>
+    <string name="infra_stat_total_spent">Всего потрачено</string>
+    <string name="infra_empty_nodes">Нет оплачиваемых нод. Нажмите +, чтобы добавить.</string>
+    <string name="infra_empty_history">Нет платежей. Нажмите +, чтобы добавить.</string>
+    <string name="infra_empty_providers">Нет провайдеров. Нажмите +, чтобы добавить.</string>
+    <string name="infra_next_billing">Следующая оплата: %1$s</string>
+    <string name="infra_login_url">URL входа</string>
+    <string name="infra_provider_nodes">Нод: %1$d</string>
+    <string name="infra_provider_bills">Платежей: %1$d</string>
+    <string name="infra_add_provider">Добавить провайдера</string>
+    <string name="infra_edit_provider">Изменить провайдера</string>
+    <string name="infra_add_node">Добавить ноду</string>
+    <string name="infra_add_payment">Добавить платёж</string>
+    <string name="infra_update_billing_date">Изменить дату оплаты</string>
+    <string name="infra_provider_name">Название провайдера</string>
+    <string name="infra_favicon_link">Ссылка на иконку</string>
+    <string name="infra_provider">Провайдер</string>
+    <string name="infra_node">Нода</string>
+    <string name="infra_amount">Сумма, USD</string>
+    <string name="infra_billing_date">Дата оплаты</string>
+    <string name="infra_payment_date">Дата платежа</string>
+    <string name="infra_no_available_nodes">Нет доступных нод или провайдеров. Добавьте провайдера и убедитесь, что есть неоплачиваемые ноды.</string>
+    <string name="infra_preset_today">Сегодня</string>
+    <string name="infra_preset_tomorrow">Завтра</string>
+    <string name="infra_preset_month">+1 месяц</string>
+    <string name="infra_delete_title">Удалить</string>
+    <string name="infra_delete_confirm">Удалить \"%1$s\"? Это действие необратимо.</string>
+    <string name="infra_provider_name_required">Укажите название провайдера</string>
+    <string name="infra_provider_required">Выберите провайдера</string>
+    <string name="infra_node_required">Выберите ноду</string>
+    <string name="infra_amount_invalid">Введите корректную сумму</string>
+
     <plurals name="users_ip_unique">
         <item quantity="one">%1$d уникальный</item>
         <item quantity="few">%1$d уникальных</item>
