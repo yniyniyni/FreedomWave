@@ -20,7 +20,7 @@
     <string name="settings_api_key">API-ключ</string>
     <string name="settings_copy_key">Копировать ключ</string>
     <string name="settings_change_key">Сменить ключ</string>
-    <string name="settings_appearance">Оформление</string>
+    <string name="settings_appearance">Тема</string>
     <string name="settings_theme_system">Системная</string>
     <string name="settings_theme_light">Светлая</string>
     <string name="settings_theme_dark">Тёмная</string>
@@ -35,7 +35,7 @@
     <string name="settings_geo_lookup_desc">Отправляет IP-адреса клиентов в стороннюю службу ipwho.is для показа города и провайдера. По умолчанию выключено.</string>
     <string name="settings_about">О приложении</string>
     <string name="settings_github">GitHub</string>
-    <string name="settings_oss_licenses">Лицензии открытого ПО</string>
+    <string name="settings_oss_licenses">Open source лиценции</string>
     <string name="settings_oss_licenses_open">Открыть в браузере</string>
     <string name="settings_version">Версия</string>
     <string name="settings_log_out">Выйти</string>
@@ -65,8 +65,8 @@
     <string name="error_url_must_be_https">URL сервера должен начинаться с https://</string>
 
     <!-- dashboard -->
-    <string name="dashboard_title">Дашборд</string>
-    <string name="dashboard_live">Сейчас</string>
+    <string name="dashboard_title">Главная</string>
+    <string name="dashboard_live">Лайв</string>
     <string name="dashboard_online_users">Пользователи онлайн</string>
     <string name="dashboard_online_nodes">Ноды онлайн</string>
     <string name="dashboard_today">Сегодня</string>
@@ -84,7 +84,7 @@
     <string name="dashboard_traffic">Трафик</string>
     <string name="dashboard_panel">Панель</string>
     <string name="dashboard_version">Версия</string>
-    <string name="dashboard_uptime">Аптайм</string>
+    <string name="dashboard_uptime">Время работы</string>
     <string name="dashboard_countries">Страны</string>
     <string name="dashboard_nodes">Ноды</string>
     <string name="dashboard_online">Онлайн</string>
@@ -97,9 +97,9 @@
     <!-- nodes -->
     <string name="nodes_title_count">Ноды (%1$d)</string>
     <string name="nodes_empty">Ноды не найдены</string>
-    <string name="nodes_status_online">В сети</string>
-    <string name="nodes_status_offline">Не в сети</string>
-    <string name="nodes_status_disabled">Отключена</string>
+    <string name="nodes_status_online">Подключено</string>
+    <string name="nodes_status_offline">Отключено</string>
+    <string name="nodes_status_disabled">Выключена</string>
     <string name="nodes_status_connecting">Подключается</string>
     <string name="nodes_detail_status">Статус</string>
     <string name="nodes_detail_address">Адрес</string>
@@ -113,7 +113,7 @@
     <string name="nodes_detail_no_traffic_data">Нет данных о трафике для этой ноды</string>
     <string name="nodes_detail_hostname">Имя хоста</string>
     <string name="nodes_detail_ram">ОЗУ</string>
-    <string name="nodes_detail_uptime">Аптайм</string>
+    <string name="nodes_detail_uptime">Время работы</string>
     <string name="nodes_detail_load">Нагрузка</string>
     <string name="nodes_detail_connection">Подключение</string>
     <string name="nodes_detail_port">Порт</string>
@@ -121,7 +121,7 @@
     <string name="nodes_detail_software">ПО</string>
     <string name="nodes_detail_xray_version">Версия Xray</string>
     <string name="nodes_detail_node_version">Версия ноды</string>
-    <string name="nodes_detail_xray_uptime">Аптайм Xray</string>
+    <string name="nodes_detail_xray_uptime">Время работы Xray</string>
     <string name="nodes_detail_hardware">Железо</string>
     <string name="nodes_detail_cpu_model">Модель CPU</string>
     <string name="nodes_detail_cpu_cores">Ядра CPU</string>
@@ -134,16 +134,16 @@
     <string name="nodes_detail_created">Создана</string>
     <string name="nodes_detail_updated">Обновлена</string>
     <string name="nodes_detail_online_users">%1$d онлайн</string>
-    <string name="nodes_detail_tracking">Учёт трафика</string>
+    <string name="nodes_detail_tracking">Отслеживание трафика</string>
     <string name="nodes_detail_tracking_active">Активен</string>
     <string name="nodes_detail_tracking_inactive">Выключен</string>
     <string name="nodes_detail_reset_day">День сброса</string>
     <string name="nodes_detail_reset_day_value">День %1$d</string>
     <string name="nodes_detail_notify_at">Уведомлять при</string>
-    <string name="nodes_detail_multiplier">Множитель расхода</string>
+    <string name="nodes_detail_multiplier">Коэффициент использования</string>
     <string name="nodes_detail_cpu">CPU</string>
     <string name="nodes_detail_memory">Память</string>
-    <string name="nodes_disable">Отключить ноду</string>
+    <string name="nodes_disable">Выключить ноду</string>
     <string name="nodes_enable">Включить ноду</string>
     <string name="nodes_restart">Перезапустить ноду</string>
     <string name="nodes_reset_traffic">Сбросить трафик</string>
@@ -154,7 +154,7 @@
     <string name="nodes_form_connection">Подключение</string>
     <string name="nodes_form_internal_name">Внутреннее имя</string>
     <string name="nodes_form_internal_name_hint">3–30 символов</string>
-    <string name="nodes_form_address">Адрес</string>
+    <string name="nodes_form_address">IP</string>
     <string name="nodes_form_port">Порт</string>
     <string name="nodes_form_country">Страна</string>
     <string name="nodes_form_country_search">Поиск страны</string>
@@ -168,9 +168,9 @@
     <string name="nodes_form_secret_key_hint">Скопируйте этот SECRET_KEY в docker-compose.yml ноды</string>
     <string name="nodes_form_copy_secret">Копировать SECRET_KEY</string>
     <string name="nodes_form_copy_compose">Копировать docker-compose.yml</string>
-    <string name="nodes_form_traffic_tracking">Учёт трафика</string>
+    <string name="nodes_form_traffic_tracking">Отслеживание трафика</string>
     <string name="nodes_form_traffic">Трафик</string>
-    <string name="nodes_form_multiplier">Множитель расхода</string>
+    <string name="nodes_form_multiplier">Коэффициент использования</string>
     <string name="nodes_form_traffic_limit_gb">Лимит трафика (ГБ)</string>
     <string name="nodes_form_reset_day">День сброса (1–31)</string>
     <string name="nodes_form_notify_at">Уведомлять при (%)</string>
@@ -208,7 +208,7 @@
     <string name="uptime_minutes">%1$d мин</string>
 
     <!-- navigation -->
-    <string name="nav_dashboard">Дашборд</string>
+    <string name="nav_dashboard">Главная</string>
     <string name="nav_users">Юзеры</string>
     <string name="nav_nodes">Ноды</string>
     <string name="nav_hosts">Хосты</string>
@@ -288,7 +288,7 @@
     <string name="users_form_access">Доступ</string>
     <string name="users_form_enabled">Включён</string>
     <string name="users_form_enabled_desc">Выкл. — пользователь будет создан без доступа</string>
-    <string name="users_reset_strategy">Стратегия сброса</string>
+    <string name="users_reset_strategy">Стратегия сброса трафика</string>
     <string name="users_form_expiry">Срок действия</string>
     <string name="users_hwid_limit">Лимит HWID-устройств</string>
     <string name="users_save_changes">Сохранить изменения</string>
@@ -350,30 +350,30 @@
     <string name="hosts_form_create">Создать</string>
     <string name="hosts_form_save">Сохранить</string>
     <string name="hosts_form_basic">Основное</string>
-    <string name="hosts_form_remark">Название</string>
+    <string name="hosts_form_remark">Примечание</string>
     <string name="hosts_form_remark_hint">Мой хост</string>
-    <string name="hosts_form_inbound">Inbound</string>
-    <string name="hosts_form_select_inbound">Выберите inbound</string>
-    <string name="hosts_form_no_inbounds">Нет доступных inbound. Сначала создайте конфиг-профиль.</string>
+    <string name="hosts_form_inbound">Инбаунд</string>
+    <string name="hosts_form_select_inbound">Выберите инбаунд</string>
+    <string name="hosts_form_no_inbounds">Нет доступных инбаундов. Сначала создайте конфиг-профиль.</string>
     <string name="hosts_form_address">Адрес</string>
     <string name="hosts_form_port">Порт</string>
     <string name="hosts_form_tag">Тег</string>
     <string name="hosts_form_tag_hint">Необязательный тег</string>
     <string name="hosts_form_hidden">Скрытый</string>
     <string name="hosts_form_enabled">Включён</string>
-    <string name="hosts_form_overrides">Переопределения соединения</string>
+    <string name="hosts_form_overrides">Переопределения соединений</string>
     <string name="hosts_form_sni">SNI</string>
-    <string name="hosts_form_sni_hint">Server Name Indication. Если пусто — берётся значение из inbound.</string>
+    <string name="hosts_form_sni_hint">Server Name Indication. Если пусто — берётся значение из инбаунда.</string>
     <string name="hosts_form_host">Host</string>
     <string name="hosts_form_host_hint">host.example.com</string>
-    <string name="hosts_form_path">Path</string>
+    <string name="hosts_form_path">Путь</string>
     <string name="hosts_form_path_hint">/ws</string>
     <string name="hosts_form_security">Безопасность</string>
     <string name="hosts_form_security_default">По умолчанию</string>
     <string name="hosts_form_security_tls">TLS</string>
     <string name="hosts_form_security_none">Нет</string>
     <string name="hosts_form_alpn">ALPN</string>
-    <string name="hosts_form_fingerprint">Fingerprint</string>
+    <string name="hosts_form_fingerprint">Отпечаток</string>
     <string name="hosts_form_none">Нет</string>
     <string name="hosts_form_vless_route_id">VLESS Route ID</string>
     <string name="hosts_form_vless_route_hint">1–65535, 0 или пусто — выключено</string>
@@ -393,7 +393,7 @@
     <string name="hosts_form_remark_error">1–40 символов</string>
     <string name="hosts_form_port_error">Порт 1–65535</string>
     <string name="hosts_form_done">Готово</string>
-    <string name="hosts_detail_inbound">Inbound</string>
+    <string name="hosts_detail_inbound">Инбаунд</string>
     <string name="hosts_detail_vless_route">VLESS Route ID</string>
     <string name="hosts_detail_xray_template">Xray-шаблон</string>
     <string name="hosts_detail_edit">Изменить хост</string>
@@ -419,24 +419,24 @@
     <string name="squads_detail_created">Создан</string>
     <string name="squads_rename">Переименовать</string>
     <string name="squads_edit_basic">Основное</string>
-    <string name="squads_edit_inbounds">Inbounds</string>
-    <string name="squads_edit_select_inbounds">Выберите inbound для отряда</string>
-    <string name="squads_edit_no_inbounds">Нет доступных inbound</string>
+    <string name="squads_edit_inbounds">Инбаунды</string>
+    <string name="squads_edit_select_inbounds">Выберите инбаунд для сквада</string>
+    <string name="squads_edit_no_inbounds">Нет доступных инбаундов</string>
     <string name="squads_edit_templates">Шаблоны</string>
     <string name="squads_edit_settings">Настройки</string>
     <string name="squads_edit_hosts">Хосты</string>
     <string name="squads_edit_headers">Заголовки</string>
     <string name="squads_edit_hwid">HWID</string>
-    <string name="squads_edit_remarks">Подписи</string>
+    <string name="squads_edit_remarks">Примечания</string>
     <string name="squads_edit_subpage">Подстраница</string>
     <string name="squads_edit_profile_title">Заголовок профиля</string>
-    <string name="squads_edit_support_link">Ссылка поддержки</string>
+    <string name="squads_edit_support_link">Ссылка на поддержку</string>
     <string name="squads_edit_update_interval">Интервал обновления (ч)</string>
     <string name="squads_edit_webpage_url">Веб-страница включена</string>
     <string name="squads_edit_serve_json">Отдавать JSON на базе</string>
-    <string name="squads_edit_show_remarks">Показывать подписи</string>
-    <string name="squads_edit_happ_announce">HAPP Announce</string>
-    <string name="squads_edit_happ_routing">HAPP Routing</string>
+    <string name="squads_edit_show_remarks">Показывать примечания</string>
+    <string name="squads_edit_happ_announce">Happ Announce</string>
+    <string name="squads_edit_happ_routing">Happ Routing</string>
     <string name="squads_edit_randomize_hosts">Перемешивать хосты</string>
     <string name="squads_edit_server_desc">Описание сервера</string>
     <string name="squads_edit_vless_route">VLESS Route ID</string>
@@ -454,13 +454,13 @@
     <string name="squads_edit_remark_empty_hosts">Пустые хосты</string>
     <string name="squads_edit_remark_hwid_max">Превышен лимит HWID</string>
     <string name="squads_edit_remark_hwid_unsupported">HWID не поддерживается</string>
-    <string name="squads_edit_add_remark">Добавить подпись</string>
-    <string name="squads_edit_remark_hint">Введите текст</string>
-    <string name="squads_edit_remarks_required">В каждом списке нужна хотя бы одна подпись</string>
+    <string name="squads_edit_add_remark">Добавить примечание</string>
+    <string name="squads_edit_remark_hint">Введите примечание</string>
+    <string name="squads_edit_remarks_required">В каждом списке нужно хотя бы одно примечание</string>
     <string name="squads_edit_select_config">Выберите конфиг</string>
     <string name="squads_edit_none">Нет</string>
     <string name="squads_edit_save">Сохранить</string>
-    <string name="squads_edit_delete">Удалить отряд</string>
+    <string name="squads_edit_delete">Удалить сквад</string>
     <string name="squads_edit_select_template">Выберите шаблон</string>
 
     <plurals name="users_ip_unique">
