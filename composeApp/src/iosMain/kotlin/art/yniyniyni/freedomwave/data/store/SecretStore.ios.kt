@@ -23,7 +23,8 @@ actual class SecretStore {
         deleteExisting()
 
         val nsValue = NSString.create(string = plaintext)
-        val valueData = nsValue.dataUsingEncoding(NSUTF8StringEncoding) ?: return ""
+        val valueData = nsValue.dataUsingEncoding(NSUTF8StringEncoding)
+            ?: error("Failed to encode API key as UTF-8 data")
 
         val addDict = NSMutableDictionary().apply {
             setObject(kSecClassGenericPassword, forKey = kSecClass as NSString)
@@ -34,7 +35,10 @@ actual class SecretStore {
         }
 
         val status = SecItemAdd(addDict as CFDictionaryRef, null)
-        return if (status == errSecSuccess) SENTINEL else ""
+        if (status != errSecSuccess) {
+            error("SecItemAdd failed with OSStatus $status")
+        }
+        return SENTINEL
     }
 
     actual fun decrypt(token: String): String? {
@@ -50,14 +54,19 @@ actual class SecretStore {
 
         return memScoped {
             val result = alloc<COpaquePointerVar>()
-            SecItemCopyMatching(queryDict as CFDictionaryRef, result.ptr)
+            val status = SecItemCopyMatching(queryDict as CFDictionaryRef, result.ptr)
+            if (status != errSecSuccess) return@memScoped null
             if (result.value == null) return@memScoped null
 
-            @Suppress("UNCHECKED_CAST")
-            val rawData = (result.value as Any?) as? NSData ?: return@memScoped null
+            // result.value is a CFDataRef (COpaquePointer), NOT an ObjC object.
+            // Casting to NSData always fails in Kotlin/Native. Use CFBridgingRelease
+            // to toll-free bridge the CFDataRef to an NSData instance.
+            val rawData = CFBridgingRelease(result.value) as? NSData
+                ?: return@memScoped null
 
-            val nsString: NSString? = NSString.create(data = rawData, encoding = NSUTF8StringEncoding)
-            if (nsString == null) return@memScoped null
+            val nsString = NSString.create(data = rawData, encoding = NSUTF8StringEncoding)
+                ?: return@memScoped null
+
             nsString as String
         }
     }
