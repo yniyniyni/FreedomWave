@@ -23,6 +23,7 @@ fun formatDate(iso: String?, zone: TimeZone = TimeZone.currentSystemDefault()): 
 
 /** Regional-indicator flag emoji from a 2-letter ISO country code. KMP-safe (no java.lang.Character). */
 fun countryFlag(code: String): String {
+    if (code == "XX") return ""
     if (code.length != 2) return ""
     val a = code[0].uppercaseChar()
     val b = code[1].uppercaseChar()

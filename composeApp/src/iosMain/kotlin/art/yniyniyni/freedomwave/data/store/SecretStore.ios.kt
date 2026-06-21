@@ -1,13 +1,88 @@
 package art.yniyniyni.freedomwave.data.store
 
+import kotlinx.cinterop.*
+import platform.CoreFoundation.*
+import platform.Foundation.*
+import platform.Security.*
+
 /**
- * iOS stub: stores the value as-is.
+ * iOS Keychain-backed secret store.
  *
- * TODO(iOS): back this with Keychain (kSecClassGenericPassword) before iOS ships.
- * Returning null from [decrypt] makes [AppPreferences] treat the stored value as
- * plaintext, so the login flow keeps working on the iOS framework build today.
+ * [encrypt] stores the API key as a kSecClassGenericPassword item in the iOS
+ * Keychain and returns a sentinel marker for DataStore persistence. On next
+ * login the old item is deleted and replaced.
+ *
+ * [decrypt] retrieves the key from Keychain when given the sentinel, or returns
+ * null for any other token — letting [AppPreferences] treat it as a legacy
+ * plaintext value (which also triggers automatic migration via [AppPreferences.getApiKey]).
  */
+@OptIn(ExperimentalForeignApi::class)
 actual class SecretStore {
-    actual fun encrypt(plaintext: String): String = plaintext
-    actual fun decrypt(token: String): String? = null
+
+    actual fun encrypt(plaintext: String): String {
+        deleteExisting()
+
+        val nsValue = NSString.create(string = plaintext)
+        val valueData = nsValue.dataUsingEncoding(NSUTF8StringEncoding) ?: return ""
+
+        val addDict = NSMutableDictionary().apply {
+            setObject(kSecClassGenericPassword, forKey = kSecClass as NSString)
+            setObject(kSecAttrAccessibleWhenUnlockedThisDeviceOnly, forKey = kSecAttrAccessible as NSString)
+            setObject(SERVICE, forKey = kSecAttrService as NSString)
+            setObject(ACCOUNT, forKey = kSecAttrAccount as NSString)
+            setObject(valueData, forKey = kSecValueData as NSString)
+        }
+
+        val status = SecItemAdd(addDict as CFDictionaryRef, null)
+        return if (status == errSecSuccess) SENTINEL else ""
+    }
+
+    actual fun decrypt(token: String): String? {
+        if (token != SENTINEL) return null
+
+        val queryDict = NSMutableDictionary().apply {
+            setObject(kSecClassGenericPassword, forKey = kSecClass as NSString)
+            setObject(SERVICE, forKey = kSecAttrService as NSString)
+            setObject(ACCOUNT, forKey = kSecAttrAccount as NSString)
+            setObject(kCFBooleanTrue, forKey = kSecReturnData as NSString)
+            setObject(kSecMatchLimitOne, forKey = kSecMatchLimit as NSString)
+        }
+
+        return memScoped {
+            val result = alloc<COpaquePointerVar>()
+            SecItemCopyMatching(queryDict as CFDictionaryRef, result.ptr)
+            if (result.value == null) return@memScoped null
+
+            @Suppress("UNCHECKED_CAST")
+            val rawData = (result.value as Any?) as? NSData ?: return@memScoped null
+
+            val nsString: NSString? = NSString.create(data = rawData, encoding = NSUTF8StringEncoding)
+            if (nsString == null) return@memScoped null
+            nsString as String
+        }
+    }
+
+    private fun deleteExisting() {
+        val queryDict = NSMutableDictionary().apply {
+            setObject(kSecClassGenericPassword, forKey = kSecClass as NSString)
+            setObject(SERVICE, forKey = kSecAttrService as NSString)
+            setObject(ACCOUNT, forKey = kSecAttrAccount as NSString)
+        }
+        SecItemDelete(queryDict as CFDictionaryRef)
+    }
+
+    companion object {
+        /** Keychain service identifier -- scopes the item to this app. */
+        private const val SERVICE = "com.freedomwave.api"
+
+        /** Keychain account identifier for the API key item. */
+        private const val ACCOUNT = "api_key"
+
+        /**
+         * Opaque token persisted to DataStore. [decrypt] recognises this sentinel
+         * and retrieves the real key from Keychain; anything else is treated as
+         * a legacy plaintext value for migration.
+         */
+        private const val SENTINEL = "keychain:freedomwave_api_key"
+    }
 }

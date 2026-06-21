@@ -103,6 +103,7 @@ import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
 import art.yniyniyni.freedomwave.util.uptimeParts
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -162,7 +163,7 @@ private fun StatsList(
 ) {
     // 1s ticker for freshness pill
     val now by produceState(initialValue = lastUpdatedAt ?: 0L, lastUpdatedAt) {
-        while (true) {
+        while (isActive) {
             value = Clock.System.now().toEpochMilliseconds()
             delay(1000)
         }
