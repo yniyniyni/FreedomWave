@@ -33,6 +33,7 @@ data class User(
     val hwidDeviceLimit: Int?,
     val activeSquads: List<String>,
     val activeSquadUuids: List<String>,
+    val externalSquadUuid: String?,
     val lastConnectedNodeUuid: String?,
     val createdAt: String
 ) {
@@ -60,6 +61,7 @@ data class User(
             hwidDeviceLimit          = dto.hwidDeviceLimit,
             activeSquads             = dto.activeInternalSquads.map { it.name },
             activeSquadUuids         = dto.activeInternalSquads.map { it.uuid },
+            externalSquadUuid        = dto.externalSquadUuid,
             lastConnectedNodeUuid    = dto.userTraffic.lastConnectedNodeUuid,
             createdAt                = dto.createdAt
         )

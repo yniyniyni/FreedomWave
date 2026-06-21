@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.api.dto.UpdateInternalSquadFullRequest
 import art.yniyniyni.freedomwave.data.repository.ConfigProfileRepository
 import art.yniyniyni.freedomwave.data.repository.SquadRepository
+import art.yniyniyni.freedomwave.data.repository.UserRepository
 import art.yniyniyni.freedomwave.domain.model.ConfigProfile
+import art.yniyniyni.freedomwave.domain.model.SquadMember
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +23,14 @@ data class InternalSquadEditUiState(
     val name: String = "",
     val profiles: List<ConfigProfile> = emptyList(),
     val selectedInbounds: Set<String> = emptySet(),
+
+    // Members section (lazy)
+    val memberCount: Int = 0,
+    val membersExpanded: Boolean = false,
+    val membersLoading: Boolean = false,
+    val membersLoaded: Boolean = false,
+    val members: List<SquadMember> = emptyList(),
+    val membersError: UiText? = null,
 ) {
     val canSave: Boolean
         get() = nameValid(name) && !isSaving
@@ -30,6 +40,7 @@ class InternalSquadEditViewModel(
     private val squadUuid: String,
     private val squadRepo: SquadRepository,
     private val configRepo: ConfigProfileRepository,
+    private val userRepo: UserRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(InternalSquadEditUiState())
@@ -48,6 +59,7 @@ class InternalSquadEditViewModel(
                             name = d.name,
                             selectedInbounds = d.inboundUuids.toSet(),
                             profiles = profiles,
+                            memberCount = d.membersCount,
                         )
                     }
                 }
@@ -81,6 +93,31 @@ class InternalSquadEditViewModel(
     }
 
     fun clearError() = _state.update { it.copy(actionError = null) }
+
+    /** Expand/collapse the members section; fetch on first expand. */
+    fun toggleMembers() {
+        val s = _state.value
+        val nowExpanded = !s.membersExpanded
+        _state.update { it.copy(membersExpanded = nowExpanded) }
+        if (nowExpanded && !s.membersLoaded && !s.membersLoading) loadMembers()
+    }
+
+    fun loadMembers() {
+        _state.update { it.copy(membersLoading = true, membersError = null) }
+        viewModelScope.launch {
+            userRepo.getUsers()
+                .onSuccess { users ->
+                    _state.update {
+                        it.copy(
+                            membersLoading = false,
+                            membersLoaded = true,
+                            members = SquadMember.internalMembers(users, squadUuid),
+                        )
+                    }
+                }
+                .onFailure { e -> _state.update { it.copy(membersLoading = false, membersError = e.toUiText()) } }
+        }
+    }
 
     fun submit(onSaved: () -> Unit) {
         if (!_state.value.canSave) return

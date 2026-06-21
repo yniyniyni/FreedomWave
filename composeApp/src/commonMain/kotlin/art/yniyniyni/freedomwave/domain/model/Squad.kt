@@ -45,6 +45,26 @@ data class SquadInbound(
     val port: Int?,
 )
 
+/** A user belonging to a squad — the minimal projection needed for the members list. */
+data class SquadMember(
+    val uuid: String,
+    val username: String,
+    val status: UserStatus,
+) {
+    companion object {
+        private fun List<User>.toMembers(): List<SquadMember> =
+            map { SquadMember(it.uuid, it.username, it.status) }.sortedBy { it.username.lowercase() }
+
+        /** Users whose internal-squad membership includes [squadUuid]. */
+        fun internalMembers(users: List<User>, squadUuid: String): List<SquadMember> =
+            users.filter { squadUuid in it.activeSquadUuids }.toMembers()
+
+        /** Users whose single external squad is [squadUuid]. */
+        fun externalMembers(users: List<User>, squadUuid: String): List<SquadMember> =
+            users.filter { it.externalSquadUuid == squadUuid }.toMembers()
+    }
+}
+
 data class InternalSquadDetail(
     val uuid: String,
     val name: String,

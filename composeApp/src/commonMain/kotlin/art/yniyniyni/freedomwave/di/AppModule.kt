@@ -111,8 +111,8 @@ val viewModelModule = module {
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { SquadsViewModel(get()) }
     viewModel { InfraBillingViewModel(get()) }
-    viewModel { (uuid: String) -> InternalSquadEditViewModel(uuid, get(), get()) }
-    viewModel { (uuid: String) -> ExternalSquadEditViewModel(uuid, get(), get(), get()) }
+    viewModel { (uuid: String) -> InternalSquadEditViewModel(uuid, get(), get(), get()) }
+    viewModel { (uuid: String) -> ExternalSquadEditViewModel(uuid, get(), get(), get(), get()) }
     viewModel { (userUuid: String) ->
         UserDetailViewModel(
             userUuid             = userUuid,

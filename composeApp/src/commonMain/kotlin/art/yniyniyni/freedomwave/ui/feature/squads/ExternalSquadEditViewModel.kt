@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.SquadRepository
 import art.yniyniyni.freedomwave.data.repository.SubPageConfigRepository
 import art.yniyniyni.freedomwave.data.repository.TemplateRepository
+import art.yniyniyni.freedomwave.data.repository.UserRepository
+import art.yniyniyni.freedomwave.domain.model.SquadMember
 import art.yniyniyni.freedomwave.domain.model.SubPageConfig
 import art.yniyniyni.freedomwave.domain.model.SubscriptionTemplate
 import art.yniyniyni.freedomwave.ui.l10n.UiText
@@ -69,6 +71,14 @@ data class ExternalSquadEditUiState(
 
     // Subpage config
     val subpageConfigUuid: String? = null,
+
+    // Members section (lazy)
+    val memberCount: Int = 0,
+    val membersExpanded: Boolean = false,
+    val membersLoading: Boolean = false,
+    val membersLoaded: Boolean = false,
+    val members: List<SquadMember> = emptyList(),
+    val membersError: UiText? = null,
 ) {
     val canSave: Boolean
         get() = nameValid(name) && remarksValid(toInput()) && !isSaving
@@ -111,6 +121,7 @@ class ExternalSquadEditViewModel(
     private val squadRepo: SquadRepository,
     private val templateRepo: TemplateRepository,
     private val subPageRepo: SubPageConfigRepository,
+    private val userRepo: UserRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ExternalSquadEditUiState())
@@ -165,6 +176,7 @@ class ExternalSquadEditViewModel(
                             hwidMaxDevicesExceeded = cr?.hwidMaxDevicesExceeded ?: emptyList(),
                             hwidNotSupported = cr?.hwidNotSupported ?: emptyList(),
                             subpageConfigUuid = d.subpageConfigUuid,
+                            memberCount = d.membersCount,
                         )
                     }
                 }
@@ -317,6 +329,31 @@ class ExternalSquadEditViewModel(
     // ── Error ─────────────────────────────────────────────────────────────────
 
     fun clearError() = _state.update { it.copy(actionError = null) }
+
+    /** Expand/collapse the members section; fetch on first expand. */
+    fun toggleMembers() {
+        val s = _state.value
+        val nowExpanded = !s.membersExpanded
+        _state.update { it.copy(membersExpanded = nowExpanded) }
+        if (nowExpanded && !s.membersLoaded && !s.membersLoading) loadMembers()
+    }
+
+    fun loadMembers() {
+        _state.update { it.copy(membersLoading = true, membersError = null) }
+        viewModelScope.launch {
+            userRepo.getUsers()
+                .onSuccess { users ->
+                    _state.update {
+                        it.copy(
+                            membersLoading = false,
+                            membersLoaded = true,
+                            members = SquadMember.externalMembers(users, squadUuid),
+                        )
+                    }
+                }
+                .onFailure { e -> _state.update { it.copy(membersLoading = false, membersError = e.toUiText()) } }
+        }
+    }
 
     // ── Submit ────────────────────────────────────────────────────────────────
 

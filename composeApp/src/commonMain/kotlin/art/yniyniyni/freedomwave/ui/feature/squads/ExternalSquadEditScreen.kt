@@ -406,6 +406,19 @@ internal fun ExternalSquadEditScreen(
                 }
             }
 
+            // Members section
+            item {
+                SquadMembersCard(
+                    expanded = state.membersExpanded,
+                    loading = state.membersLoading,
+                    members = state.members,
+                    count = state.memberCount,
+                    error = state.membersError?.resolve(),
+                    onToggle = vm::toggleMembers,
+                    onRetry = vm::loadMembers,
+                )
+            }
+
             // Error + actions
             item {
                 state.actionError?.let {

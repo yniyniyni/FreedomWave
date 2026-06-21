@@ -462,6 +462,9 @@
     <string name="squads_edit_save">Сохранить</string>
     <string name="squads_edit_delete">Удалить сквад</string>
     <string name="squads_edit_select_template">Выберите шаблон</string>
+    <string name="squads_edit_members">Участники</string>
+    <string name="squads_members_empty">В этом скваде нет пользователей</string>
+    <string name="squads_members_showing">Показано %1$d из %2$d</string>
 
     <!-- Infra Billing -->
     <string name="infra_title">Инфраструктура</string>

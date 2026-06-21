@@ -14,7 +14,7 @@ class UserSortTest {
         usedTrafficBytes = 0, lifetimeUsedTrafficBytes = 0, subscriptionUrl = "",
         onlineAt = onlineAt, email = null, tag = null, description = null, telegramId = null,
         hwidDeviceLimit = null, activeSquads = emptyList(), activeSquadUuids = emptyList(),
-        lastConnectedNodeUuid = null, createdAt = "",
+        externalSquadUuid = null, lastConnectedNodeUuid = null, createdAt = "",
     )
 
     private val users = listOf(
