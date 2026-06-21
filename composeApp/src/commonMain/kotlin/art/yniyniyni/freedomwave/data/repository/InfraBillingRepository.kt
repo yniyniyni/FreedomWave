@@ -1,6 +1,5 @@
 package art.yniyniyni.freedomwave.data.repository
 
-import art.yniyniyni.freedomwave.data.api.ApiError
 import art.yniyniyni.freedomwave.data.api.dto.CreateBillRecordRequest
 import art.yniyniyni.freedomwave.data.api.dto.CreateBillingNodeRequest
 import art.yniyniyni.freedomwave.data.api.dto.CreateInfraProviderRequest
@@ -22,19 +21,19 @@ class InfraBillingRepository(
     // Providers
     suspend fun getProviders(): Result<List<InfraProvider>> = runCatching {
         service.getProviders(prefs.getServerUrl()).response.providers.map { InfraProvider.from(it) }
-    }.also { clearOnUnauthorized(it) }
+    }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun createProvider(name: String, faviconLink: String?, loginUrl: String?): Result<Unit> = runCatching {
         service.createProvider(prefs.getServerUrl(), CreateInfraProviderRequest(name, faviconLink, loginUrl)); Unit
-    }.also { clearOnUnauthorized(it) }
+    }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun updateProvider(uuid: String, name: String, faviconLink: String?, loginUrl: String?): Result<Unit> = runCatching {
         service.updateProvider(prefs.getServerUrl(), UpdateInfraProviderRequest(uuid, name, faviconLink, loginUrl)); Unit
-    }.also { clearOnUnauthorized(it) }
+    }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun deleteProvider(uuid: String): Result<Unit> = runCatching {
         service.deleteProvider(prefs.getServerUrl(), uuid)
-    }.also { clearOnUnauthorized(it) }
+    }.also { it.clearOnUnauthorized(prefs) }
 
     // Billing nodes
     suspend fun getBillingNodes(): Result<BillingNodesBundle> = runCatching {
@@ -44,34 +43,30 @@ class InfraBillingRepository(
             available = data.availableBillingNodes.map { AvailableNode.from(it) },
             stats     = BillingStats.from(data.totalBillingNodes, data.stats),
         )
-    }.also { clearOnUnauthorized(it) }
+    }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun createBillingNode(providerUuid: String, nodeUuid: String, nextBillingAt: String?): Result<Unit> = runCatching {
         service.createBillingNode(prefs.getServerUrl(), CreateBillingNodeRequest(providerUuid, nodeUuid, nextBillingAt)); Unit
-    }.also { clearOnUnauthorized(it) }
+    }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun updateBillingNodeDate(uuid: String, nextBillingAt: String): Result<Unit> = runCatching {
         service.updateBillingNode(prefs.getServerUrl(), UpdateBillingNodeRequest(listOf(uuid), nextBillingAt)); Unit
-    }.also { clearOnUnauthorized(it) }
+    }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun deleteBillingNode(uuid: String): Result<Unit> = runCatching {
         service.deleteBillingNode(prefs.getServerUrl(), uuid)
-    }.also { clearOnUnauthorized(it) }
+    }.also { it.clearOnUnauthorized(prefs) }
 
     // Billing history
     suspend fun getHistory(): Result<List<BillRecord>> = runCatching {
         service.getHistory(prefs.getServerUrl()).response.records.map { BillRecord.from(it) }
-    }.also { clearOnUnauthorized(it) }
+    }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun createHistory(providerUuid: String, amount: Double, billedAt: String): Result<Unit> = runCatching {
         service.createHistory(prefs.getServerUrl(), CreateBillRecordRequest(providerUuid, amount, billedAt)); Unit
-    }.also { clearOnUnauthorized(it) }
+    }.also { it.clearOnUnauthorized(prefs) }
 
     suspend fun deleteHistory(uuid: String): Result<Unit> = runCatching {
         service.deleteHistory(prefs.getServerUrl(), uuid)
-    }.also { clearOnUnauthorized(it) }
-
-    private suspend fun <T> clearOnUnauthorized(result: Result<T>) {
-        if (result.exceptionOrNull() is ApiError.Unauthorized) prefs.clearCredentials()
-    }
+    }.also { it.clearOnUnauthorized(prefs) }
 }

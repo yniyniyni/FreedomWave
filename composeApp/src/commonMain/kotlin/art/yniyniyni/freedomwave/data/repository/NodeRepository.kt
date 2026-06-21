@@ -1,6 +1,5 @@
 package art.yniyniyni.freedomwave.data.repository
 
-import art.yniyniyni.freedomwave.data.api.ApiError
 import art.yniyniyni.freedomwave.data.api.dto.CreateNodeRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateNodeRequest
 import art.yniyniyni.freedomwave.data.api.service.NodeService
@@ -26,7 +25,5 @@ class NodeRepository(
     suspend fun deleteNode(uuid: String): Result<Unit> = api { service.deleteNode(prefs.getServerUrl(), uuid) }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =
-        runCatching { block() }.also { result ->
-            if (result.exceptionOrNull() is ApiError.Unauthorized) prefs.clearCredentials()
-        }
+        runCatching { block() }.also { it.clearOnUnauthorized(prefs) }
 }

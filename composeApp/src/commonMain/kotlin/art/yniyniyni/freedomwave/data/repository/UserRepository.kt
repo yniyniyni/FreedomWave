@@ -1,6 +1,5 @@
 package art.yniyniyni.freedomwave.data.repository
 
-import art.yniyniyni.freedomwave.data.api.ApiError
 import art.yniyniyni.freedomwave.data.api.dto.CreateUserRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateUserRequest
 import art.yniyniyni.freedomwave.data.api.dto.UserDto
@@ -14,19 +13,48 @@ private const val USERS_PAGE_SIZE = 500
 /**
  * Page through the user list until [UserListData.total] is reached. The panel caps a
  * single response at the page size, so a one-shot fetch silently truncates large panels.
- * The empty-page guard stops the loop if `total` ever overshoots the real count.
+ *
+ * Protections against corrupted backend responses:
+ * - Deduplicates by [UserDto.uuid] so overlapping pages don't produce duplicates.
+ * - Caps iterations at [maxIterations] to guard against an inflated `total`.
+ * - Breaks on an empty page even when `total` claims more records exist.
+ * - Logs a warning when collected count diverges from the advertised `total`.
  */
 internal suspend fun collectAllUsers(
     pageSize: Int = USERS_PAGE_SIZE,
+    maxIterations: Int = 100,
     fetchPage: suspend (start: Int, size: Int) -> UserListData
 ): List<UserDto> {
     val first = fetchPage(0, pageSize)
-    val all = first.users.toMutableList()
-    while (all.size < first.total) {
-        val page = fetchPage(all.size, pageSize)
-        if (page.users.isEmpty()) break
-        all += page.users
+    val seenUuids = mutableSetOf<String>()
+    val all = mutableListOf<UserDto>()
+    var offset = 0
+
+    for (user in first.users) {
+        if (seenUuids.add(user.uuid)) all.add(user)
     }
+    offset += first.users.size
+
+    var iterations = 0
+    while (all.size < first.total && iterations < maxIterations) {
+        val page = fetchPage(offset, pageSize)
+        if (page.users.isEmpty()) break
+
+        for (user in page.users) {
+            if (seenUuids.add(user.uuid)) all.add(user)
+        }
+        offset += page.users.size
+        iterations++
+    }
+
+    if (iterations >= maxIterations) {
+        println("[UserRepository] collectAllUsers: reached maxIterations ($maxIterations) — total may be corrupted (advertised: ${first.total})")
+    }
+
+    if (all.size != first.total) {
+        println("[UserRepository] collectAllUsers: collected ${all.size} users but total was ${first.total}")
+    }
+
     return all
 }
 
@@ -73,7 +101,5 @@ class UserRepository(
     }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =
-        runCatching { block() }.also { result ->
-            if (result.exceptionOrNull() is ApiError.Unauthorized) prefs.clearCredentials()
-        }
+        runCatching { block() }.also { it.clearOnUnauthorized(prefs) }
 }

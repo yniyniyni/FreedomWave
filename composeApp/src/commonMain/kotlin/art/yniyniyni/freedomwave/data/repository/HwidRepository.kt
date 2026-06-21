@@ -1,6 +1,5 @@
 package art.yniyniyni.freedomwave.data.repository
 
-import art.yniyniyni.freedomwave.data.api.ApiError
 import art.yniyniyni.freedomwave.data.api.service.HwidService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.HwidDevice
@@ -15,7 +14,5 @@ class HwidRepository(
     }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =
-        runCatching { block() }.also { result ->
-            if (result.exceptionOrNull() is ApiError.Unauthorized) prefs.clearCredentials()
-        }
+        runCatching { block() }.also { it.clearOnUnauthorized(prefs) }
 }

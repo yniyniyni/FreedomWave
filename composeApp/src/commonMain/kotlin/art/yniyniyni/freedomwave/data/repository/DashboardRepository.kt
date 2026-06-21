@@ -1,6 +1,5 @@
 package art.yniyniyni.freedomwave.data.repository
 
-import art.yniyniyni.freedomwave.data.api.ApiError
 import art.yniyniyni.freedomwave.data.api.service.DashboardService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.DashboardStats
@@ -55,9 +54,5 @@ class DashboardRepository(
                 withNodes
             }
         }
-    }.also { result ->
-        if (result.exceptionOrNull() is ApiError.Unauthorized) {
-            prefs.clearCredentials()
-        }
-    }
+    }.also { it.clearOnUnauthorized(prefs) }
 }

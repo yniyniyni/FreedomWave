@@ -71,17 +71,21 @@ class SquadsViewModel(private val repo: SquadRepository) : ViewModel() {
     fun createSquad() {
         val s = _state.value
         if (s.dialogName.isBlank()) { _state.update { it.copy(dialogError = UiText.Res(Res.string.squads_name_required)) }; return }
+        createSquadInternal(s.dialogName.trim(), isInternal = s.activeTab == 0)
+    }
+
+    private fun createSquadInternal(name: String, isInternal: Boolean) {
         viewModelScope.launch {
             _state.update { it.copy(dialogIsLoading = true, dialogError = null) }
-            val result = if (s.activeTab == 0) repo.createInternalSquad(s.dialogName.trim())
-                         else repo.createExternalSquad(s.dialogName.trim())
+            val result = if (isInternal) repo.createInternalSquad(name)
+                         else repo.createExternalSquad(name)
             result
                 .onSuccess { created ->
                     _state.update { st ->
-                        val list = if (st.activeTab == 0) st.internalSquads + created
-                                   else st.externalSquads + created
-                        if (st.activeTab == 0) st.copy(dialogIsLoading = false, showCreateDialog = false, internalSquads = list)
-                        else st.copy(dialogIsLoading = false, showCreateDialog = false, externalSquads = list)
+                        if (isInternal) st.copy(dialogIsLoading = false, showCreateDialog = false,
+                            internalSquads = st.internalSquads + created)
+                        else st.copy(dialogIsLoading = false, showCreateDialog = false,
+                            externalSquads = st.externalSquads + created)
                     }
                 }
                 .onFailure { e -> _state.update { it.copy(dialogIsLoading = false, dialogError = e.toUiText()) } }
