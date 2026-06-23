@@ -59,7 +59,6 @@
     <string name="settings_server_url">Server URL</string>
 
     <!-- login -->
-    <string name="login_subtitle">Remnawave Admin</string>
     <string name="login_server_url">Server URL</string>
     <string name="login_server_url_placeholder">https://panel.example.com</string>
     <string name="login_api_key">API key</string>

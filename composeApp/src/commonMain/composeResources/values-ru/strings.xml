@@ -55,7 +55,6 @@
     <string name="settings_server_url">URL сервера</string>
 
     <!-- login -->
-    <string name="login_subtitle">Админ-панель Remnawave</string>
     <string name="login_server_url">URL сервера</string>
     <string name="login_api_key">API-ключ</string>
     <string name="login_api_key_hint">Создайте API-ключ в разделе «API-токены» панели Remnawave</string>
