@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -61,10 +61,12 @@ fun WelcomeScreen() {
 private fun WelcomePager() {
     val pagerState = rememberPagerState(pageCount = { PAGE_COUNT })
     val scope = rememberCoroutineScope()
+    // Live carousel position (page + drag offset) so the dots indicator tracks the scroll.
+    val dotPosition = { pagerState.currentPage + pagerState.currentPageOffsetFraction }
 
     HorizontalPager(
         state = pagerState,
-        modifier = Modifier.fillMaxSize().imePadding(),
+        modifier = Modifier.fillMaxSize(),
     ) { page ->
         when (page) {
             0 -> OnboardingPage(
@@ -72,6 +74,7 @@ private fun WelcomePager() {
                 pageCount = PAGE_COUNT,
                 title = stringResource(Res.string.welcome_slide1_title),
                 body = stringResource(Res.string.welcome_slide1_body),
+                dotPosition = dotPosition,
                 onNext = { scope.launch { pagerState.animateScrollToPage(WelcomeNav.nextPage(0, PAGE_COUNT)) } },
                 onSkip = { scope.launch { pagerState.animateScrollToPage(WelcomeNav.skipTarget(PAGE_COUNT)) } },
                 hero = { DashboardGlanceHero() },
@@ -81,27 +84,29 @@ private fun WelcomePager() {
                 pageCount = PAGE_COUNT,
                 title = stringResource(Res.string.welcome_slide2_title),
                 body = stringResource(Res.string.welcome_slide2_body),
+                dotPosition = dotPosition,
                 onNext = { scope.launch { pagerState.animateScrollToPage(WelcomeNav.nextPage(1, PAGE_COUNT)) } },
                 onSkip = { scope.launch { pagerState.animateScrollToPage(WelcomeNav.skipTarget(PAGE_COUNT)) } },
                 hero = { FleetGlanceHero() },
             )
-            else -> LoginPage()
+            else -> LoginPage(dotPosition = dotPosition)
         }
     }
 }
 
 /** The login page (carousel page 2): dots + header, then the real login form. */
 @Composable
-private fun LoginPage() {
+private fun LoginPage(dotPosition: () -> Float) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeDrawingPadding()
             .padding(horizontal = 32.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        WelcomeDots(pageCount = PAGE_COUNT, currentPage = 2)
+        WelcomeDots(pageCount = PAGE_COUNT, position = dotPosition)
         Spacer(Modifier.height(20.dp))
         Text(
             text = stringResource(Res.string.welcome_slide3_title),

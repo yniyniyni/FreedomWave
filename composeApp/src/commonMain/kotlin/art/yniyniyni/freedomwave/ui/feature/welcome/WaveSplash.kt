@@ -26,9 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
@@ -42,30 +45,64 @@ import org.jetbrains.compose.resources.stringResource
 // M3 emphasized easing — same curve the design system specifies for enter motion.
 private val Emphasized = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 
-// Stroke width / node radius as a fraction of canvas height (dot matches the line weight).
-private const val STROKE_FRACTION = 0.085f
+// Brand wave colors, taken verbatim from the logomark (wm_logo.svg).
+private val WaveDeep = Color(0xFF0FB8A4)
+private val WaveMid = Color(0xFF2FE0C9)
+private val WaveLight = Color(0xFF5CF0DC)
+private val WaveNode = Color(0xFF1EFFDD)
 
 /**
- * Builds the brand wave path scaled into [size]. Coordinates come from the 160x90 logomark
- * viewBox so the curve matches the brand mark. The leading crest (node point) is the last point.
+ * The brand wave mapped from the logomark's 500x500 viewBox into a draw [size] (fit, centered):
+ * the main aqua wave, a faint echo wave behind it, the bright node dot on the leading crest,
+ * the matching stroke width, and the gradient endpoints — all in canvas pixels.
  */
-fun DrawScope.freedomWavePath(): Pair<Path, Offset> {
-    val w = size.width
-    val h = size.height
-    fun px(x: Float, y: Float) = Offset(x / 160f * w, y / 90f * h)
-    val start = px(8f, 58f)
-    val path = Path().apply {
-        moveTo(start.x, start.y)
-        cubicTo(px(30f, 58f).x, px(30f, 58f).y, px(34f, 30f).x, px(34f, 30f).y, px(56f, 30f).x, px(56f, 30f).y)
-        cubicTo(px(78f, 58f).x, px(78f, 58f).y, px(82f, 58f).x, px(82f, 58f).y, px(104f, 58f).x, px(104f, 58f).y)
-        cubicTo(px(126f, 58f).x, px(126f, 58f).y, px(130f, 34f).x, px(130f, 34f).y, px(152f, 34f).x, px(152f, 34f).y)
+class WaveGeometry(
+    val main: Path,
+    val echo: Path,
+    val node: Offset,
+    val strokeWidth: Float,
+    val nodeRadius: Float,
+    val gradientStart: Offset,
+    val gradientEnd: Offset,
+)
+
+fun DrawScope.freedomWaveGeometry(): WaveGeometry {
+    // Source box around the wave + node + stroke half-width, from the 500x500 logomark.
+    val srcX = 78f
+    val srcY = 145f
+    val srcW = 344f
+    val srcH = 236f
+    val scale = minOf(size.width / srcW, size.height / srcH)
+    val offX = (size.width - srcW * scale) / 2f
+    val offY = (size.height - srcH * scale) / 2f
+    fun p(x: Float, y: Float) = Offset(offX + (x - srcX) * scale, offY + (y - srcY) * scale)
+
+    val main = Path().apply {
+        val s = p(102.459f, 281.967f)
+        moveTo(s.x, s.y)
+        cubicTo(p(151.639f, 175.41f).x, p(151.639f, 175.41f).y, p(200.82f, 175.41f).x, p(200.82f, 175.41f).y, p(250f, 249.18f).x, p(250f, 249.18f).y)
+        cubicTo(p(299.18f, 322.951f).x, p(299.18f, 322.951f).y, p(348.361f, 322.951f).x, p(348.361f, 322.951f).y, p(397.541f, 216.393f).x, p(397.541f, 216.393f).y)
     }
-    return path to px(152f, 34f)
+    val echo = Path().apply {
+        val s = p(102.459f, 314.754f)
+        moveTo(s.x, s.y)
+        cubicTo(p(151.639f, 208.197f).x, p(151.639f, 208.197f).y, p(200.82f, 208.197f).x, p(200.82f, 208.197f).y, p(250f, 281.967f).x, p(250f, 281.967f).y)
+        cubicTo(p(299.18f, 355.738f).x, p(299.18f, 355.738f).y, p(348.361f, 355.738f).x, p(348.361f, 355.738f).y, p(397.541f, 249.18f).x, p(397.541f, 249.18f).y)
+    }
+    return WaveGeometry(
+        main = main,
+        echo = echo,
+        node = p(168.033f, 180.328f),
+        strokeWidth = 45.082f * scale,
+        nodeRadius = 28.688f * scale,
+        gradientStart = p(102.459f, 281.967f),
+        gradientEnd = p(397.541f, 216.393f),
+    )
 }
 
 /**
- * One-time splash: wave draws in, node dot pops, wordmark fades, then [onFinished] fires.
- * A tap completes it early. Caller is responsible for only showing it once per appearance.
+ * One-time splash: the wave draws in left-to-right, the echo + node dot fade in, the wordmark
+ * fades, then [onFinished] fires. A tap completes it early. Caller shows it once per appearance.
  */
 @Composable
 fun WaveSplash(
@@ -88,9 +125,8 @@ fun WaveSplash(
     }
 
     // Wave geometry, rebuilt only when the canvas size changes (not every frame).
-    var pathSize by remember { mutableStateOf(Size.Unspecified) }
-    var wavePath by remember { mutableStateOf(Path()) }
-    var nodePoint by remember { mutableStateOf(Offset.Zero) }
+    var geoSize by remember { mutableStateOf(Size.Unspecified) }
+    var geometry by remember { mutableStateOf<WaveGeometry?>(null) }
     val segment = remember { Path() }
 
     LaunchedEffect(Unit) {
@@ -114,27 +150,37 @@ fun WaveSplash(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            val primary = MaterialTheme.colorScheme.primary
-            Canvas(modifier = Modifier.size(150.dp, 84.dp)) {
-                if (size != pathSize) {
-                    val (p, n) = freedomWavePath()
-                    wavePath = p
-                    nodePoint = n
-                    pathMeasure.setPath(p, false)
-                    pathSize = size
+            Canvas(modifier = Modifier.size(176.dp, 120.dp)) {
+                if (size != geoSize) {
+                    val g = freedomWaveGeometry()
+                    geometry = g
+                    pathMeasure.setPath(g.main, false)
+                    geoSize = size
                 }
-                val strokeWidth = size.height * STROKE_FRACTION
+                val g = geometry ?: return@Canvas
+                val stroke = Stroke(width = g.strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round)
+
+                // Faint echo wave behind, fading in with the node once the main wave is drawn.
+                if (nodeAlpha.value > 0f) {
+                    drawPath(g.echo, color = WaveMid.copy(alpha = 0.18f * nodeAlpha.value), style = stroke)
+                }
+                // Main wave, revealed left-to-right.
                 segment.reset()
                 pathMeasure.getSegment(0f, draw.value * pathMeasure.length, segment, true)
                 drawPath(
                     path = segment,
-                    color = primary,
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
+                    brush = Brush.linearGradient(
+                        colors = listOf(WaveDeep, WaveMid, WaveLight),
+                        start = g.gradientStart,
+                        end = g.gradientEnd,
+                    ),
+                    style = stroke,
                 )
+                // Bright node dot on the leading crest.
                 drawCircle(
-                    color = primary.copy(alpha = nodeAlpha.value),
-                    radius = strokeWidth,
-                    center = nodePoint,
+                    color = WaveNode.copy(alpha = nodeAlpha.value),
+                    radius = g.nodeRadius,
+                    center = g.node,
                 )
             }
             Wordmark(alphaValue = wordmarkAlpha.value)

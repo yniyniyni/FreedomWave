@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -34,11 +35,12 @@ fun OnboardingPage(
     pageCount: Int,
     title: String,
     body: String,
+    dotPosition: () -> Float,
     onNext: () -> Unit,
     onSkip: () -> Unit,
     hero: @Composable () -> Unit,
 ) {
-    Box(modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp)) {
+    Box(modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 32.dp)) {
         if (WelcomeNav.isSkipVisible(pageIndex, pageCount)) {
             TextButton(onClick = onSkip, modifier = Modifier.align(Alignment.TopEnd)) {
                 Text(stringResource(Res.string.welcome_skip), color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -51,7 +53,7 @@ fun OnboardingPage(
         ) {
             Box(modifier = Modifier.weight(1f, fill = false)) { hero() }
             Spacer(Modifier.height(20.dp))
-            WelcomeDots(pageCount = pageCount, currentPage = pageIndex)
+            WelcomeDots(pageCount = pageCount, position = dotPosition)
             Spacer(Modifier.height(20.dp))
             Text(
                 text = title,
