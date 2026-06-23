@@ -10,6 +10,7 @@
     <string name="common_copied">Copied</string>
     <string name="common_retry">Retry</string>
     <string name="common_connect">Connect</string>
+    <string name="common_next">Next</string>
     <string name="common_empty_dash">—</string>
     <string name="common_minus_sign">−</string>
     <string name="common_plus_sign">+</string>
@@ -18,6 +19,15 @@
     <!-- brand wordmark: never translated, identical in every locale (locale-invariant: keep out of values-* files) -->
     <string name="common_brand_freedom">Freedom</string>
     <string name="common_brand_wave">Wave</string>
+
+    <!-- welcome -->
+    <string name="welcome_skip">Skip</string>
+    <string name="welcome_slide1_title">Your panel, in your pocket</string>
+    <string name="welcome_slide1_body">FreedomWave is a native Remnawave client. Keep your fleet under control from your phone.</string>
+    <string name="welcome_slide2_title">All of Remnawave at hand</string>
+    <string name="welcome_slide2_body">Dashboard, users, nodes and hosts — status, traffic and actions in one tap.</string>
+    <string name="welcome_slide3_title">Connect in a minute</string>
+    <string name="welcome_slide3_body">Paste your panel URL and API token — and the panel is in your hands.</string>
 
     <!-- settings -->
     <string name="settings_title">Settings</string>
