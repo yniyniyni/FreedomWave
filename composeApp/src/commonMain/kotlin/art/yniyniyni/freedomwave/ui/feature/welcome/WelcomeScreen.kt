@@ -93,6 +93,8 @@ private fun WelcomePager() {
 
     Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            // Fixed brand wave behind the content — it stays put while slides swipe over it.
+            WaveBackdrop(modifier = Modifier.align(Alignment.Center).fillMaxWidth().height(200.dp))
             // Only the content swipes; overscroll glow/stretch is disabled.
             CompositionLocalProvider(LocalOverscrollFactory provides null) {
                 HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
