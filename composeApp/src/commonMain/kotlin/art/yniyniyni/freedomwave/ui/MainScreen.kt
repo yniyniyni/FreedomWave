@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -50,6 +51,9 @@ private enum class MainTab(val labelRes: StringResource, val icon: ImageVector) 
 @Composable
 fun MainScreen() {
     var selected by rememberSaveable { mutableStateOf(MainTab.DASHBOARD) }
+    // Bumped when the active tab is re-tapped; forces the tab's content to recreate, resetting its
+    // in-screen master-detail navigation back to the tab's root (e.g. Squads -> Settings root).
+    var resetKey by rememberSaveable { mutableStateOf(0) }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -63,7 +67,9 @@ fun MainScreen() {
                     val tabLabel = stringResource(tab.labelRes)
                     NavigationBarItem(
                         selected = isSelected,
-                        onClick  = { selected = tab },
+                        // Switching tabs already starts the target at its root (the previous screen
+                        // leaves composition); re-tapping the active tab resets it via resetKey.
+                        onClick  = { if (selected == tab) resetKey++ else selected = tab },
                         icon     = {
                             Icon(
                                 imageVector        = tab.icon,
@@ -84,12 +90,14 @@ fun MainScreen() {
         }
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            when (selected) {
-                MainTab.DASHBOARD -> DashboardScreen()
-                MainTab.USERS     -> UsersScreen()
-                MainTab.NODES     -> NodesScreen()
-                MainTab.HOSTS     -> HostsScreen()
-                MainTab.SETTINGS  -> SettingsScreen()
+            key(resetKey) {
+                when (selected) {
+                    MainTab.DASHBOARD -> DashboardScreen()
+                    MainTab.USERS     -> UsersScreen()
+                    MainTab.NODES     -> NodesScreen()
+                    MainTab.HOSTS     -> HostsScreen()
+                    MainTab.SETTINGS  -> SettingsScreen()
+                }
             }
         }
     }
