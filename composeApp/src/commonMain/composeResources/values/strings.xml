@@ -266,6 +266,13 @@
     <string name="users_detail_squads">Squads</string>
     <string name="users_detail_devices">Devices</string>
     <string name="users_detail_ip_addresses">IP addresses</string>
+    <string name="users_traffic_view_stats">View statistics</string>
+    <string name="users_traffic_title">Traffic: %1$s</string>
+    <string name="users_traffic_usage_trend">Usage trend</string>
+    <string name="users_traffic_no_data">No traffic data available for this period</string>
+    <string name="users_traffic_top_nodes">Top nodes</string>
+    <string name="users_traffic_custom_range">Custom</string>
+    <string name="users_traffic_pick_range">Select date range</string>
     <string name="users_collapse">Collapse</string>
     <string name="users_expand">Expand</string>
     <string name="users_no_devices">No registered devices</string>

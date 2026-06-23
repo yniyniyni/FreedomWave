@@ -257,6 +257,13 @@
     <string name="users_detail_squads">Сквады</string>
     <string name="users_detail_devices">Устройства</string>
     <string name="users_detail_ip_addresses">IP-адреса</string>
+    <string name="users_traffic_view_stats">Показать статистику</string>
+    <string name="users_traffic_title">Трафик: %1$s</string>
+    <string name="users_traffic_usage_trend">Динамика трафика</string>
+    <string name="users_traffic_no_data">Нет данных о трафике за этот период</string>
+    <string name="users_traffic_top_nodes">Топ узлов</string>
+    <string name="users_traffic_custom_range">Свой период</string>
+    <string name="users_traffic_pick_range">Выбор диапазона дат</string>
     <string name="users_collapse">Свернуть</string>
     <string name="users_expand">Развернуть</string>
     <string name="users_no_devices">Нет зарегистрированных устройств</string>
