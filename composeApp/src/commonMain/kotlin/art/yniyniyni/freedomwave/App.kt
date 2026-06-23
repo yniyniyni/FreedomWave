@@ -13,7 +13,7 @@ import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_LIGHT
 import art.yniyniyni.freedomwave.ui.MainScreen
 import art.yniyniyni.freedomwave.ui.auth.rememberBiometricAuthenticator
 import art.yniyniyni.freedomwave.ui.feature.lock.LockScreen
-import art.yniyniyni.freedomwave.ui.feature.login.LoginScreen
+import art.yniyniyni.freedomwave.ui.feature.welcome.WelcomeScreen
 import art.yniyniyni.freedomwave.ui.theme.AppTheme
 import org.koin.compose.koinInject
 
@@ -45,7 +45,7 @@ fun App() {
                 )
             }
             isLoggedIn -> MainScreen()
-            else       -> LoginScreen()
+            else       -> WelcomeScreen()
         }
     }
 }

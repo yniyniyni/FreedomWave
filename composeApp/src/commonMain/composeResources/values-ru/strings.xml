@@ -10,10 +10,20 @@
     <string name="common_copied">Скопировано</string>
     <string name="common_retry">Повторить</string>
     <string name="common_connect">Подключиться</string>
+    <string name="common_next">Далее</string>
     <string name="common_ok">ОК</string>
     <string name="common_refresh">Обновить</string>
     <string name="common_minus_sign">−</string>
     <string name="common_plus_sign">+</string>
+
+    <!-- welcome -->
+    <string name="welcome_skip">Пропустить</string>
+    <string name="welcome_slide1_title">Твоя панель — в кармане</string>
+    <string name="welcome_slide1_body">FreedomWave — нативный клиент Remnawave. Держи флот под контролем с телефона.</string>
+    <string name="welcome_slide2_title">Весь Remnawave под рукой</string>
+    <string name="welcome_slide2_body">Дашборд, пользователи, ноды и хосты — статус, трафик и действия в один тап.</string>
+    <string name="welcome_slide3_title">Подключись за минуту</string>
+    <string name="welcome_slide3_body">Вставь URL панели и API-токен — и панель у тебя в руках.</string>
 
     <!-- settings -->
     <string name="settings_title">Настройки</string>
@@ -45,7 +55,6 @@
     <string name="settings_server_url">URL сервера</string>
 
     <!-- login -->
-    <string name="login_subtitle">Админ-панель Remnawave</string>
     <string name="login_server_url">URL сервера</string>
     <string name="login_api_key">API-ключ</string>
     <string name="login_api_key_hint">Создайте API-ключ в разделе «API-токены» панели Remnawave</string>
