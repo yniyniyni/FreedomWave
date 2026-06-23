@@ -41,3 +41,6 @@ DerivedData/
 
 # Brainstorming/spec docs (local only)
 docs/superpowers/
+
+# Superpowers brainstorming session artifacts
+.superpowers/
