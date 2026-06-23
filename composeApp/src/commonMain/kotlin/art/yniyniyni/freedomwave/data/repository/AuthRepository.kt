@@ -37,6 +37,9 @@ class AuthRepository(
 
     suspend fun logout() {
         prefs.clearCredentials()
+        // Disable biometric unlock on logout — the next account shouldn't inherit it, and there
+        // are no credentials left to protect until the user opts in again.
+        prefs.saveBiometricEnabled(false)
         clearBearerTokenCache()
     }
 
