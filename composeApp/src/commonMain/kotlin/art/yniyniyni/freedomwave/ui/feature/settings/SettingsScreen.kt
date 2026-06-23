@@ -38,7 +38,13 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Cloud
+import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.Groups
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.automirrored.rounded.ReceiptLong
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.Icon
@@ -62,7 +68,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.ui.components.DetailRow
+import art.yniyniyni.freedomwave.ui.components.DetailSectionTitle
 import art.yniyniyni.freedomwave.ui.components.FwDetailCard
+import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_DARK
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_LIGHT
@@ -195,7 +203,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
         ) {
             item {
                 FwDetailCard {
-                    Text(stringResource(Res.string.settings_connection), style = MaterialTheme.typography.titleSmall)
+                    DetailSectionTitle(stringResource(Res.string.settings_connection), Icons.Rounded.Cloud)
                     Spacer(Modifier.height(4.dp))
                     DetailRow(stringResource(Res.string.settings_server), serverUrl.ifBlank { emptyDash }, monoFont)
                     DetailRow(stringResource(Res.string.settings_api_key), maskedKey, monoFont)
@@ -223,11 +231,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(
-                            Icons.Rounded.Groups,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
+                        FwSectionIcon(Icons.Rounded.Groups, MaterialTheme.colorScheme.tertiary)
                         Text(
                             stringResource(Res.string.squads_title),
                             style = MaterialTheme.typography.bodyLarge,
@@ -249,11 +253,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(
-                            Icons.AutoMirrored.Rounded.ReceiptLong,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
+                        FwSectionIcon(Icons.AutoMirrored.Rounded.ReceiptLong, MaterialTheme.colorScheme.secondary)
                         Text(
                             stringResource(Res.string.infra_title),
                             style = MaterialTheme.typography.bodyLarge,
@@ -270,7 +270,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
 
             item {
                 FwDetailCard {
-                    Text(stringResource(Res.string.settings_appearance), style = MaterialTheme.typography.titleSmall)
+                    DetailSectionTitle(stringResource(Res.string.settings_appearance), Icons.Rounded.Palette)
                     Spacer(Modifier.height(8.dp))
                     val modes  = listOf(THEME_SYSTEM, THEME_LIGHT, THEME_DARK)
                     val labels = listOf(
@@ -292,7 +292,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
 
             item {
                 FwDetailCard {
-                    Text(stringResource(Res.string.settings_language), style = MaterialTheme.typography.titleSmall)
+                    DetailSectionTitle(stringResource(Res.string.settings_language), Icons.Rounded.Translate, MaterialTheme.colorScheme.tertiary)
                     Spacer(Modifier.height(8.dp))
                     var current by remember { mutableStateOf(AppLanguage.fromTag(currentAppLanguageTag())) }
                     val languages = remember { AppLanguage.entries }
@@ -310,7 +310,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
 
             item {
                 FwDetailCard {
-                    Text(stringResource(Res.string.settings_security), style = MaterialTheme.typography.titleSmall)
+                    DetailSectionTitle(stringResource(Res.string.settings_security), Icons.Rounded.Fingerprint, MaterialTheme.colorScheme.secondary)
                     Spacer(Modifier.height(8.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -337,7 +337,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
 
             item {
                 FwDetailCard {
-                    Text(stringResource(Res.string.settings_privacy), style = MaterialTheme.typography.titleSmall)
+                    DetailSectionTitle(stringResource(Res.string.settings_privacy), Icons.Rounded.Shield)
                     Spacer(Modifier.height(8.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -362,7 +362,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
 
             item {
                 FwDetailCard {
-                    Text(stringResource(Res.string.settings_about), style = MaterialTheme.typography.titleSmall)
+                    DetailSectionTitle(stringResource(Res.string.settings_about), Icons.Rounded.Info, MaterialTheme.colorScheme.tertiary)
                     Spacer(Modifier.height(8.dp))
                     DetailRow(stringResource(Res.string.settings_version), APP_VERSION, monoFont)
                     Spacer(Modifier.height(8.dp))
