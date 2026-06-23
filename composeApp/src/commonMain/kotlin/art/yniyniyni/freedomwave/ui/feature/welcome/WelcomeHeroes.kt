@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,7 +62,7 @@ private fun StatRow(label: String, value: String, valueAccent: Boolean = false) 
 @Composable
 fun DashboardGlanceHero(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        WaveBackdrop(Modifier.fillMaxWidth().size(180.dp))
+        WaveBackdrop(Modifier.fillMaxWidth().height(180.dp))
         Column(verticalArrangement = Arrangement.spacedBy(9.dp), modifier = Modifier.padding(horizontal = 8.dp)) {
             MiniCard { StatRow("Panel", "v2.1.4") }
             MiniCard { StatRow("Uptime", "12d 4h") }
@@ -74,7 +75,7 @@ fun DashboardGlanceHero(modifier: Modifier = Modifier) {
 @Composable
 fun FleetGlanceHero(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        WaveBackdrop(Modifier.fillMaxWidth().size(180.dp))
+        WaveBackdrop(Modifier.fillMaxWidth().height(180.dp))
         Column(verticalArrangement = Arrangement.spacedBy(9.dp), modifier = Modifier.padding(horizontal = 8.dp)) {
             MiniCard { StatRow("Online now", "128 / 1.2k", valueAccent = true) }
             MiniCard {
@@ -86,7 +87,7 @@ fun FleetGlanceHero(modifier: Modifier = Modifier) {
                     ) { Icon(Icons.Rounded.Person, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp)) }
                     Column(Modifier.weight(1f)) {
                         Text("alex_node", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface)
-                        Text("4.2 GB / 50 GB", fontFamily = LocalFwMonoFont.current, fontSize = 9.5.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("4.2 GB / 50 GB", fontFamily = LocalFwMonoFont.current, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     StatusPill("ACTIVE")
                 }
