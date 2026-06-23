@@ -2,14 +2,9 @@ package art.yniyniyni.freedomwave.ui.feature.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -23,22 +18,21 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import freedomwave.composeapp.generated.resources.Res
-import freedomwave.composeapp.generated.resources.common_connect
 import freedomwave.composeapp.generated.resources.login_api_key
 import freedomwave.composeapp.generated.resources.login_api_key_hint
 import freedomwave.composeapp.generated.resources.login_server_url
 import freedomwave.composeapp.generated.resources.login_server_url_placeholder
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * The reusable login form (server URL + API key + Connect), bound to [LoginViewModel].
- * No wordmark/subtitle here — callers (welcome carousel) supply the screen header.
+ * The login form fields (server URL + API key + hint + error), bound to [LoginViewModel].
+ * The submit button is supplied by the caller — the welcome carousel keeps a fixed Connect
+ * button in its bottom bar — so this composable is just the scrollable input content.
  */
 @Composable
-fun LoginContent(
+fun LoginFields(
+    vm: LoginViewModel,
     modifier: Modifier = Modifier,
-    vm: LoginViewModel = koinViewModel(),
 ) {
     val state by vm.state.collectAsState()
 
@@ -85,25 +79,6 @@ fun LoginContent(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.fillMaxWidth(),
             )
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        Button(
-            onClick = vm::save,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !state.isLoading,
-            shape = RoundedCornerShape(percent = 50),
-        ) {
-            if (state.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.height(20.dp),
-                    strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-            } else {
-                Text(stringResource(Res.string.common_connect))
-            }
         }
     }
 }

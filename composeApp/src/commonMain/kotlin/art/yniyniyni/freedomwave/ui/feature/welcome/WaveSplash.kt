@@ -2,6 +2,7 @@ package art.yniyniyni.freedomwave.ui.feature.welcome
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
@@ -40,6 +41,7 @@ import freedomwave.composeapp.generated.resources.Res
 import freedomwave.composeapp.generated.resources.common_brand_freedom
 import freedomwave.composeapp.generated.resources.common_brand_wave
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 // M3 emphasized easing — same curve the design system specifies for enter motion.
@@ -110,7 +112,7 @@ fun WaveSplash(
     modifier: Modifier = Modifier,
 ) {
     val draw = remember { Animatable(0f) }
-    val nodeAlpha = remember { Animatable(0f) }
+    val revealAlpha = remember { Animatable(0f) }
     val wordmarkAlpha = remember { Animatable(0f) }
     val pathMeasure = remember { PathMeasure() }
 
@@ -131,9 +133,11 @@ fun WaveSplash(
 
     LaunchedEffect(Unit) {
         draw.animateTo(1f, tween(1150, easing = Emphasized))
-        nodeAlpha.animateTo(1f, tween(250))
-        wordmarkAlpha.animateTo(1f, tween(400))
-        delay(450) // brief hold so the wordmark is visible before dismiss
+        // Gentle, overlapping reveal: the echo + node ease in slowly while the wordmark fades
+        // alongside, so nothing pops in abruptly the instant the wave finishes drawing.
+        launch { wordmarkAlpha.animateTo(1f, tween(650, delayMillis = 150)) }
+        revealAlpha.animateTo(1f, tween(750, easing = LinearOutSlowInEasing))
+        delay(400) // brief hold so the full mark is visible before dismiss
         finishOnce()
     }
 
@@ -160,9 +164,9 @@ fun WaveSplash(
                 val g = geometry ?: return@Canvas
                 val stroke = Stroke(width = g.strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round)
 
-                // Faint echo wave behind, fading in with the node once the main wave is drawn.
-                if (nodeAlpha.value > 0f) {
-                    drawPath(g.echo, color = WaveMid.copy(alpha = 0.18f * nodeAlpha.value), style = stroke)
+                // Faint echo wave behind, easing in gently once the main wave is drawn.
+                if (revealAlpha.value > 0f) {
+                    drawPath(g.echo, color = WaveMid.copy(alpha = 0.18f * revealAlpha.value), style = stroke)
                 }
                 // Main wave, revealed left-to-right.
                 segment.reset()
@@ -178,7 +182,7 @@ fun WaveSplash(
                 )
                 // Bright node dot on the leading crest.
                 drawCircle(
-                    color = WaveNode.copy(alpha = nodeAlpha.value),
+                    color = WaveNode.copy(alpha = revealAlpha.value),
                     radius = g.nodeRadius,
                     center = g.node,
                 )
