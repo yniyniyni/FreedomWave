@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.DataUsage
@@ -157,6 +158,7 @@ import freedomwave.composeapp.generated.resources.users_set_traffic_limit_title
 import freedomwave.composeapp.generated.resources.users_sort
 import freedomwave.composeapp.generated.resources.users_subscription_qr
 import freedomwave.composeapp.generated.resources.users_title_count
+import freedomwave.composeapp.generated.resources.users_traffic_view_stats
 import freedomwave.composeapp.generated.resources.users_zero_unlimited
 import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.l10n.localized
@@ -180,16 +182,19 @@ private sealed interface UsersNav : FwNavDestination {
     data object List : UsersNav
     data class Detail(val user: User) : UsersNav
     data class Form(val editing: User?) : UsersNav
+    data class TrafficStats(val user: User) : UsersNav
 
     override val depth: Int get() = when (this) {
         is List -> 0
         is Detail -> 1
         is Form -> 2
+        is TrafficStats -> 2
     }
     override val key: String get() = when (this) {
         is List -> "list"
         is Detail -> "detail:${user.uuid}"
         is Form -> "form:${editing?.uuid ?: "new"}"
+        is TrafficStats -> "traffic_stats:${user.uuid}"
     }
 }
 
@@ -226,6 +231,7 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                     onResetTraffic = { vm.resetTraffic(live.uuid) },
                     onDelete       = { vm.deleteUser(live.uuid); pop() },
                     onApplyUpdate  = { updated -> vm.applyUserUpdate(updated) },
+                    onTrafficStats = { push(UsersNav.TrafficStats(live)) },
                 )
             }
             is UsersNav.Form -> {
@@ -241,6 +247,13 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                     vm = vm,
                     onBack = dismissForm,
                     onSaved = dismissForm,
+                )
+            }
+            is UsersNav.TrafficStats -> {
+                UserTrafficStatsScreen(
+                    user = navEntry.user,
+                    viewModel = koinViewModel(key = navEntry.user.uuid) { parametersOf(navEntry.user.uuid) },
+                    onBackClick = { pop() }
                 )
             }
         }
@@ -485,6 +498,7 @@ private fun UserDetailScreen(
     onResetTraffic: () -> Unit,
     onDelete: () -> Unit,
     onApplyUpdate: (User) -> Unit,
+    onTrafficStats: () -> Unit,
 ) {
     val detailVm: UserDetailViewModel = koinViewModel(key = user.uuid) { parametersOf(user.uuid) }
     val detailState by detailVm.state.collectAsState()
@@ -635,6 +649,15 @@ private fun UserDetailScreen(
                             trafficStrategyLabel(user.trafficLimitStrategy),
                             monoFont,
                         )
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    OutlinedButton(
+                        onClick = onTrafficStats,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Rounded.BarChart, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(Res.string.users_traffic_view_stats))
                     }
                 }
             }

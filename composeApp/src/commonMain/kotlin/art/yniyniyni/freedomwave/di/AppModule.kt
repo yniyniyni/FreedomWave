@@ -46,6 +46,7 @@ import art.yniyniyni.freedomwave.ui.feature.squads.ExternalSquadEditViewModel
 import art.yniyniyni.freedomwave.ui.feature.squads.InternalSquadEditViewModel
 import art.yniyniyni.freedomwave.ui.feature.squads.SquadsViewModel
 import art.yniyniyni.freedomwave.ui.feature.users.UserDetailViewModel
+import art.yniyniyni.freedomwave.ui.feature.users.UserTrafficViewModel
 import art.yniyniyni.freedomwave.ui.feature.users.UsersViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -122,6 +123,7 @@ val viewModelModule = module {
             subHistoryRepository = get(),
         )
     }
+    viewModel { (userUuid: String) -> UserTrafficViewModel(get(), userUuid) }
 }
 
 fun allModules() = listOf(prefsModule, networkModule, repositoryModule, viewModelModule)
