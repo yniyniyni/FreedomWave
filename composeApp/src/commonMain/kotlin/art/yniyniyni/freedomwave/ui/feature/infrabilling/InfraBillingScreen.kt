@@ -16,11 +16,14 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -62,6 +65,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,10 +75,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import art.yniyniyni.freedomwave.domain.model.BillRecord
@@ -199,29 +206,28 @@ fun InfraBillingScreen(vm: InfraBillingViewModel = koinViewModel(), onBack: (() 
         },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            StatsGrid(state.stats)
-            BillingTabSelector(
-                activeTab = state.activeTab,
-                nodesCount = state.billingNodes.size,
-                historyCount = state.history.size,
-                providersCount = state.providers.size,
-                onSelect = vm::setTab,
-            )
-
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             when {
                 state.isLoading && state.billingNodes.isEmpty() && state.providers.isEmpty() && state.history.isEmpty() ->
-                    ShimmerList()
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        StatsGrid(state.stats)
+                        BillingTabSelector(
+                            activeTab = state.activeTab,
+                            nodesCount = state.billingNodes.size,
+                            historyCount = state.history.size,
+                            providersCount = state.providers.size,
+                            onSelect = vm::setTab,
+                        )
+                        ShimmerList()
+                    }
 
                 state.error != null && state.stats == null ->
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center).padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
-                            Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
-                        }
+                    Column(
+                        modifier = Modifier.align(Alignment.Center).padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(state.error!!.resolve(), color = MaterialTheme.colorScheme.error)
+                        Button(onClick = vm::load, modifier = Modifier.padding(top = 16.dp)) { Text(stringResource(Res.string.common_retry)) }
                     }
 
                 else -> PullToRefreshBox(
@@ -229,33 +235,96 @@ fun InfraBillingScreen(vm: InfraBillingViewModel = koinViewModel(), onBack: (() 
                     onRefresh = vm::load,
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    when (state.activeTab) {
-                        0 -> TabList(
-                            items = state.billingNodes,
-                            emptyText = stringResource(Res.string.infra_empty_nodes),
-                            key = { it.uuid },
-                        ) { node -> BillingNodeItem(node, onClick = { vm.openUpdateDate(node) }, onDelete = {
-                            vm.requestDelete(PendingDelete(PendingDelete.Kind.NODE, node.uuid, node.nodeName))
-                        }) }
-
-                        1 -> TabList(
-                            items = state.history,
-                            emptyText = stringResource(Res.string.infra_empty_history),
-                            key = { it.uuid },
-                        ) { rec -> BillRecordItem(rec, onDelete = {
-                            vm.requestDelete(PendingDelete(PendingDelete.Kind.RECORD, rec.uuid, rec.providerName))
-                        }) }
-
-                        else -> TabList(
-                            items = state.providers,
-                            emptyText = stringResource(Res.string.infra_empty_providers),
-                            key = { it.uuid },
-                        ) { provider -> ProviderItem(provider, onClick = { vm.openEditProvider(provider) }, onDelete = {
-                            vm.requestDelete(PendingDelete(PendingDelete.Kind.PROVIDER, provider.uuid, provider.name))
-                        }) }
-                    }
+                    BillingList(state, vm)
                 }
             }
+        }
+    }
+}
+
+/**
+ * Scrollable billing content: the overview stats scroll away with the list while the
+ * Nodes / History / Providers tab selector stays pinned to the top.
+ *
+ * Both the overview and the selector are fixed overlays (not LazyColumn items), so the list's
+ * overscroll stretch never distorts them. A single spacer item reserves the header region
+ * (overview + gap + selector); the overlays are then positioned from the scroll offset:
+ * the overview rides up and off with the scroll, while the selector follows it but clamps to
+ * the top once the overview has scrolled away. Only the list rows show the overscroll effect.
+ */
+@Composable
+private fun BillingList(state: InfraBillingUiState, vm: InfraBillingViewModel) {
+    val emptyNodes = stringResource(Res.string.infra_empty_nodes)
+    val emptyHistory = stringResource(Res.string.infra_empty_history)
+    val emptyProviders = stringResource(Res.string.infra_empty_providers)
+    val listState = rememberLazyListState()
+    val density = LocalDensity.current
+    val gapPx = with(density) { 8.dp.roundToPx() }
+    var overviewHeightPx by remember { mutableStateOf(0) }
+    var selectorHeightPx by remember { mutableStateOf(0) }
+    val headerHeightPx = overviewHeightPx + gapPx + selectorHeightPx
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
+        ) {
+            item(key = "header-space") {
+                Spacer(Modifier.height(with(density) { headerHeightPx.toDp() }))
+            }
+            when (state.activeTab) {
+                0 -> tabItems(state.billingNodes, emptyNodes, { it.uuid }) { node ->
+                    BillingNodeItem(node, onClick = { vm.openUpdateDate(node) }, onDelete = {
+                        vm.requestDelete(PendingDelete(PendingDelete.Kind.NODE, node.uuid, node.nodeName))
+                    })
+                }
+
+                1 -> tabItems(state.history, emptyHistory, { it.uuid }) { rec ->
+                    BillRecordItem(rec, onDelete = {
+                        vm.requestDelete(PendingDelete(PendingDelete.Kind.RECORD, rec.uuid, rec.providerName))
+                    })
+                }
+
+                else -> tabItems(state.providers, emptyProviders, { it.uuid }) { provider ->
+                    ProviderItem(provider, onClick = { vm.openEditProvider(provider) }, onDelete = {
+                        vm.requestDelete(PendingDelete(PendingDelete.Kind.PROVIDER, provider.uuid, provider.name))
+                    })
+                }
+            }
+        }
+
+        // Top of the reserved header region in viewport coords (negative once scrolled past it).
+        val headerOffsetY by remember(headerHeightPx) {
+            derivedStateOf {
+                if (listState.firstVisibleItemIndex == 0) -listState.firstVisibleItemScrollOffset
+                else -headerHeightPx
+            }
+        }
+        // Overview rides with the scroll and slides off the top.
+        Box(
+            modifier = Modifier
+                .offset { IntOffset(0, headerOffsetY) }
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .onSizeChanged { overviewHeightPx = it.height },
+        ) { StatsGrid(state.stats) }
+        // Selector follows the overview but clamps to the top.
+        Box(
+            modifier = Modifier
+                .offset { IntOffset(0, (headerOffsetY + overviewHeightPx + gapPx).coerceAtLeast(0)) }
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .onSizeChanged { selectorHeightPx = it.height },
+        ) {
+            BillingTabSelector(
+                activeTab = state.activeTab,
+                nodesCount = state.billingNodes.size,
+                historyCount = state.history.size,
+                providersCount = state.providers.size,
+                onSelect = vm::setTab,
+            )
         }
     }
 }
@@ -370,22 +439,23 @@ private fun TabSegment(modifier: Modifier, selected: Boolean, label: String, cou
     }
 }
 
-// Generic tab list
+// Generic tab list — adds the active tab's rows (or an empty placeholder) into the shared LazyColumn.
 
-@Composable
-private fun <T> TabList(
+private fun <T> LazyListScope.tabItems(
     items: List<T>,
     emptyText: String,
     key: (T) -> Any,
     itemContent: @Composable (T) -> Unit,
 ) {
     if (items.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Text(emptyText, modifier = Modifier.align(Alignment.Center), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        item(key = "empty") {
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 64.dp), contentAlignment = Alignment.Center) {
+                Text(emptyText, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
     } else {
-        LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(items, key = key) { itemContent(it) }
+        items(items, key = key) { item ->
+            Box(modifier = Modifier.padding(horizontal = 16.dp)) { itemContent(item) }
         }
     }
 }
