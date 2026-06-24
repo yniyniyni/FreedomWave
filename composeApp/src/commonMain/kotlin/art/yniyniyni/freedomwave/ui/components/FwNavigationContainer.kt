@@ -11,7 +11,9 @@ import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +27,13 @@ interface FwNavDestination {
     val depth: Int
     val key: String
 }
+
+/**
+ * Lets the bottom-tab host ([MainScreen]) learn whether the visible tab is at its root, so it can
+ * pick a slide (root) vs. fade (in a detail) transition. Each navigation owner reports its own
+ * depth and then shadows this with a no-op so a nested owner can't clobber the parent's report.
+ */
+val LocalTabAtRootReporter = compositionLocalOf<(Boolean) -> Unit> { {} }
 
 /**
  * Shared navigation container for master-detail screens.
@@ -57,6 +66,10 @@ fun <T : FwNavDestination> FwNavigationContainer(
     val top = stack.last()
     val canGoBack = stack.size > 1
 
+    // Report this tab's root state up to the bottom-tab host for its slide/fade decision.
+    val reportAtRoot = LocalTabAtRootReporter.current
+    LaunchedEffect(canGoBack, reportAtRoot) { reportAtRoot(!canGoBack) }
+
     val actionErrorText = actionError?.resolve()
     LaunchedEffect(actionErrorText) {
         actionErrorText?.let {
@@ -87,17 +100,20 @@ fun <T : FwNavDestination> FwNavigationContainer(
     val pop = remember { { if (stack.size > 1) stack = stack.dropLast(1) } }
     val currentStack = remember { { stack } }
 
-    transition.AnimatedContent(
-        contentKey = contentKey,
-        transitionSpec = {
-            val deeper = targetState.depth > initialState.depth
-            if (deeper) {
-                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
-            } else {
-                slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
-            }.apply { targetContentZIndex = if (deeper) 1f else 0f }
-        },
-    ) { navEntry ->
-        content(navEntry, push, pop, currentStack, snackbarHost)
+    // Shadow the reporter so any nested navigation owner can't overwrite this tab's report.
+    CompositionLocalProvider(LocalTabAtRootReporter provides {}) {
+        transition.AnimatedContent(
+            contentKey = contentKey,
+            transitionSpec = {
+                val deeper = targetState.depth > initialState.depth
+                if (deeper) {
+                    slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
+                } else {
+                    slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
+                }.apply { targetContentZIndex = if (deeper) 1f else 0f }
+            },
+        ) { navEntry ->
+            content(navEntry, push, pop, currentStack, snackbarHost)
+        }
     }
 }
