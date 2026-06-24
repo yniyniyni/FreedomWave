@@ -9,7 +9,15 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Surface
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import art.yniyniyni.freedomwave.ui.components.FwNavDestination
+import art.yniyniyni.freedomwave.ui.theme.LocalFwStatus
+import freedomwave.composeapp.generated.resources.hosts_status_enabled
+import freedomwave.composeapp.generated.resources.hosts_status_hidden
 import art.yniyniyni.freedomwave.ui.components.FwNavigationContainer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -58,6 +66,14 @@ import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+
+enum class HostStatusKind { DISABLED, HIDDEN, ENABLED }
+
+fun hostStatusKind(host: Host): HostStatusKind = when {
+    host.isDisabled -> HostStatusKind.DISABLED
+    host.isHidden   -> HostStatusKind.HIDDEN
+    else            -> HostStatusKind.ENABLED
+}
 
 private sealed interface HostsNav : FwNavDestination {
     data object List : HostsNav
@@ -184,6 +200,28 @@ private fun HostsListContent(
 }
 
 @Composable
+private fun HostStatusDot(host: Host) {
+    val fwStatus = LocalFwStatus.current
+    val color = when (hostStatusKind(host)) {
+        HostStatusKind.DISABLED -> fwStatus.neutral
+        HostStatusKind.HIDDEN   -> fwStatus.hidden
+        HostStatusKind.ENABLED  -> fwStatus.online
+    }
+    val desc = stringResource(
+        when (hostStatusKind(host)) {
+            HostStatusKind.DISABLED -> Res.string.hosts_status_disabled
+            HostStatusKind.HIDDEN   -> Res.string.hosts_status_hidden
+            HostStatusKind.ENABLED  -> Res.string.hosts_status_enabled
+        }
+    )
+    Surface(
+        modifier = Modifier.size(12.dp).semantics { contentDescription = desc },
+        shape = CircleShape,
+        color = color,
+    ) {}
+}
+
+@Composable
 private fun HostItem(host: Host, onClick: () -> Unit) {
     val monoFont = LocalFwMonoFont.current
     Card(
@@ -193,9 +231,10 @@ private fun HostItem(host: Host, onClick: () -> Unit) {
     ) {
         Row(
             modifier = Modifier.padding(12.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            HostStatusDot(host)
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -209,16 +248,12 @@ private fun HostItem(host: Host, onClick: () -> Unit) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     FwChip(host.securityLayer)
                     host.tag?.let { FwTagChip(it) }
-                    if (host.isDisabled) {
-                        FwChip(stringResource(Res.string.hosts_status_disabled).uppercase())
-                    }
                 }
             }
             Icon(
                 Icons.Rounded.ChevronRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 8.dp),
             )
         }
     }
