@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import art.yniyniyni.freedomwave.data.repository.NodeRepository
 import art.yniyniyni.freedomwave.domain.model.Node
+import art.yniyniyni.freedomwave.util.reorderList
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
 import kotlinx.coroutines.Job
@@ -53,6 +54,30 @@ class NodesViewModel(private val nodeRepository: NodeRepository) : ViewModel() {
     }
 
     fun clearActionError() = _state.update { it.copy(actionError = null) }
+
+    private var preReorderNodes: List<Node>? = null
+
+    fun beginReorder() {
+        preReorderNodes = _state.value.nodes
+    }
+
+    fun moveNode(from: Int, to: Int) {
+        _state.update { it.copy(nodes = reorderList(it.nodes, from, to)) }
+    }
+
+    fun commitReorder() {
+        val snapshot = preReorderNodes
+        preReorderNodes = null
+        viewModelScope.launch {
+            val orderedUuids = _state.value.nodes.map { it.uuid }
+            nodeRepository.reorderNodes(orderedUuids)
+                .onFailure { e ->
+                    _state.update { s ->
+                        s.copy(nodes = snapshot ?: s.nodes, actionError = e.toUiText())
+                    }
+                }
+        }
+    }
 
     private fun action(uuid: String, block: suspend () -> Result<Node>) {
         viewModelScope.launch {
