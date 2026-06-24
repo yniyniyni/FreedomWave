@@ -20,6 +20,9 @@ import art.yniyniyni.freedomwave.ui.components.FwNavDestination
 import art.yniyniyni.freedomwave.ui.components.FwNavigationContainer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -287,12 +290,26 @@ private fun NodesListContent(
                             modifier = Modifier.align(Alignment.Center),
                             color    = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
+                        val lazyListState = rememberLazyListState()
+                        val reorderState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                            vm.moveNode(from.index, to.index)
+                        }
                         LazyColumn(
+                            state               = lazyListState,
                             contentPadding      = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             items(state.nodes, key = { it.uuid }) { node ->
-                                NodeListItem(node = node, onClick = { onOpenDetail(node) })
+                                ReorderableItem(reorderState, key = node.uuid) {
+                                    NodeListItem(
+                                        node = node,
+                                        onClick = { onOpenDetail(node) },
+                                        dragModifier = Modifier.longPressDraggableHandle(
+                                            onDragStarted = { vm.beginReorder() },
+                                            onDragStopped = { vm.commitReorder() },
+                                        ),
+                                    )
+                                }
                             }
                         }
                     }
@@ -302,10 +319,10 @@ private fun NodesListContent(
 }
 
 @Composable
-private fun NodeListItem(node: Node, onClick: () -> Unit) {
+private fun NodeListItem(node: Node, onClick: () -> Unit, dragModifier: Modifier = Modifier) {
     val monoFont = LocalFwMonoFont.current
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).then(dragModifier),
         shape    = MaterialTheme.shapes.large,
         colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
