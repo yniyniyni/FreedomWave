@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -33,10 +32,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import art.yniyniyni.freedomwave.ui.components.WaveGeometry
+import art.yniyniyni.freedomwave.ui.components.freedomWaveGeometry
 import freedomwave.composeapp.generated.resources.Res
 import freedomwave.composeapp.generated.resources.common_brand_freedom
 import freedomwave.composeapp.generated.resources.common_brand_wave
@@ -52,55 +52,6 @@ private val WaveDeep = Color(0xFF0FB8A4)
 private val WaveMid = Color(0xFF2FE0C9)
 private val WaveLight = Color(0xFF5CF0DC)
 private val WaveNode = Color(0xFF1EFFDD)
-
-/**
- * The brand wave mapped from the logomark's 500x500 viewBox into a draw [size] (fit, centered):
- * the main aqua wave, a faint echo wave behind it, the bright node dot on the leading crest,
- * the matching stroke width, and the gradient endpoints — all in canvas pixels.
- */
-class WaveGeometry(
-    val main: Path,
-    val echo: Path,
-    val node: Offset,
-    val strokeWidth: Float,
-    val nodeRadius: Float,
-    val gradientStart: Offset,
-    val gradientEnd: Offset,
-)
-
-fun DrawScope.freedomWaveGeometry(): WaveGeometry {
-    // Source box around the wave + node + stroke half-width, from the 500x500 logomark.
-    val srcX = 78f
-    val srcY = 145f
-    val srcW = 344f
-    val srcH = 236f
-    val scale = minOf(size.width / srcW, size.height / srcH)
-    val offX = (size.width - srcW * scale) / 2f
-    val offY = (size.height - srcH * scale) / 2f
-    fun p(x: Float, y: Float) = Offset(offX + (x - srcX) * scale, offY + (y - srcY) * scale)
-
-    val main = Path().apply {
-        val s = p(102.459f, 281.967f)
-        moveTo(s.x, s.y)
-        cubicTo(p(151.639f, 175.41f).x, p(151.639f, 175.41f).y, p(200.82f, 175.41f).x, p(200.82f, 175.41f).y, p(250f, 249.18f).x, p(250f, 249.18f).y)
-        cubicTo(p(299.18f, 322.951f).x, p(299.18f, 322.951f).y, p(348.361f, 322.951f).x, p(348.361f, 322.951f).y, p(397.541f, 216.393f).x, p(397.541f, 216.393f).y)
-    }
-    val echo = Path().apply {
-        val s = p(102.459f, 314.754f)
-        moveTo(s.x, s.y)
-        cubicTo(p(151.639f, 208.197f).x, p(151.639f, 208.197f).y, p(200.82f, 208.197f).x, p(200.82f, 208.197f).y, p(250f, 281.967f).x, p(250f, 281.967f).y)
-        cubicTo(p(299.18f, 355.738f).x, p(299.18f, 355.738f).y, p(348.361f, 355.738f).x, p(348.361f, 355.738f).y, p(397.541f, 249.18f).x, p(397.541f, 249.18f).y)
-    }
-    return WaveGeometry(
-        main = main,
-        echo = echo,
-        node = p(168.033f, 180.328f),
-        strokeWidth = 45.082f * scale,
-        nodeRadius = 28.688f * scale,
-        gradientStart = p(102.459f, 281.967f),
-        gradientEnd = p(397.541f, 216.393f),
-    )
-}
 
 /**
  * One-time splash: the wave draws in left-to-right, the echo + node dot fade in, the wordmark

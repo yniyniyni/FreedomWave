@@ -22,7 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -235,11 +235,7 @@ private fun WelcomeBottomBar(
         ) {
             AnimatedContent(targetState = cta, label = "cta") { state ->
                 when (state) {
-                    Cta.Loading -> CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
+                    Cta.Loading -> WaveLoader(modifier = Modifier.size(width = 30.dp, height = 20.dp), color = MaterialTheme.colorScheme.onPrimary)
                     Cta.Connect -> Text(stringResource(Res.string.common_connect), fontWeight = FontWeight.Bold)
                     Cta.Next -> Text(stringResource(Res.string.common_next), fontWeight = FontWeight.Bold)
                 }

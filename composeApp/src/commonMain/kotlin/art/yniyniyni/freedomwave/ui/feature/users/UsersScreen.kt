@@ -48,7 +48,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -744,10 +744,7 @@ private fun UserDetailScreen(
                         when {
                             detailState.devicesLoading ->
                                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        strokeWidth = 2.dp,
-                                    )
+                                    WaveLoader(modifier = Modifier.size(width = 36.dp, height = 24.dp))
                                 }
                             detailState.devicesError != null ->
                                 Text(
@@ -812,10 +809,7 @@ private fun UserDetailScreen(
                         when {
                             detailState.ipLoading ->
                                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        strokeWidth = 2.dp,
-                                    )
+                                    WaveLoader(modifier = Modifier.size(width = 36.dp, height = 24.dp))
                                 }
                             detailState.ipError != null ->
                                 Text(

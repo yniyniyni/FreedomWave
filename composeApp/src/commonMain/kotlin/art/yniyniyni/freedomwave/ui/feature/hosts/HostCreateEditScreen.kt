@@ -39,7 +39,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -199,7 +199,7 @@ internal fun HostCreateEditScreen(
     ) { padding ->
         if (state.isLoading) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                WaveLoader()
             }
             return@Scaffold
         }
@@ -455,11 +455,7 @@ internal fun HostCreateEditScreen(
                     shape = RoundedCornerShape(percent = 50),
                 ) {
                     if (state.isSaving) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(end = 8.dp).heightIn(max = 18.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
+                        WaveLoader(modifier = Modifier.padding(end = 8.dp).size(width = 28.dp, height = 18.dp), color = MaterialTheme.colorScheme.onPrimary)
                     } else {
                         Icon(
                             if (isEdit) Icons.Rounded.Check else Icons.Rounded.Add,

@@ -40,7 +40,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -731,7 +731,7 @@ private fun DialogScaffold(
         },
         confirmButton = {
             Button(onClick = onConfirm, enabled = !isLoading && confirmEnabled) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.height(16.dp), strokeWidth = 2.dp)
+                if (isLoading) WaveLoader(modifier = Modifier.size(width = 26.dp, height = 16.dp))
                 else Text(confirmLabel)
             }
         },

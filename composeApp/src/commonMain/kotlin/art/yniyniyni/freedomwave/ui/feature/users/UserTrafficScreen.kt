@@ -19,7 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Dns
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -91,7 +91,7 @@ fun UserTrafficStatsScreen(
         ) {
             when {
                 state.isLoading && state.data == null -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    WaveLoader(modifier = Modifier.align(Alignment.Center))
                 }
                 state.error != null && state.data == null -> {
                     Column(

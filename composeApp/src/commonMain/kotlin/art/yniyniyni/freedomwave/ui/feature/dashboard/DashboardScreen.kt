@@ -34,7 +34,7 @@ import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -131,7 +131,7 @@ fun DashboardScreen(
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             when {
                 state.isLoading && state.stats == null ->
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    WaveLoader(modifier = Modifier.align(Alignment.Center))
 
                 state.error != null && state.stats == null ->
                     ErrorState(error = state.error!!, onRetry = vm::refresh)
