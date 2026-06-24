@@ -79,3 +79,17 @@ data class NodeConfigProfileRef(
     // (not UUID strings — that's the create/update request shape). Parse as objects.
     @SerialName("activeInbounds")          val activeInbounds: List<InboundDto> = emptyList(),
 )
+
+@Serializable
+data class ReorderNodeItem(
+    @SerialName("uuid")         val uuid: String,
+    @SerialName("viewPosition") val viewPosition: Int,
+)
+
+@Serializable
+data class ReorderNodesRequest(
+    @SerialName("nodes") val nodes: List<ReorderNodeItem>,
+)
+
+fun reorderNodesPayload(orderedUuids: List<String>): List<ReorderNodeItem> =
+    orderedUuids.mapIndexed { index, uuid -> ReorderNodeItem(uuid = uuid, viewPosition = index) }
