@@ -21,6 +21,9 @@ import freedomwave.composeapp.generated.resources.hosts_status_hidden
 import art.yniyniyni.freedomwave.ui.components.FwNavigationContainer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -185,12 +188,25 @@ private fun HostsListContent(
                             color    = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     } else {
+                        val lazyListState = rememberLazyListState()
+                        val reorderState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                            vm.moveHost(from.index, to.index)
+                        }
                         LazyColumn(
+                            state               = lazyListState,
                             contentPadding      = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             items(state.hosts, key = { it.uuid }) { host ->
-                                HostItem(host = host, onClick = { onOpenHost(host) })
+                                ReorderableItem(reorderState, key = host.uuid) { _ ->
+                                    HostItem(
+                                        host = host,
+                                        onClick = { onOpenHost(host) },
+                                        dragModifier = Modifier.longPressDraggableHandle(
+                                            onDragStopped = { vm.commitReorder() },
+                                        ),
+                                    )
+                                }
                             }
                         }
                     }
@@ -222,10 +238,10 @@ private fun HostStatusDot(host: Host) {
 }
 
 @Composable
-private fun HostItem(host: Host, onClick: () -> Unit) {
+private fun HostItem(host: Host, onClick: () -> Unit, dragModifier: Modifier = Modifier) {
     val monoFont = LocalFwMonoFont.current
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).then(dragModifier),
         shape    = MaterialTheme.shapes.large,
         colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
