@@ -25,6 +25,8 @@ class HostsViewModel(private val repository: HostRepository) : ViewModel() {
     private val _state = MutableStateFlow(HostsUiState())
     val state: StateFlow<HostsUiState> = _state.asStateFlow()
 
+    private var preReorderHosts: List<Host>? = null
+
     init { load() }
 
     fun load() {
@@ -56,17 +58,27 @@ class HostsViewModel(private val repository: HostRepository) : ViewModel() {
         }
     }
 
+    fun beginReorder() {
+        preReorderHosts = _state.value.hosts
+    }
+
     fun moveHost(from: Int, to: Int) {
         _state.update { it.copy(hosts = reorderList(it.hosts, from, to)) }
     }
 
     fun commitReorder() {
+        val snapshot = preReorderHosts
+        preReorderHosts = null
         viewModelScope.launch {
             val orderedUuids = _state.value.hosts.map { it.uuid }
             repository.reorderHosts(orderedUuids)
                 .onFailure { e ->
-                    _state.update { it.copy(actionError = e.toUiText()) }
-                    load()
+                    _state.update { s ->
+                        s.copy(
+                            hosts = snapshot ?: s.hosts,
+                            actionError = e.toUiText(),
+                        )
+                    }
                 }
         }
     }

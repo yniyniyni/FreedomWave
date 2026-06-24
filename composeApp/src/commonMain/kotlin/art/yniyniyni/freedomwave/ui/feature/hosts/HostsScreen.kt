@@ -203,6 +203,7 @@ private fun HostsListContent(
                                         host = host,
                                         onClick = { onOpenHost(host) },
                                         dragModifier = Modifier.longPressDraggableHandle(
+                                            onDragStarted = { vm.beginReorder() },
                                             onDragStopped = { vm.commitReorder() },
                                         ),
                                     )
