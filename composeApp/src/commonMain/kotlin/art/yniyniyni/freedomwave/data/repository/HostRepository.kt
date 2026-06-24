@@ -2,6 +2,7 @@ package art.yniyniyni.freedomwave.data.repository
 
 import art.yniyniyni.freedomwave.data.api.dto.CreateHostRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateHostRequest
+import art.yniyniyni.freedomwave.data.api.dto.reorderHostsPayload
 import art.yniyniyni.freedomwave.data.api.service.HostService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.Host
@@ -36,5 +37,9 @@ class HostRepository(
 
     suspend fun deleteHost(uuid: String): Result<Unit> = runCatching {
         service.deleteHost(uuid)
+    }.clearOnUnauthorized(prefs)
+
+    suspend fun reorderHosts(orderedUuids: List<String>): Result<Unit> = runCatching {
+        service.reorderHosts(reorderHostsPayload(orderedUuids))
     }.clearOnUnauthorized(prefs)
 }

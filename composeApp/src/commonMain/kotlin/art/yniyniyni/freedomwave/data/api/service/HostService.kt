@@ -4,6 +4,8 @@ import art.yniyniyni.freedomwave.data.api.dto.BulkUuidsRequest
 import art.yniyniyni.freedomwave.data.api.dto.CreateHostRequest
 import art.yniyniyni.freedomwave.data.api.dto.HostListResponse
 import art.yniyniyni.freedomwave.data.api.dto.HostResponse
+import art.yniyniyni.freedomwave.data.api.dto.ReorderHostItem
+import art.yniyniyni.freedomwave.data.api.dto.ReorderHostsRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateHostRequest
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import io.ktor.client.HttpClient
@@ -39,5 +41,11 @@ class HostService(private val client: HttpClient, private val prefs: AppPreferen
 
     suspend fun deleteHost(uuid: String) {
         client.delete("${prefs.getServerUrl()}/api/hosts/$uuid")
+    }
+
+    suspend fun reorderHosts(hosts: List<ReorderHostItem>) {
+        client.post("${prefs.getServerUrl()}/api/hosts/actions/reorder") {
+            setBody(ReorderHostsRequest(hosts))
+        }
     }
 }
