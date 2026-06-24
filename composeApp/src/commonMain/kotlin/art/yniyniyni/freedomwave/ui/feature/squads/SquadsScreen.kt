@@ -27,6 +27,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -261,12 +264,26 @@ private fun SquadsListContent(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         } else {
+                            val lazyListState = rememberLazyListState()
+                            val reorderState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                                vm.moveSquad(from.index, to.index)
+                            }
                             LazyColumn(
+                                state = lazyListState,
                                 contentPadding = PaddingValues(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
                                 items(currentList, key = { it.uuid }) { squad ->
-                                    SquadItem(squad = squad, onClick = { onOpenSquad(squad) })
+                                    ReorderableItem(reorderState, key = squad.uuid) {
+                                        SquadItem(
+                                            squad = squad,
+                                            onClick = { onOpenSquad(squad) },
+                                            dragModifier = Modifier.longPressDraggableHandle(
+                                                onDragStarted = { vm.beginReorder() },
+                                                onDragStopped = { vm.commitReorder() },
+                                            ),
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -358,9 +375,9 @@ private fun SquadSegment(
 }
 
 @Composable
-private fun SquadItem(squad: Squad, onClick: () -> Unit) {
+private fun SquadItem(squad: Squad, onClick: () -> Unit, dragModifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).then(dragModifier),
         shape    = MaterialTheme.shapes.large,
         colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
