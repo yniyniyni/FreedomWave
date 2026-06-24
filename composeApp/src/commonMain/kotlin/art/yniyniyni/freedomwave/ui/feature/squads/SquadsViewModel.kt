@@ -102,6 +102,9 @@ class SquadsViewModel(private val repository: SquadRepository) : ViewModel() {
         preReorderSquads = if (s.activeTab == 0) s.internalSquads else s.externalSquads
     }
 
+    // Safe to read the live activeTab here: the tab cannot change mid-drag (the drag handle is
+    // bound to an item in the active tab's list). commitReorder() instead uses the tab captured
+    // at beginReorder(), because it runs after the gesture in a coroutine.
     fun moveSquad(from: Int, to: Int) {
         _state.update { s ->
             if (s.activeTab == 0) s.copy(internalSquads = reorderList(s.internalSquads, from, to))
