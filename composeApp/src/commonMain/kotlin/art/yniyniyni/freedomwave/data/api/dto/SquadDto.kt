@@ -157,6 +157,22 @@ data class UpdateSquadRequest(
     @SerialName("HWIDNotSupported")      val hwidNotSupported: List<String> = emptyList(),
 )
 
+// Reorder
+
+@Serializable
+data class ReorderSquadItem(
+    @SerialName("uuid")         val uuid: String,
+    @SerialName("viewPosition") val viewPosition: Int,
+)
+
+@Serializable
+data class ReorderSquadsRequest(
+    @SerialName("items") val items: List<ReorderSquadItem>,
+)
+
+fun reorderSquadsPayload(orderedUuids: List<String>): List<ReorderSquadItem> =
+    orderedUuids.mapIndexed { index, uuid -> ReorderSquadItem(uuid = uuid, viewPosition = index) }
+
 // Update requests
 
 @Serializable data class UpdateInternalSquadFullRequest(

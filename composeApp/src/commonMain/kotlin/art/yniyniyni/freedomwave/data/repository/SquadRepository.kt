@@ -2,6 +2,7 @@ package art.yniyniyni.freedomwave.data.repository
 
 import art.yniyniyni.freedomwave.data.api.dto.UpdateExternalSquadRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateInternalSquadFullRequest
+import art.yniyniyni.freedomwave.data.api.dto.reorderSquadsPayload
 import art.yniyniyni.freedomwave.data.api.service.SquadService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.ExternalSquadDetail
@@ -60,5 +61,13 @@ class SquadRepository(
     suspend fun updateExternalSquadFull(req: UpdateExternalSquadRequest): Result<Unit> = runCatching {
         service.updateExternalSquadFull(req)
         Unit
+    }.clearOnUnauthorized(prefs)
+
+    suspend fun reorderInternalSquads(orderedUuids: List<String>): Result<Unit> = runCatching {
+        service.reorderInternalSquads(reorderSquadsPayload(orderedUuids))
+    }.clearOnUnauthorized(prefs)
+
+    suspend fun reorderExternalSquads(orderedUuids: List<String>): Result<Unit> = runCatching {
+        service.reorderExternalSquads(reorderSquadsPayload(orderedUuids))
     }.clearOnUnauthorized(prefs)
 }
