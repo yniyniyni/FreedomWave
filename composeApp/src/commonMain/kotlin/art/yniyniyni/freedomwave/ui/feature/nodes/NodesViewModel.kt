@@ -6,6 +6,7 @@ import art.yniyniyni.freedomwave.data.repository.NodeRepository
 import art.yniyniyni.freedomwave.domain.model.Node
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,11 +24,14 @@ class NodesViewModel(private val nodeRepository: NodeRepository) : ViewModel() {
 
     private val _state = MutableStateFlow(NodesUiState())
     val state: StateFlow<NodesUiState> = _state.asStateFlow()
+    
+    private var loadJob: Job? = null
 
     init { load() }
 
     fun load() {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
             nodeRepository.getNodes()
                 .onSuccess { nodes -> _state.update { it.copy(isLoading = false, nodes = nodes) } }

@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.concurrent.Volatile
 
 class AppPreferences(
@@ -17,6 +19,8 @@ class AppPreferences(
 
     @Volatile
     private var cachedServerUrl: String? = null
+    
+    private val migrationMutex = Mutex()
 
     companion object {
         private val KEY_SERVER_URL  = stringPreferencesKey("server_url")
@@ -54,11 +58,16 @@ class AppPreferences(
     suspend fun getApiKey(): String? {
         val stored = dataStore.data.first()[KEY_API_KEY] ?: return null
         secretStore.decrypt(stored)?.let { return it }
-        // Legacy plaintext written before encryption existed: re-encrypt in place so the
-        // plaintext no longer sits in the DataStore, then return the (still valid) key.
-        val token = secretStore.encrypt(stored)
-        if (token != stored) dataStore.edit { it[KEY_API_KEY] = token }
-        return stored
+        
+        // Legacy plaintext migration with double-checked locking
+        return migrationMutex.withLock {
+            val refreshed = dataStore.data.first()[KEY_API_KEY] ?: return null
+            secretStore.decrypt(refreshed)?.let { return it }
+            
+            val token = secretStore.encrypt(stored)
+            if (token != stored) dataStore.edit { it[KEY_API_KEY] = token }
+            stored
+        }
     }
 
     suspend fun saveApiKey(serverUrl: String, apiKey: String) {
