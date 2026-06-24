@@ -10,6 +10,8 @@ import art.yniyniyni.freedomwave.data.store.AppPreferences
 internal suspend fun <T> Result<T>.clearOnUnauthorized(prefs: AppPreferences): Result<T> {
     if (exceptionOrNull() is ApiError.Unauthorized) {
         prefs.clearCredentials()
+        // Forced logout: drop biometric unlock too, mirroring an explicit log out.
+        prefs.saveBiometricEnabled(false)
     }
     return this
 }

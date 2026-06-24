@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import art.yniyniyni.freedomwave.ui.components.FwNavDestination
 import art.yniyniyni.freedomwave.ui.components.FwNavigationContainer
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,7 +44,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -146,7 +145,6 @@ import freedomwave.composeapp.generated.resources.nodes_status_online
 import freedomwave.composeapp.generated.resources.nodes_title_count
 import art.yniyniyni.freedomwave.ui.components.BandwidthChart
 import art.yniyniyni.freedomwave.ui.components.ChartSeries
-import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthUiState
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.TimeRange
@@ -268,7 +266,7 @@ private fun NodesListContent(
     ) { padding ->
         when {
             state.isLoading && state.nodes.isEmpty() ->
-                ShimmerList(modifier = Modifier.padding(padding))
+                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) { WaveLoader() }
             state.error != null && state.nodes.isEmpty() ->
                 Column(
                     Modifier.fillMaxSize().padding(padding).padding(32.dp),
@@ -485,10 +483,7 @@ private fun NodeDetailScreen(
                     }
                     when {
                         bandwidthState.isLoading ->
-                            CircularProgressIndicator(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp).wrapContentWidth(Alignment.CenterHorizontally),
-                                color    = MaterialTheme.colorScheme.primary,
-                            )
+                            Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { WaveLoader() }
 
                         nodeSeries.isEmpty() && bandwidthState.data != null ->
                             Text(

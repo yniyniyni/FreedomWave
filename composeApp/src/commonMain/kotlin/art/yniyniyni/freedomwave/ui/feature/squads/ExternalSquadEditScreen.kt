@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,7 +32,7 @@ import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -153,7 +153,7 @@ internal fun ExternalSquadEditScreen(
     ) { padding ->
         if (state.isLoading) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                WaveLoader()
             }
             return@Scaffold
         }
@@ -436,11 +436,7 @@ internal fun ExternalSquadEditScreen(
                     shape = RoundedCornerShape(percent = 50),
                 ) {
                     if (state.isSaving) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(end = 8.dp).heightIn(max = 18.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
+                        WaveLoader(modifier = Modifier.padding(end = 8.dp).size(width = 28.dp, height = 18.dp), color = MaterialTheme.colorScheme.onPrimary)
                     } else {
                         Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.padding(end = 6.dp))
                     }

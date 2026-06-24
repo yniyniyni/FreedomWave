@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,7 +26,7 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -298,7 +299,7 @@ internal fun UserCreateEditScreen(
                     shape = RoundedCornerShape(percent = 50),
                 ) {
                     if (state.formIsLoading) {
-                        CircularProgressIndicator(modifier = Modifier.height(18.dp), strokeWidth = 2.dp)
+                        WaveLoader(modifier = Modifier.size(width = 28.dp, height = 18.dp))
                     } else {
                         Text(
                             stringResource(

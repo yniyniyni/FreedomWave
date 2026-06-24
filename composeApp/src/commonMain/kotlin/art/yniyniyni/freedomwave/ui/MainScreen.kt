@@ -1,5 +1,11 @@
 package art.yniyniyni.freedomwave.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,14 +24,15 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import art.yniyniyni.freedomwave.ui.components.LocalTabAtRootReporter
 import freedomwave.composeapp.generated.resources.Res
 import freedomwave.composeapp.generated.resources.nav_dashboard
 import freedomwave.composeapp.generated.resources.nav_hosts
@@ -48,12 +55,19 @@ private enum class MainTab(val labelRes: StringResource, val icon: ImageVector) 
     SETTINGS (Res.string.nav_settings,  Icons.Rounded.Settings),
 }
 
+/** What the tab content animates on: the tab plus a reset counter (re-tap from a detail). */
+private data class TabContent(val tab: MainTab, val resetKey: Int)
+
 @Composable
 fun MainScreen() {
     var selected by rememberSaveable { mutableStateOf(MainTab.DASHBOARD) }
-    // Bumped when the active tab is re-tapped; forces the tab's content to recreate, resetting its
-    // in-screen master-detail navigation back to the tab's root (e.g. Squads -> Settings root).
+    // Bumped when the active tab is re-tapped from a detail; forces the tab to recreate at its root.
     var resetKey by rememberSaveable { mutableStateOf(0) }
+    // Whether the currently shown tab is at its root, reported by its navigation owner (if any).
+    val atRoot = remember { mutableStateOf(true) }
+    val reportAtRoot = remember { { v: Boolean -> atRoot.value = v } }
+    // Tab-switch transition: -1 slide from the left, 1 slide from the right, 0 cross-fade.
+    var transitionDir by remember { mutableStateOf(0) }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -67,10 +81,28 @@ fun MainScreen() {
                     val tabLabel = stringResource(tab.labelRes)
                     NavigationBarItem(
                         selected = isSelected,
-                        // Switching tabs already starts the target at its root (the previous screen
-                        // leaves composition); re-tapping the active tab resets it via resetKey.
-                        onClick  = { if (selected == tab) resetKey++ else selected = tab },
-                        icon     = {
+                        onClick = {
+                            val cur = selected
+                            if (cur == tab) {
+                                // Re-tap: from a detail, fade back to the root; at root, do nothing.
+                                if (!atRoot.value) {
+                                    transitionDir = 0
+                                    resetKey++
+                                    atRoot.value = true
+                                }
+                            } else {
+                                // Slide directionally from a root; cross-fade from inside a detail.
+                                transitionDir = when {
+                                    !atRoot.value -> 0
+                                    tab.ordinal > cur.ordinal -> 1
+                                    else -> -1
+                                }
+                                selected = tab
+                                // The target tab opens at its root; its owner refines this if needed.
+                                atRoot.value = true
+                            }
+                        },
+                        icon = {
                             Icon(
                                 imageVector        = tab.icon,
                                 contentDescription = tabLabel,
@@ -89,14 +121,30 @@ fun MainScreen() {
             }
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            key(resetKey) {
-                when (selected) {
-                    MainTab.DASHBOARD -> DashboardScreen()
-                    MainTab.USERS     -> UsersScreen()
-                    MainTab.NODES     -> NodesScreen()
-                    MainTab.HOSTS     -> HostsScreen()
-                    MainTab.SETTINGS  -> SettingsScreen()
+        CompositionLocalProvider(LocalTabAtRootReporter provides reportAtRoot) {
+            AnimatedContent(
+                targetState = TabContent(selected, resetKey),
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentKey = { "${it.tab}-${it.resetKey}" },
+                transitionSpec = {
+                    when (transitionDir) {
+                        1 -> (slideInHorizontally { it } + fadeIn()) togetherWith
+                            (slideOutHorizontally { -it } + fadeOut())
+                        -1 -> (slideInHorizontally { -it } + fadeIn()) togetherWith
+                            (slideOutHorizontally { it } + fadeOut())
+                        else -> fadeIn() togetherWith fadeOut()
+                    }
+                },
+                label = "tab",
+            ) { state ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    when (state.tab) {
+                        MainTab.DASHBOARD -> DashboardScreen()
+                        MainTab.USERS     -> UsersScreen()
+                        MainTab.NODES     -> NodesScreen()
+                        MainTab.HOSTS     -> HostsScreen()
+                        MainTab.SETTINGS  -> SettingsScreen()
+                    }
                 }
             }
         }

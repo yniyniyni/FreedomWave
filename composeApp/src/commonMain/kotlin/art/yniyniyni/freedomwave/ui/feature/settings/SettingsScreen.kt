@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -27,7 +28,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -52,6 +53,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -71,6 +73,7 @@ import art.yniyniyni.freedomwave.ui.components.DetailRow
 import art.yniyniyni.freedomwave.ui.components.DetailSectionTitle
 import art.yniyniyni.freedomwave.ui.components.FwDetailCard
 import art.yniyniyni.freedomwave.ui.components.FwSectionIcon
+import art.yniyniyni.freedomwave.ui.components.LocalTabAtRootReporter
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_DARK
 import art.yniyniyni.freedomwave.data.store.AppPreferences.Companion.THEME_LIGHT
@@ -150,6 +153,10 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
     val top = stack.last()
     val canGoBack = stack.size > 1
 
+    // Report this tab's root state up to the bottom-tab host for its slide/fade decision.
+    val reportAtRoot = LocalTabAtRootReporter.current
+    LaunchedEffect(canGoBack, reportAtRoot) { reportAtRoot(!canGoBack) }
+
     val transitionState = remember { SeekableTransitionState<SettingsNav>(SettingsNav.Settings) }
     val transition = rememberTransition(transitionState, label = "settings_nav")
     LaunchedEffect(top) {
@@ -183,7 +190,10 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
         }
 
         if (navEntry == SettingsNav.Squads) {
-            SquadsScreen(onBack = { stack = stack.dropLast(1) })
+            // Shadow the reporter so Squads' own nav container can't overwrite Settings' report.
+            CompositionLocalProvider(LocalTabAtRootReporter provides {}) {
+                SquadsScreen(onBack = { stack = stack.dropLast(1) })
+            }
             return@AnimatedContent
         }
 
@@ -495,7 +505,7 @@ private fun ChangeKeyDialog(
                 enabled = !isLoading,
                 shape = RoundedCornerShape(percent = 50),
             ) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.height(16.dp), strokeWidth = 2.dp)
+                if (isLoading) WaveLoader(modifier = Modifier.size(width = 26.dp, height = 16.dp))
                 else Text(stringResource(Res.string.common_connect))
             }
         },

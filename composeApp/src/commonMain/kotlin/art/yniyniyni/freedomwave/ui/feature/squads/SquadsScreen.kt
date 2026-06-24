@@ -34,7 +34,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
@@ -76,7 +76,6 @@ import freedomwave.composeapp.generated.resources.squads_new_squad
 import freedomwave.composeapp.generated.resources.squads_title
 import freedomwave.composeapp.generated.resources.squads_type_external
 import freedomwave.composeapp.generated.resources.squads_type_internal
-import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -193,7 +192,7 @@ private fun SquadsListContent(
             },
             confirmButton = {
                 Button(onClick = vm::createSquad, enabled = !state.dialogIsLoading) {
-                    if (state.dialogIsLoading) CircularProgressIndicator(modifier = Modifier.height(16.dp), strokeWidth = 2.dp)
+                    if (state.dialogIsLoading) WaveLoader(modifier = Modifier.size(width = 26.dp, height = 16.dp))
                     else Text(stringResource(Res.string.common_create))
                 }
             },
@@ -236,7 +235,7 @@ private fun SquadsListContent(
             )
 
             when {
-                state.isLoading && currentList.isEmpty() -> ShimmerList()
+                state.isLoading && currentList.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { WaveLoader() }
 
                 state.error != null && currentList.isEmpty() ->
                     Box(modifier = Modifier.fillMaxSize()) {

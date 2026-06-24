@@ -48,7 +48,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -160,7 +160,6 @@ import freedomwave.composeapp.generated.resources.users_subscription_qr
 import freedomwave.composeapp.generated.resources.users_title_count
 import freedomwave.composeapp.generated.resources.users_traffic_view_stats
 import freedomwave.composeapp.generated.resources.users_zero_unlimited
-import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.l10n.localized
 import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
 import art.yniyniyni.freedomwave.ui.l10n.resolve
@@ -338,7 +337,7 @@ private fun UsersListContent(
                 }
             }
             when {
-                state.isLoading && state.users.isEmpty() -> ShimmerList()
+                state.isLoading && state.users.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { WaveLoader() }
                 state.error != null && state.users.isEmpty() ->
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -744,10 +743,7 @@ private fun UserDetailScreen(
                         when {
                             detailState.devicesLoading ->
                                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        strokeWidth = 2.dp,
-                                    )
+                                    WaveLoader(modifier = Modifier.size(width = 36.dp, height = 24.dp))
                                 }
                             detailState.devicesError != null ->
                                 Text(
@@ -812,10 +808,7 @@ private fun UserDetailScreen(
                         when {
                             detailState.ipLoading ->
                                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        strokeWidth = 2.dp,
-                                    )
+                                    WaveLoader(modifier = Modifier.size(width = 36.dp, height = 24.dp))
                                 }
                             detailState.ipError != null ->
                                 Text(

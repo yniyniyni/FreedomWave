@@ -40,7 +40,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -90,7 +90,6 @@ import art.yniyniyni.freedomwave.domain.model.BillingStats
 import art.yniyniyni.freedomwave.domain.model.InfraProvider
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
-import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.l10n.localized
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
@@ -218,7 +217,7 @@ fun InfraBillingScreen(vm: InfraBillingViewModel = koinViewModel(), onBack: (() 
                             providersCount = state.providers.size,
                             onSelect = vm::setTab,
                         )
-                        ShimmerList()
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { WaveLoader() }
                     }
 
                 state.error != null && state.stats == null ->
@@ -731,7 +730,7 @@ private fun DialogScaffold(
         },
         confirmButton = {
             Button(onClick = onConfirm, enabled = !isLoading && confirmEnabled) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.height(16.dp), strokeWidth = 2.dp)
+                if (isLoading) WaveLoader(modifier = Modifier.size(width = 26.dp, height = 16.dp))
                 else Text(confirmLabel)
             }
         },

@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -85,10 +85,7 @@ fun LockScreen(
             Spacer(Modifier.height(48.dp))
 
             if (isAuthenticating) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(48.dp),
-                    color    = MaterialTheme.colorScheme.primary,
-                )
+                WaveLoader(modifier = Modifier.size(width = 70.dp, height = 48.dp))
             } else {
                 errorMessage?.let {
                     Text(
