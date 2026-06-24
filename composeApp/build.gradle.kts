@@ -55,6 +55,9 @@ kotlin {
             // QR Code
             implementation(libs.qrose)
 
+            // Drag-to-reorder
+            implementation(libs.reorderable)
+
             // Logging
             implementation(libs.kermit)
         }
