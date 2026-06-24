@@ -6,6 +6,7 @@ import art.yniyniyni.freedomwave.data.repository.HostRepository
 import art.yniyniyni.freedomwave.domain.model.Host
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
+import art.yniyniyni.freedomwave.util.reorderList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -82,9 +83,4 @@ class HostsViewModel(private val repository: HostRepository) : ViewModel() {
                 }
         }
     }
-}
-
-fun <T> reorderList(list: List<T>, from: Int, to: Int): List<T> {
-    if (from !in list.indices || to !in list.indices || from == to) return list
-    return list.toMutableList().apply { add(to, removeAt(from)) }
 }

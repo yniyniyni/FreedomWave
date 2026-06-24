@@ -1,6 +1,6 @@
 package art.yniyniyni.freedomwave
 
-import art.yniyniyni.freedomwave.ui.feature.hosts.reorderList
+import art.yniyniyni.freedomwave.util.reorderList
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
