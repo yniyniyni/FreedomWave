@@ -145,7 +145,6 @@ import freedomwave.composeapp.generated.resources.nodes_status_online
 import freedomwave.composeapp.generated.resources.nodes_title_count
 import art.yniyniyni.freedomwave.ui.components.BandwidthChart
 import art.yniyniyni.freedomwave.ui.components.ChartSeries
-import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthUiState
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.BandwidthViewModel
 import art.yniyniyni.freedomwave.ui.feature.bandwidth.TimeRange
@@ -267,7 +266,7 @@ private fun NodesListContent(
     ) { padding ->
         when {
             state.isLoading && state.nodes.isEmpty() ->
-                ShimmerList(modifier = Modifier.padding(padding))
+                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) { WaveLoader() }
             state.error != null && state.nodes.isEmpty() ->
                 Column(
                     Modifier.fillMaxSize().padding(padding).padding(32.dp),

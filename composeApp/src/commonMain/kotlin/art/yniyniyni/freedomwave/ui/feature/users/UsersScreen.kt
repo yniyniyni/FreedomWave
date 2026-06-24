@@ -160,7 +160,6 @@ import freedomwave.composeapp.generated.resources.users_subscription_qr
 import freedomwave.composeapp.generated.resources.users_title_count
 import freedomwave.composeapp.generated.resources.users_traffic_view_stats
 import freedomwave.composeapp.generated.resources.users_zero_unlimited
-import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.l10n.localized
 import art.yniyniyni.freedomwave.ui.l10n.localizedBytes
 import art.yniyniyni.freedomwave.ui.l10n.resolve
@@ -338,7 +337,7 @@ private fun UsersListContent(
                 }
             }
             when {
-                state.isLoading && state.users.isEmpty() -> ShimmerList()
+                state.isLoading && state.users.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { WaveLoader() }
                 state.error != null && state.users.isEmpty() ->
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {

@@ -52,7 +52,7 @@ import freedomwave.composeapp.generated.resources.hosts_empty
 import freedomwave.composeapp.generated.resources.hosts_form_add
 import freedomwave.composeapp.generated.resources.hosts_status_disabled
 import freedomwave.composeapp.generated.resources.hosts_title_count
-import art.yniyniyni.freedomwave.ui.components.ShimmerList
+import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
 import org.jetbrains.compose.resources.stringResource
@@ -143,7 +143,7 @@ private fun HostsListContent(
     ) { padding ->
         when {
             state.isLoading && state.hosts.isEmpty() ->
-                ShimmerList(modifier = Modifier.padding(padding))
+                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) { WaveLoader() }
 
             state.error != null && state.hosts.isEmpty() ->
                 Box(Modifier.fillMaxSize().padding(padding)) {

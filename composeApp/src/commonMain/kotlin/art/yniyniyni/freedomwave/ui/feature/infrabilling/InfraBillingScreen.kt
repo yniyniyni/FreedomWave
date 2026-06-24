@@ -90,7 +90,6 @@ import art.yniyniyni.freedomwave.domain.model.BillingStats
 import art.yniyniyni.freedomwave.domain.model.InfraProvider
 import art.yniyniyni.freedomwave.ui.components.FwDetailTopBar
 import art.yniyniyni.freedomwave.ui.components.FwTopBar
-import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.l10n.localized
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import art.yniyniyni.freedomwave.ui.theme.LocalFwMonoFont
@@ -218,7 +217,7 @@ fun InfraBillingScreen(vm: InfraBillingViewModel = koinViewModel(), onBack: (() 
                             providersCount = state.providers.size,
                             onSelect = vm::setTab,
                         )
-                        ShimmerList()
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { WaveLoader() }
                     }
 
                 state.error != null && state.stats == null ->

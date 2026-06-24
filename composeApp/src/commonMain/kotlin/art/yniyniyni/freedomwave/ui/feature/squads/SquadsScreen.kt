@@ -76,7 +76,6 @@ import freedomwave.composeapp.generated.resources.squads_new_squad
 import freedomwave.composeapp.generated.resources.squads_title
 import freedomwave.composeapp.generated.resources.squads_type_external
 import freedomwave.composeapp.generated.resources.squads_type_internal
-import art.yniyniyni.freedomwave.ui.components.ShimmerList
 import art.yniyniyni.freedomwave.ui.l10n.resolve
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -236,7 +235,7 @@ private fun SquadsListContent(
             )
 
             when {
-                state.isLoading && currentList.isEmpty() -> ShimmerList()
+                state.isLoading && currentList.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { WaveLoader() }
 
                 state.error != null && currentList.isEmpty() ->
                     Box(modifier = Modifier.fillMaxSize()) {
