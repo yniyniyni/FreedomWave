@@ -55,4 +55,24 @@ class HostsViewModel(private val repository: HostRepository) : ViewModel() {
                 }
         }
     }
+
+    fun moveHost(from: Int, to: Int) {
+        _state.update { it.copy(hosts = reorderList(it.hosts, from, to)) }
+    }
+
+    fun commitReorder() {
+        viewModelScope.launch {
+            val orderedUuids = _state.value.hosts.map { it.uuid }
+            repository.reorderHosts(orderedUuids)
+                .onFailure { e ->
+                    _state.update { it.copy(actionError = e.toUiText()) }
+                    load()
+                }
+        }
+    }
+}
+
+fun <T> reorderList(list: List<T>, from: Int, to: Int): List<T> {
+    if (from !in list.indices || to !in list.indices || from == to) return list
+    return list.toMutableList().apply { add(to, removeAt(from)) }
 }
