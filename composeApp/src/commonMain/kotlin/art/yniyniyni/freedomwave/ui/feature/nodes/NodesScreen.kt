@@ -222,8 +222,7 @@ fun NodesScreen(
             }
             is NodesNav.Form -> {
                 val uuid = navEntry.node?.uuid
-                val vmKey = uuid?.let { "node-form-$it" } ?: "node-form-new-${navEntry.epoch}"
-                val formVm: NodeFormViewModel = koinViewModel(key = vmKey) { parametersOf(uuid) }
+                val formVm: NodeFormViewModel = koinViewModel(key = "node-form-${navEntry.epoch}") { parametersOf(uuid) }
                 NodeCreateEditScreen(
                     vm = formVm,
                     onBack = { pop() },
