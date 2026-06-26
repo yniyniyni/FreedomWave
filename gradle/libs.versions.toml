@@ -6,6 +6,8 @@ compose-multiplatform   = "1.10.3"
 # AndroidX / Jetpack
 androidx-activity       = "1.13.0"
 androidx-core           = "1.16.0"
+glance                  = "1.1.1"
+androidx-work           = "2.10.0"
 lifecycle               = "2.10.0"
 datastore               = "1.2.0"
 
@@ -33,6 +35,8 @@ espresso                = "3.7.0"
 # AndroidX (androidMain only)
 androidx-activity-compose    = { module = "androidx.activity:activity-compose",              version.ref = "androidx-activity" }
 androidx-core-ktx            = { module = "androidx.core:core-ktx",                          version.ref = "androidx-core" }
+glance-appwidget             = { module = "androidx.glance:glance-appwidget",                  version.ref = "glance" }
+androidx-work-runtime        = { module = "androidx.work:work-runtime-ktx",                    version.ref = "androidx-work" }
 
 # Lifecycle (KMP-compatible JetBrains port)
 lifecycle-viewmodel-compose  = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }

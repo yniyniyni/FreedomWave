@@ -54,6 +54,8 @@ androidComponents {
 
 dependencies {
     implementation(project(":composeApp"))
+    implementation(libs.glance.appwidget)
+    implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation("androidx.appcompat:appcompat:1.7.0")
