@@ -3,6 +3,7 @@ package art.yniyniyni.freedomwave.widget
 import android.content.Context
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.updateAll
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
