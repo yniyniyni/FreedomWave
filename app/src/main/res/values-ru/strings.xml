@@ -8,4 +8,6 @@
     <string name="widget_not_connected">Нет подключения — откройте приложение</string>
     <string name="widget_refresh_failed">Не удалось обновить</string>
     <string name="widget_loading">Загрузка…</string>
+    <string name="widget_dashboard">Панель</string>
+    <string name="widget_refresh_cd">Обновить</string>
 </resources>
