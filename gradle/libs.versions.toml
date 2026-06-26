@@ -70,6 +70,9 @@ coil-network-ktor            = { module = "io.coil-kt.coil3:coil-network-ktor3",
 # QR Code
 qrose                        = { module = "io.github.alexzhirkevich:qrose",                   version = "1.0.1" }
 
+# Drag-to-reorder
+reorderable                  = { module = "sh.calvin.reorderable:reorderable",                version = "3.1.0" }
+
 # Logging
 kermit                       = { module = "co.touchlab:kermit",                               version.ref = "kermit" }
 

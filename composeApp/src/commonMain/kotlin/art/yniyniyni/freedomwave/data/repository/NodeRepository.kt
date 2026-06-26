@@ -2,6 +2,7 @@ package art.yniyniyni.freedomwave.data.repository
 
 import art.yniyniyni.freedomwave.data.api.dto.CreateNodeRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateNodeRequest
+import art.yniyniyni.freedomwave.data.api.dto.reorderNodesPayload
 import art.yniyniyni.freedomwave.data.api.service.NodeService
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import art.yniyniyni.freedomwave.domain.model.Node
@@ -23,6 +24,10 @@ class NodeRepository(
     suspend fun createNode(body: CreateNodeRequest): Result<Node> = api { Node.from(service.createNode(body).response) }
     suspend fun updateNode(body: UpdateNodeRequest): Result<Node> = api { Node.from(service.updateNode(body).response) }
     suspend fun deleteNode(uuid: String): Result<Unit> = api { service.deleteNode(uuid) }
+
+    suspend fun reorderNodes(orderedUuids: List<String>): Result<Unit> = api {
+        service.reorderNodes(reorderNodesPayload(orderedUuids))
+    }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =
         runCatching { block() }.clearOnUnauthorized(prefs)

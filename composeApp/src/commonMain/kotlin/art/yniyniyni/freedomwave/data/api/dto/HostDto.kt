@@ -51,3 +51,17 @@ data class HostDto(
 data class BulkUuidsRequest(
     @SerialName("uuids") val uuids: List<String>
 )
+
+@Serializable
+data class ReorderHostItem(
+    @SerialName("uuid")         val uuid: String,
+    @SerialName("viewPosition") val viewPosition: Int,
+)
+
+@Serializable
+data class ReorderHostsRequest(
+    @SerialName("hosts") val hosts: List<ReorderHostItem>,
+)
+
+fun reorderHostsPayload(orderedUuids: List<String>): List<ReorderHostItem> =
+    orderedUuids.mapIndexed { index, uuid -> ReorderHostItem(uuid = uuid, viewPosition = index) }

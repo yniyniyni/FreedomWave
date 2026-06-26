@@ -3,6 +3,8 @@ package art.yniyniyni.freedomwave.data.api.service
 import art.yniyniyni.freedomwave.data.api.dto.CreateNodeRequest
 import art.yniyniyni.freedomwave.data.api.dto.NodeListResponse
 import art.yniyniyni.freedomwave.data.api.dto.NodeResponse
+import art.yniyniyni.freedomwave.data.api.dto.ReorderNodeItem
+import art.yniyniyni.freedomwave.data.api.dto.ReorderNodesRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateNodeRequest
 import art.yniyniyni.freedomwave.data.store.AppPreferences
 import io.ktor.client.HttpClient
@@ -40,5 +42,11 @@ class NodeService(private val client: HttpClient, private val prefs: AppPreferen
 
     suspend fun deleteNode(uuid: String) {
         client.delete("${prefs.getServerUrl()}/api/nodes/$uuid")
+    }
+
+    suspend fun reorderNodes(nodes: List<ReorderNodeItem>) {
+        client.post("${prefs.getServerUrl()}/api/nodes/actions/reorder") {
+            setBody(ReorderNodesRequest(nodes))
+        }
     }
 }

@@ -65,9 +65,10 @@ data class FwStatus(
     val warning: Color,
     val offline: Color,
     val neutral: Color,
+    val hidden: Color,
 )
 
-val FwStatusDark  = FwStatus(Color(0xFF45D483), Color(0xFFF4B740), Color(0xFFFF6B7D), Color(0xFF97A4B2))
-val FwStatusLight = FwStatus(Color(0xFF1E9E5A), Color(0xFFB5790C), Color(0xFFD23E52), Color(0xFF51606E))
+val FwStatusDark  = FwStatus(Color(0xFF45D483), Color(0xFFF4B740), Color(0xFFFF6B7D), Color(0xFF97A4B2), Color(0xFFB892FF))
+val FwStatusLight = FwStatus(Color(0xFF1E9E5A), Color(0xFFB5790C), Color(0xFFD23E52), Color(0xFF51606E), Color(0xFF6E40C9))
 
 val LocalFwStatus = staticCompositionLocalOf { FwStatusDark }

@@ -8,6 +8,7 @@ import freedomwave.composeapp.generated.resources.Res
 import freedomwave.composeapp.generated.resources.squads_name_required
 import art.yniyniyni.freedomwave.ui.l10n.UiText
 import art.yniyniyni.freedomwave.ui.l10n.toUiText
+import art.yniyniyni.freedomwave.util.reorderList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,6 +90,43 @@ class SquadsViewModel(private val repository: SquadRepository) : ViewModel() {
                     }
                 }
                 .onFailure { e -> _state.update { it.copy(dialogIsLoading = false, dialogError = e.toUiText()) } }
+        }
+    }
+
+    private var preReorderSquads: List<Squad>? = null
+    private var reorderTab: Int = 0
+
+    fun beginReorder() {
+        val s = _state.value
+        reorderTab = s.activeTab
+        preReorderSquads = if (s.activeTab == 0) s.internalSquads else s.externalSquads
+    }
+
+    // Safe to read the live activeTab here: the tab cannot change mid-drag (the drag handle is
+    // bound to an item in the active tab's list). commitReorder() instead uses the tab captured
+    // at beginReorder(), because it runs after the gesture in a coroutine.
+    fun moveSquad(from: Int, to: Int) {
+        _state.update { s ->
+            if (s.activeTab == 0) s.copy(internalSquads = reorderList(s.internalSquads, from, to))
+            else s.copy(externalSquads = reorderList(s.externalSquads, from, to))
+        }
+    }
+
+    fun commitReorder() {
+        val tab = reorderTab
+        val snapshot = preReorderSquads
+        preReorderSquads = null
+        viewModelScope.launch {
+            val current = _state.value
+            val orderedUuids = (if (tab == 0) current.internalSquads else current.externalSquads).map { it.uuid }
+            val result = if (tab == 0) repository.reorderInternalSquads(orderedUuids)
+                         else repository.reorderExternalSquads(orderedUuids)
+            result.onFailure { e ->
+                _state.update { st ->
+                    if (tab == 0) st.copy(internalSquads = snapshot ?: st.internalSquads, actionError = e.toUiText())
+                    else st.copy(externalSquads = snapshot ?: st.externalSquads, actionError = e.toUiText())
+                }
+            }
         }
     }
 

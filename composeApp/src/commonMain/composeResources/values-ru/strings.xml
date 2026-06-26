@@ -353,6 +353,7 @@
     <string name="hosts_detail_status">Статус</string>
     <string name="hosts_status_enabled">Включён</string>
     <string name="hosts_status_disabled">Отключён</string>
+    <string name="hosts_status_hidden">Скрыт</string>
     <string name="hosts_detail_tag">Тег</string>
     <string name="hosts_detail_description">Описание</string>
     <string name="hosts_detail_visibility">Видимость</string>

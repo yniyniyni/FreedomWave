@@ -8,6 +8,8 @@ import art.yniyniyni.freedomwave.data.api.dto.ExternalSquadResponse
 import art.yniyniyni.freedomwave.data.api.dto.InternalSquadDetailResponse
 import art.yniyniyni.freedomwave.data.api.dto.InternalSquadListResponse
 import art.yniyniyni.freedomwave.data.api.dto.InternalSquadResponse
+import art.yniyniyni.freedomwave.data.api.dto.ReorderSquadItem
+import art.yniyniyni.freedomwave.data.api.dto.ReorderSquadsRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateExternalSquadRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateInternalSquadFullRequest
 import art.yniyniyni.freedomwave.data.api.dto.UpdateSquadRequest
@@ -69,4 +71,16 @@ class SquadService(private val client: HttpClient, private val prefs: AppPrefere
 
     suspend fun updateExternalSquadFull(req: UpdateExternalSquadRequest): ExternalSquadResponse =
         client.patch("${prefs.getServerUrl()}/api/external-squads") { setBody(req) }.body()
+
+    suspend fun reorderInternalSquads(items: List<ReorderSquadItem>) {
+        client.post("${prefs.getServerUrl()}/api/internal-squads/actions/reorder") {
+            setBody(ReorderSquadsRequest(items))
+        }
+    }
+
+    suspend fun reorderExternalSquads(items: List<ReorderSquadItem>) {
+        client.post("${prefs.getServerUrl()}/api/external-squads/actions/reorder") {
+            setBody(ReorderSquadsRequest(items))
+        }
+    }
 }
