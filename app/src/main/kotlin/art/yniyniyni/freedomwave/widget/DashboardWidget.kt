@@ -114,7 +114,7 @@ private fun Footer(snapshot: WidgetSnapshot) {
     val nowMs = System.currentTimeMillis()
     val label = when (snapshot.status) {
         Status.Error -> context.getString(R.string.widget_refresh_failed)
-        Status.Loading -> "…"
+        Status.Loading -> context.getString(R.string.widget_loading)
         else -> context.getString(R.string.widget_updated, relativeTimeLabel(snapshot.updatedAtEpochMs, nowMs))
     }
     Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
