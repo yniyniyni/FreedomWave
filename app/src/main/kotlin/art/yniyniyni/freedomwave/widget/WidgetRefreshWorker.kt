@@ -26,12 +26,12 @@ class WidgetRefreshWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        val koin = GlobalContext.get()
+        val koin = GlobalContext.getOrNull() ?: return Result.retry()
         val prefs = koin.get<AppPreferences>()
         val repo = koin.get<DashboardRepository>()
 
         val apiKeyPresent = prefs.getApiKey() != null
-        val fetch = if (apiKeyPresent) repo.getStats() else null
+        val fetch = if (apiKeyPresent) repo.getStats(clearCredentialsOnUnauthorized = false) else null
         val nowMs = System.currentTimeMillis()
 
         val manager = GlanceAppWidgetManager(applicationContext)
