@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "art.yniyniyni.freedomwave"
+    namespace = "org.freedomwave"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "art.yniyniyni.freedomwave"
+        applicationId = "org.freedomwave"
         minSdk = 31
         targetSdk = 36
         versionCode = 1

@@ -3,11 +3,11 @@
 -dontnote kotlinx.serialization.AnnotationsKt
 -keepclassmembers class kotlinx.serialization.json.** { *** Companion; }
 -keepclasseswithmembers class kotlinx.serialization.json.** { kotlinx.serialization.KSerializer serializer(...); }
--keep,includedescriptorclasses class art.yniyniyni.freedomwave.**$$serializer { *; }
--keepclassmembers class art.yniyniyni.freedomwave.** {
+-keep,includedescriptorclasses class org.freedomwave.**$$serializer { *; }
+-keepclassmembers class org.freedomwave.** {
     *** Companion;
 }
--keepclasseswithmembers class art.yniyniyni.freedomwave.** {
+-keepclasseswithmembers class org.freedomwave.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
 

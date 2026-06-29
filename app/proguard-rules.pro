@@ -31,4 +31,4 @@
 -keep class * extends androidx.room.RoomDatabase { <init>(); }
 -keep class androidx.work.impl.WorkDatabase_Impl { <init>(); }
 # Keep our CoroutineWorker so WorkManager's default factory can construct it by name.
--keep class art.yniyniyni.freedomwave.widget.WidgetRefreshWorker { <init>(...); }
+-keep class org.freedomwave.widget.WidgetRefreshWorker { <init>(...); }
