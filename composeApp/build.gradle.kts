@@ -8,7 +8,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "art.yniyniyni.freedomwave.shared"
+        namespace = "org.freedomwave.shared"
         compileSdk = 36
         minSdk = 31
         withHostTest {}
