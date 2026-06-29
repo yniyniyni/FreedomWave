@@ -1,0 +1,13 @@
+<resources>
+    <string name="widget_title">Панель FreedomWave</string>
+    <string name="widget_online">Онлайн</string>
+    <string name="widget_traffic">Трафик</string>
+    <string name="widget_nodes">Ноды</string>
+    <string name="widget_users">Пользователи</string>
+    <string name="widget_updated">Обновлено %1$s назад</string>
+    <string name="widget_not_connected">Нет подключения — откройте приложение</string>
+    <string name="widget_refresh_failed">Не удалось обновить</string>
+    <string name="widget_loading">Загрузка…</string>
+    <string name="widget_dashboard">Панель</string>
+    <string name="widget_refresh_cd">Обновить</string>
+</resources>

@@ -1,0 +1,37 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- Faint underlay wave (≈18% aqua) -->
+    <path
+        android:pathData="M12,64 C24,38 36,38 48,56 S72,74 84,48"
+        android:strokeColor="#2E2FE0C9"
+        android:strokeWidth="11"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <!-- Main wave with the signal-aqua gradient -->
+    <path
+        android:pathData="M12,56 C24,30 36,30 48,48 S72,66 84,40"
+        android:strokeWidth="11"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="12"
+                android:startY="56"
+                android:endX="84"
+                android:endY="40">
+                <item android:offset="0" android:color="#FF0FB8A4" />
+                <item android:offset="0.55" android:color="#FF2FE0C9" />
+                <item android:offset="1" android:color="#FF5CF0DC" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Node point at the leading crest -->
+    <path
+        android:fillColor="#FF5CF0DC"
+        android:pathData="M24.8,33.4 a5.2,5.2 0 1,0 10.4,0 a5.2,5.2 0 1,0 -10.4,0" />
+</vector>

@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">FreedomWave</string>
+    <string name="widget_title">FreedomWave Dashboard</string>
+    <string name="widget_online">Online</string>
+    <string name="widget_traffic">Traffic</string>
+    <string name="widget_nodes">Nodes</string>
+    <string name="widget_users">Users</string>
+    <string name="widget_updated">Updated %1$s ago</string>
+    <string name="widget_not_connected">Not connected — tap to open</string>
+    <string name="widget_refresh_failed">Couldn\'t refresh</string>
+    <string name="widget_loading">Loading…</string>
+    <string name="widget_dashboard">Dashboard</string>
+    <string name="widget_refresh_cd">Refresh</string>
 </resources>
