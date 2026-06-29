@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import art.yniyniyni.freedomwave.ui.components.WaveLoader
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -71,11 +72,15 @@ fun WelcomeScreen() {
     // rememberSaveable so the splash plays once per appearance (survives rotation, not cold start).
     var splashDone by rememberSaveable { mutableStateOf(false) }
 
-    Crossfade(targetState = splashDone, animationSpec = tween(200), label = "welcome") { done ->
-        if (!done) {
-            WaveSplash(onFinished = { splashDone = true })
-        } else {
-            WelcomePager()
+    // Paint the theme background ourselves — unlike MainScreen (Scaffold) and LockScreen (Surface),
+    // the welcome flow has no surface of its own and would otherwise show the bare window background.
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Crossfade(targetState = splashDone, animationSpec = tween(200), label = "welcome") { done ->
+            if (!done) {
+                WaveSplash(onFinished = { splashDone = true })
+            } else {
+                WelcomePager()
+            }
         }
     }
 }
