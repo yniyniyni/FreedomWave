@@ -21,12 +21,12 @@ class BandwidthService(private val client: HttpClient, private val prefs: AppPre
         }.body()
 
     suspend fun getUserStats(
-        uuid: String,
+        userRef: String,
         start: String,
         end: String,
         topNodesLimit: Int = 20
     ): BandwidthNodesResponse =
-        client.get("${prefs.getServerUrl()}/api/bandwidth-stats/users/$uuid") {
+        client.get("${prefs.getServerUrl()}/api/bandwidth-stats/users/$userRef") {
             parameter("start", start)
             parameter("end", end)
             parameter("topNodesLimit", topNodesLimit)

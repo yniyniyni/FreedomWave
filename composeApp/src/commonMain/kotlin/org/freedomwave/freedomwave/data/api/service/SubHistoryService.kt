@@ -17,8 +17,8 @@ class SubHistoryService(
     private val prefs: AppPreferences
 ) {
 
-    suspend fun getSubHistory(userUuid: String): SubHistoryResponse =
-        panelClient.get("${prefs.getServerUrl()}/api/users/$userUuid/subscription-request-history").body()
+    suspend fun getSubHistory(userRef: String): SubHistoryResponse =
+        panelClient.get("${prefs.getServerUrl()}/api/users/$userRef/subscription-request-history").body()
 
     /** Enrich a single IP via ipwho.is. Returns null on any failure. */
     suspend fun getIpInfo(ip: String): IpWhoIsResponse? = runCatching {

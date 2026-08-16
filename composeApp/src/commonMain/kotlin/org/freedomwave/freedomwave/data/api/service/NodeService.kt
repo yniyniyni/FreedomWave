@@ -28,11 +28,17 @@ class NodeService(private val client: HttpClient, private val prefs: AppPreferen
     suspend fun disableNode(uuid: String): NodeResponse =
         client.post("${prefs.getServerUrl()}/api/nodes/$uuid/actions/disable").body()
 
-    suspend fun restartNode(uuid: String): NodeResponse =
-        client.post("${prefs.getServerUrl()}/api/nodes/$uuid/actions/restart").body()
+    // Panel 3.x answers these with no body at all — restart is 202 Accepted (the restart is
+    // asynchronous) and reset-traffic is 204 No Content, where 2.8.x returned 200 with the node.
+    // Deserializing an empty body throws, so neither reads one; callers re-read via getNode().
 
-    suspend fun resetTraffic(uuid: String): NodeResponse =
-        client.post("${prefs.getServerUrl()}/api/nodes/$uuid/actions/reset-traffic").body()
+    suspend fun restartNode(uuid: String) {
+        client.post("${prefs.getServerUrl()}/api/nodes/$uuid/actions/restart")
+    }
+
+    suspend fun resetTraffic(uuid: String) {
+        client.post("${prefs.getServerUrl()}/api/nodes/$uuid/actions/reset-traffic")
+    }
 
     suspend fun createNode(body: CreateNodeRequest): NodeResponse =
         client.post("${prefs.getServerUrl()}/api/nodes") { setBody(body) }.body()

@@ -45,6 +45,8 @@ class UserService(private val client: HttpClient, private val prefs: AppPreferen
     suspend fun resetTraffic(userRef: String): UserResponse =
         client.post("${prefs.getServerUrl()}/api/users/$userRef/actions/reset-traffic").body()
 
+    // `revoke`, not `revoke-subscription`: the route was renamed in panel 2.8.0, so the old
+    // path 404s on every currently supported version. Still 200 with the user on 2.8.x and 3.x.
     suspend fun revokeSubscription(userRef: String): UserResponse =
-        client.post("${prefs.getServerUrl()}/api/users/$userRef/actions/revoke-subscription").body()
+        client.post("${prefs.getServerUrl()}/api/users/$userRef/actions/revoke").body()
 }

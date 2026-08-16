@@ -20,15 +20,20 @@ class HostService(private val client: HttpClient, private val prefs: AppPreferen
     suspend fun getHosts(): HostListResponse =
         client.get("${prefs.getServerUrl()}/api/hosts").body()
 
-    suspend fun enableHosts(uuids: List<String>): HostListResponse =
+    // Panel 3.x answers both with 204 No Content where 2.8.x returned 200 plus the host list.
+    // Deserializing an empty body throws, so neither reads one; callers re-read via getHosts().
+
+    suspend fun enableHosts(uuids: List<String>) {
         client.post("${prefs.getServerUrl()}/api/hosts/bulk/enable") {
             setBody(BulkUuidsRequest(uuids))
-        }.body()
+        }
+    }
 
-    suspend fun disableHosts(uuids: List<String>): HostListResponse =
+    suspend fun disableHosts(uuids: List<String>) {
         client.post("${prefs.getServerUrl()}/api/hosts/bulk/disable") {
             setBody(BulkUuidsRequest(uuids))
-        }.body()
+        }
+    }
 
     suspend fun getHost(uuid: String): HostResponse =
         client.get("${prefs.getServerUrl()}/api/hosts/$uuid").body()

@@ -15,12 +15,16 @@ class HostRepository(
         service.getHosts().response.map { Host.from(it) }
     }.clearOnUnauthorized(prefs)
 
+    // The bulk endpoints return 204 No Content on panel 3.x (2.8.x returned the host list), so
+    // the updated list comes from a follow-up read rather than the action's response.
     suspend fun enableHost(uuid: String): Result<List<Host>> = runCatching {
-        service.enableHosts(listOf(uuid)).response.map { Host.from(it) }
+        service.enableHosts(listOf(uuid))
+        service.getHosts().response.map { Host.from(it) }
     }.clearOnUnauthorized(prefs)
 
     suspend fun disableHost(uuid: String): Result<List<Host>> = runCatching {
-        service.disableHosts(listOf(uuid)).response.map { Host.from(it) }
+        service.disableHosts(listOf(uuid))
+        service.getHosts().response.map { Host.from(it) }
     }.clearOnUnauthorized(prefs)
 
     suspend fun getHost(uuid: String): Result<Host> = runCatching {

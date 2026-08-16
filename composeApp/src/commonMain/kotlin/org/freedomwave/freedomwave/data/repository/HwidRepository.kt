@@ -8,8 +8,8 @@ class HwidRepository(
     private val service: HwidService,
     private val prefs: AppPreferences
 ) {
-    suspend fun getDevices(userUuid: String): Result<List<HwidDevice>> = api {
-        service.getDevices(userUuid)
+    suspend fun getDevices(userRef: String): Result<List<HwidDevice>> = api {
+        service.getDevices(userRef)
             .response.devices.map { HwidDevice.from(it) }
     }
 
