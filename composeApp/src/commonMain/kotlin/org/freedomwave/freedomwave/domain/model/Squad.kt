@@ -47,13 +47,14 @@ data class SquadInbound(
 
 /** A user belonging to a squad — the minimal projection needed for the members list. */
 data class SquadMember(
-    val uuid: String,
+    /** The member's user identity — see [User.userRef]; a uuid on 2.8.x, a numeric id on 3.x. */
+    val userRef: String,
     val username: String,
     val status: UserStatus,
 ) {
     companion object {
         private fun List<User>.toMembers(): List<SquadMember> =
-            map { SquadMember(it.uuid, it.username, it.status) }.sortedBy { it.username.lowercase() }
+            map { SquadMember(it.userRef, it.username, it.status) }.sortedBy { it.username.lowercase() }
 
         /** Users whose internal-squad membership includes [squadUuid]. */
         fun internalMembers(users: List<User>, squadUuid: String): List<SquadMember> =

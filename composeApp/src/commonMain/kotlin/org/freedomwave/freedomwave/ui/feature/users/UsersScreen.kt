@@ -191,9 +191,9 @@ private sealed interface UsersNav : FwNavDestination {
     }
     override val key: String get() = when (this) {
         is List -> "list"
-        is Detail -> "detail:${user.uuid}"
-        is Form -> "form:${editing?.uuid ?: "new"}"
-        is TrafficStats -> "traffic_stats:${user.uuid}"
+        is Detail -> "detail:${user.userRef}"
+        is Form -> "form:${editing?.userRef ?: "new"}"
+        is TrafficStats -> "traffic_stats:${user.userRef}"
     }
 }
 
@@ -219,16 +219,16 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
                 onOpenDetail = { user -> push(UsersNav.Detail(user)) },
             )
             is UsersNav.Detail -> {
-                val live = state.users.find { it.uuid == navEntry.user.uuid } ?: navEntry.user
+                val live = state.users.find { it.id == navEntry.user.id } ?: navEntry.user
                 UserDetailScreen(
                     user           = live,
                     nodesByUuid    = state.nodesByUuid,
                     onBack         = { pop() },
                     onEdit         = { vm.openEditForm(live); push(UsersNav.Form(live)) },
-                    onEnable       = { vm.enableUser(live.uuid) },
-                    onDisable      = { vm.disableUser(live.uuid) },
-                    onResetTraffic = { vm.resetTraffic(live.uuid) },
-                    onDelete       = { vm.deleteUser(live.uuid); pop() },
+                    onEnable       = { vm.enableUser(live.userRef) },
+                    onDisable      = { vm.disableUser(live.userRef) },
+                    onResetTraffic = { vm.resetTraffic(live.userRef) },
+                    onDelete       = { vm.deleteUser(live.userRef); pop() },
                     onApplyUpdate  = { updated -> vm.applyUserUpdate(updated) },
                     onTrafficStats = { push(UsersNav.TrafficStats(live)) },
                 )
@@ -251,7 +251,7 @@ fun UsersScreen(vm: UsersViewModel = koinViewModel()) {
             is UsersNav.TrafficStats -> {
                 UserTrafficStatsScreen(
                     user = navEntry.user,
-                    viewModel = koinViewModel(key = navEntry.user.uuid) { parametersOf(navEntry.user.uuid) },
+                    viewModel = koinViewModel(key = navEntry.user.userRef) { parametersOf(navEntry.user.userRef) },
                     onBackClick = { pop() }
                 )
             }
@@ -363,7 +363,7 @@ private fun UsersListContent(
                                 contentPadding = PaddingValues(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
-                                items(state.visible, key = { it.uuid }) { user ->
+                                items(state.visible, key = { it.id }) { user ->
                                     UserListItem(
                                         user        = user,
                                         nodesByUuid = state.nodesByUuid,
@@ -499,7 +499,7 @@ private fun UserDetailScreen(
     onApplyUpdate: (User) -> Unit,
     onTrafficStats: () -> Unit,
 ) {
-    val detailVm: UserDetailViewModel = koinViewModel(key = user.uuid) { parametersOf(user.uuid) }
+    val detailVm: UserDetailViewModel = koinViewModel(key = user.userRef) { parametersOf(user.userRef) }
     val detailState by detailVm.state.collectAsState()
 
     val monoFont = LocalFwMonoFont.current

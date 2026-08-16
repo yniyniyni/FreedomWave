@@ -36,9 +36,23 @@ private fun extractApiMessage(body: String): String? = runCatching {
  * Minimal client with no auth/custom headers — used for third-party calls (e.g. ipwho.is).
  * Must not send the Authorization bearer token or x-remnawave-client-type to external hosts.
  */
+/**
+ * The single JSON configuration used for every Remnawave request and response.
+ *
+ * `encodeDefaults` is left at its kotlinx default of `false`, which is what lets request DTOs
+ * declare every optional field as `null` and have unset ones dropped from the body rather than
+ * sent as explicit nulls — `UpdateUserRequest` relies on this to name its target by either
+ * `id` or `uuid` but never both.
+ */
+internal val remnaJson: Json = Json {
+    ignoreUnknownKeys = true
+    isLenient = true
+    coerceInputValues = true
+}
+
 fun buildPlainHttpClient(): HttpClient = HttpClient {
     install(ContentNegotiation) {
-        json(Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true })
+        json(remnaJson)
     }
     install(HttpTimeout) {
         requestTimeoutMillis = 10_000
@@ -50,11 +64,7 @@ fun buildPlainHttpClient(): HttpClient = HttpClient {
 fun buildHttpClient(prefs: AppPreferences): HttpClient = HttpClient {
 
     install(ContentNegotiation) {
-        json(Json {
-            ignoreUnknownKeys = true
-            isLenient = true
-            coerceInputValues = true
-        })
+        json(remnaJson)
     }
 
     install(Auth) {
