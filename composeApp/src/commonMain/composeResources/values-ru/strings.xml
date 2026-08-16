@@ -376,8 +376,9 @@
     <string name="hosts_form_no_inbounds">Нет доступных инбаундов. Сначала создайте конфиг-профиль.</string>
     <string name="hosts_form_address">Адрес</string>
     <string name="hosts_form_port">Порт</string>
-    <string name="hosts_form_tag">Тег</string>
-    <string name="hosts_form_tag_hint">Необязательный тег</string>
+    <string name="hosts_form_tags">Теги</string>
+    <string name="hosts_form_tags_hint">EU, TIER:1</string>
+    <string name="hosts_form_tags_help">Через запятую, до 10 тегов</string>
     <string name="hosts_form_hidden">Скрытый</string>
     <string name="hosts_form_enabled">Включён</string>
     <string name="hosts_form_overrides">Переопределения соединений</string>
@@ -398,7 +399,11 @@
     <string name="hosts_form_vless_route_hint">1–65535, 0 или пусто — выключено</string>
     <string name="hosts_form_override_sni">Переопределять SNI из адреса</string>
     <string name="hosts_form_keep_sni_blank">Оставлять SNI пустым</string>
-    <string name="hosts_form_allow_insecure">Разрешить небезопасное</string>
+    <string name="hosts_form_pinned_peer_cert">Отпечаток сертификата SHA-256</string>
+    <string name="hosts_form_pinned_peer_cert_hint">Отпечаток для закрепления</string>
+    <string name="hosts_form_verify_peer_cert">Проверять сертификат по имени</string>
+    <string name="hosts_form_verify_peer_cert_hint">Имя хоста для проверки</string>
+    <string name="hosts_form_mihomo_ip_version">Версия IP для Mihomo</string>
     <string name="hosts_form_misc">Прочее</string>
     <string name="hosts_form_server_desc">Описание сервера</string>
     <string name="hosts_form_server_desc_hint">Максимум 30 символов</string>
@@ -412,7 +417,7 @@
     <string name="hosts_form_remark_error">1–40 символов</string>
     <string name="hosts_form_port_error">Порт 1–65535</string>
     <string name="hosts_form_address_error">Укажите адрес</string>
-    <string name="hosts_form_tag_error">Заглавные буквы, цифры, подчёркивания и двоеточия, до 32 символов</string>
+    <string name="hosts_form_tag_error">Заглавные буквы, цифры, подчёркивания и двоеточия, до 36 символов каждый, не более 10 тегов</string>
     <string name="hosts_form_vless_route_error">0–65535, или оставьте пустым</string>
     <string name="hosts_form_server_desc_error">Максимум 30 символов</string>
     <string name="hosts_form_done">Готово</string>

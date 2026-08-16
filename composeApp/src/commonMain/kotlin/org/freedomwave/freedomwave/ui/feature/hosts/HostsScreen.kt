@@ -69,6 +69,8 @@ import org.freedomwave.ui.theme.LocalFwMonoFont
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+private const val MAX_TAG_CHIPS = 3
+
 
 enum class HostStatusKind { DISABLED, HIDDEN, ENABLED }
 
@@ -264,7 +266,12 @@ private fun HostItem(host: Host, onClick: () -> Unit, dragModifier: Modifier = M
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     FwChip(host.securityLayer)
-                    host.tag?.let { FwTagChip(it) }
+                    // A host carries up to 10 tags since panel 2.8.1; show the first few so a
+                    // heavily-tagged host can't push the row off screen.
+                    host.tags.take(MAX_TAG_CHIPS).forEach { FwTagChip(it) }
+                    if (host.tags.size > MAX_TAG_CHIPS) {
+                        FwTagChip("+${host.tags.size - MAX_TAG_CHIPS}")
+                    }
                 }
             }
             Icon(

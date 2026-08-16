@@ -84,7 +84,6 @@ import freedomwave.composeapp.generated.resources.hosts_form_enabled
 import freedomwave.composeapp.generated.resources.hosts_status_disabled
 import freedomwave.composeapp.generated.resources.hosts_status_enabled
 import freedomwave.composeapp.generated.resources.hosts_form_address
-import freedomwave.composeapp.generated.resources.hosts_form_allow_insecure
 import freedomwave.composeapp.generated.resources.hosts_form_alpn
 import freedomwave.composeapp.generated.resources.hosts_form_assigned_nodes
 import freedomwave.composeapp.generated.resources.hosts_form_basic
@@ -122,8 +121,14 @@ import freedomwave.composeapp.generated.resources.hosts_form_server_desc_hint
 import freedomwave.composeapp.generated.resources.hosts_form_shuffle
 import freedomwave.composeapp.generated.resources.hosts_form_sni
 import freedomwave.composeapp.generated.resources.hosts_form_sni_hint
-import freedomwave.composeapp.generated.resources.hosts_form_tag
-import freedomwave.composeapp.generated.resources.hosts_form_tag_hint
+import freedomwave.composeapp.generated.resources.hosts_form_mihomo_ip_version
+import freedomwave.composeapp.generated.resources.hosts_form_pinned_peer_cert
+import freedomwave.composeapp.generated.resources.hosts_form_pinned_peer_cert_hint
+import freedomwave.composeapp.generated.resources.hosts_form_tags
+import freedomwave.composeapp.generated.resources.hosts_form_tags_help
+import freedomwave.composeapp.generated.resources.hosts_form_tags_hint
+import freedomwave.composeapp.generated.resources.hosts_form_verify_peer_cert
+import freedomwave.composeapp.generated.resources.hosts_form_verify_peer_cert_hint
 import freedomwave.composeapp.generated.resources.hosts_form_vless_route_hint
 import freedomwave.composeapp.generated.resources.hosts_form_vless_route_id
 import freedomwave.composeapp.generated.resources.hosts_form_xray
@@ -132,6 +137,8 @@ import org.jetbrains.compose.resources.stringResource
 
 private val ALPN_OPTIONS = listOf("h3", "h2", "http/1.1", "h2,http/1.1", "h3,h2,http/1.1", "h3,h2")
 private val FINGERPRINT_OPTIONS = listOf("chrome", "firefox", "safari", "ios", "android", "edge", "qq", "random", "randomized")
+// Panel MIHOMO_IP_VERSION values — the client IP version Mihomo should prefer.
+private val MIHOMO_IP_VERSION_OPTIONS = listOf("dual", "ipv4", "ipv6", "ipv4-prefer", "ipv6-prefer")
 
 @Composable
 internal fun HostCreateEditScreen(
@@ -209,6 +216,8 @@ internal fun HostCreateEditScreen(
             listOf<Pair<String?, String>>(null to noneLabel) + ALPN_OPTIONS.map { it to it }
         val fingerprintOptions: List<Pair<String?, String>> =
             listOf<Pair<String?, String>>(null to noneLabel) + FINGERPRINT_OPTIONS.map { it to it }
+        val mihomoIpVersionOptions: List<Pair<String?, String>> =
+            listOf<Pair<String?, String>>(null to noneLabel) + MIHOMO_IP_VERSION_OPTIONS.map { it to it }
         val xrayTemplateOptions: List<Pair<String?, String>> =
             listOf<Pair<String?, String>>(null to noneLabel) + state.xrayTemplates.map { it.uuid to it.name }
 
@@ -282,14 +291,16 @@ internal fun HostCreateEditScreen(
                         )
                     }
                     OutlinedTextField(
-                        value = state.tag,
-                        onValueChange = vm::onTag,
+                        value = state.tags,
+                        onValueChange = vm::onTags,
                         shape = MaterialTheme.shapes.medium,
-                        label = { Text(stringResource(Res.string.hosts_form_tag)) },
-                        placeholder = { Text(stringResource(Res.string.hosts_form_tag_hint)) },
+                        label = { Text(stringResource(Res.string.hosts_form_tags)) },
+                        placeholder = { Text(stringResource(Res.string.hosts_form_tags_hint)) },
                         singleLine = true,
                         isError = state.tagError != null,
-                        supportingText = state.tagError?.let { { Text(it.resolve()) } },
+                        supportingText = {
+                            Text(state.tagError?.resolve() ?: stringResource(Res.string.hosts_form_tags_help))
+                        },
                         modifier = Modifier.fillMaxWidth(),
                     )
                     SwitchRow(stringResource(Res.string.hosts_form_hidden), state.isHidden, vm::setHidden)
@@ -374,7 +385,32 @@ internal fun HostCreateEditScreen(
                     )
                     SwitchRow(stringResource(Res.string.hosts_form_override_sni), state.overrideSniFromAddress, vm::setOverrideSni)
                     SwitchRow(stringResource(Res.string.hosts_form_keep_sni_blank), state.keepSniBlank, vm::setKeepSniBlank)
-                    SwitchRow(stringResource(Res.string.hosts_form_allow_insecure), state.allowInsecure, vm::setAllowInsecure)
+                    // Panel 2.8.1 dropped the blanket "allow insecure" toggle in favour of
+                    // pinning a specific certificate or verifying it against a given name.
+                    OutlinedTextField(
+                        value = state.pinnedPeerCertSha256,
+                        onValueChange = vm::onPinnedPeerCertSha256,
+                        shape = MaterialTheme.shapes.medium,
+                        label = { Text(stringResource(Res.string.hosts_form_pinned_peer_cert)) },
+                        placeholder = { Text(stringResource(Res.string.hosts_form_pinned_peer_cert_hint)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    OutlinedTextField(
+                        value = state.verifyPeerCertByName,
+                        onValueChange = vm::onVerifyPeerCertByName,
+                        shape = MaterialTheme.shapes.medium,
+                        label = { Text(stringResource(Res.string.hosts_form_verify_peer_cert)) },
+                        placeholder = { Text(stringResource(Res.string.hosts_form_verify_peer_cert_hint)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    DropdownPicker(
+                        label = stringResource(Res.string.hosts_form_mihomo_ip_version),
+                        selectedValue = state.mihomoIpVersion,
+                        options = mihomoIpVersionOptions,
+                        onSelect = vm::setMihomoIpVersion,
+                    )
                 }
             }
 

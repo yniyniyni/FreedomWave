@@ -11,7 +11,8 @@ class HostStatusKindTest {
     private fun host(disabled: Boolean, hidden: Boolean) = Host(
         uuid = "u", remark = "r", address = "a", port = 443, path = null, sni = null,
         host = null, alpn = null, fingerprint = null, isDisabled = disabled, isHidden = hidden,
-        securityLayer = "DEFAULT", tag = null, serverDescription = null, allowInsecure = false,
+        securityLayer = "DEFAULT", tags = emptyList(), serverDescription = null,
+        pinnedPeerCertSha256 = null, verifyPeerCertByName = null, mihomoIpVersion = null,
         overrideSniFromAddress = false, keepSniBlank = false, shuffleHost = false,
         mihomoX25519 = false, nodes = emptyList(), configProfileUuid = null,
         configProfileInboundUuid = null, vlessRouteId = null, xrayJsonTemplateUuid = null,
