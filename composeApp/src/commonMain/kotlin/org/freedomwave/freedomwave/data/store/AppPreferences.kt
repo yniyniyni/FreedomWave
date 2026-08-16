@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import org.freedomwave.data.api.PanelVersion
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -19,7 +20,12 @@ class AppPreferences(
 
     @Volatile
     private var cachedServerUrl: String? = null
-    
+
+    // Read on every user-route build, so cache it like the server URL rather than hitting
+    // DataStore each time.
+    @Volatile
+    private var cachedPanelVersion: PanelVersion? = null
+
     private val migrationMutex = Mutex()
 
     companion object {
@@ -28,6 +34,9 @@ class AppPreferences(
         private val KEY_THEME_MODE  = stringPreferencesKey("theme_mode")
         private val KEY_BIOMETRIC   = booleanPreferencesKey("biometric_enabled")
         private val KEY_GEO_LOOKUP  = booleanPreferencesKey("geo_lookup_enabled")
+        // Raw version string from GET /api/system/stats/recap, captured at login. Decides
+        // whether user routes are keyed by numeric id (3.x) or uuid (2.8.x).
+        private val KEY_PANEL_VERSION = stringPreferencesKey("panel_version")
 
         const val THEME_SYSTEM = "system"
         const val THEME_LIGHT  = "light"
@@ -52,6 +61,25 @@ class AppPreferences(
         cachedServerUrl = url
         return url
     }
+    /**
+     * Panel version captured at login. Absent (fresh install, or logged out) yields
+     * [PanelVersion.UNKNOWN], which speaks the 3.x contract — see that field for why.
+     */
+    suspend fun getPanelVersion(): PanelVersion {
+        cachedPanelVersion?.let { return it }
+        val stored = dataStore.data.first()[KEY_PANEL_VERSION]
+        val version = stored?.let { PanelVersion.parse(it) } ?: PanelVersion.UNKNOWN
+        cachedPanelVersion = version
+        return version
+    }
+
+    suspend fun savePanelVersion(version: PanelVersion) {
+        // The dashboard re-reports this on every refresh; skip the disk write when nothing moved.
+        if (cachedPanelVersion == version) return
+        cachedPanelVersion = version // warm cache immediately
+        dataStore.edit { it[KEY_PANEL_VERSION] = version.raw }
+    }
+
     suspend fun getGeoLookupEnabled(): Boolean = dataStore.data.first()[KEY_GEO_LOOKUP] ?: false
     suspend fun getThemeMode(): String  = dataStore.data.first()[KEY_THEME_MODE] ?: THEME_SYSTEM
 
@@ -93,6 +121,12 @@ class AppPreferences(
 
     suspend fun clearCredentials() {
         cachedServerUrl = null
-        dataStore.edit { it.remove(KEY_API_KEY) }
+        // Drop the version too: the next login may point at a different panel, and a stale
+        // 2.x reading against a 3.x server would break every user route.
+        cachedPanelVersion = null
+        dataStore.edit {
+            it.remove(KEY_API_KEY)
+            it.remove(KEY_PANEL_VERSION)
+        }
     }
 }

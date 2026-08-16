@@ -1,5 +1,6 @@
 package org.freedomwave.data.repository
 
+import org.freedomwave.data.api.PanelVersion
 import org.freedomwave.data.api.service.DashboardService
 import org.freedomwave.data.store.AppPreferences
 import org.freedomwave.domain.model.DashboardStats
@@ -28,7 +29,15 @@ class DashboardRepository(
                 val tz = TimeZone.currentSystemDefault().id
                 val bandwidthDeferred = async { runCatching { service.getBandwidthStats(tz) }.getOrNull() }
 
-                val base = DashboardStats.from(statsDeferred.await().response, recapDeferred.await().response)
+                val recap = recapDeferred.await().response
+
+                // Keep the stored panel version honest. Covers two cases the login-time capture
+                // misses: sessions that predate version detection (upgraded app, still logged
+                // in, nothing stored), and an admin upgrading their panel 2.x -> 3.x while the
+                // app stays logged in. Recap is already being fetched, so this costs nothing.
+                prefs.savePanelVersion(PanelVersion.parse(recap.version))
+
+                val base = DashboardStats.from(statsDeferred.await().response, recap)
 
                 // online + total node counts otherwise come from two different endpoints
                 // (system-stats vs recap) and can disagree (e.g. "5 / 4"); derive both from
