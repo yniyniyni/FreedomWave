@@ -16,6 +16,9 @@ data class NodeResponse(
 @Serializable
 data class NodeDto(
     @SerialName("uuid")                     val uuid: String,
+    // Added in panel 3.1.0; absent on 2.8.x. Node routes are still keyed by uuid on both, so
+    // this is informational only — unlike users, nodes did not switch identifier.
+    @SerialName("id")                       val id: Int? = null,
     @SerialName("name")                     val name: String,
     @SerialName("address")                  val address: String,
     @SerialName("port")                     val port: Int? = null,
@@ -37,9 +40,24 @@ data class NodeDto(
     @SerialName("viewPosition")             val viewPosition: Int,
     @SerialName("countryCode")              val countryCode: String,
     @SerialName("tags")                     val tags: List<String> = emptyList(),
+    // Added in panel 3.x — the node's assigned addresses and what each is used for.
+    @SerialName("ips")                      val ips: List<NodeIpDto> = emptyList(),
     @SerialName("system")                   val system: NodeSystemDto? = null,
     @SerialName("createdAt")               val createdAt: String,
     @SerialName("updatedAt")               val updatedAt: String
+)
+
+/**
+ * One address assigned to a node, with what the panel uses it for.
+ *
+ * `status` is a `NODE_IP_STATUSES` value — INBOUND, OUTBOUND, MANAGEMENT, TRANSIT, MONITORING,
+ * RESERVE, BLOCKED, FLAGGED, DEPRECATED or UNKNOWN. Kept as a String rather than an enum so a
+ * status added by a future panel does not fail the whole node list.
+ */
+@Serializable
+data class NodeIpDto(
+    @SerialName("ip")     val ip: String,
+    @SerialName("status") val status: String,
 )
 
 @Serializable

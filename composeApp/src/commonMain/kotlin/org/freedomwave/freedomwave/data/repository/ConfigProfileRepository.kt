@@ -13,7 +13,8 @@ class ConfigProfileRepository(
     }
 
     suspend fun getSecretKey(): Result<String> = api {
-        service.getPubKey().response.pubKey
+        // Field is `secretKey` on 3.x and `pubKey` on 2.8.x; same value either way.
+        service.getNodeSecretKey().response.nodeSecretKey.orEmpty()
     }
 
     private suspend fun <T> api(block: suspend () -> T): Result<T> =

@@ -8,6 +8,7 @@ import org.freedomwave.ui.feature.nodes.parseTags
 import org.freedomwave.ui.feature.nodes.portOrNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -66,8 +67,11 @@ class NodeFormLogicTest {
     }
 
     @Test fun `buildNodeCompose embeds key and port`() {
-        val yml = buildNodeCompose("PUBKEY123", 2222)
-        assertTrue(yml.contains("SSL_CERT=PUBKEY123"))
+        val yml = buildNodeCompose("SECRET123", 2222)
+        // SECRET_KEY, not SSL_CERT — the latter is not a variable the node reads on any panel
+        // version, so the snippet used to produce a node that could not authenticate.
+        assertTrue(yml.contains("SECRET_KEY=SECRET123"), yml)
+        assertFalse(yml.contains("SSL_CERT"), yml)
         assertTrue(yml.contains("2222"))
         assertTrue(yml.contains("remnawave/node"))
     }
