@@ -75,6 +75,7 @@
     <string name="error_unauthorized">Session expired, please log in again</string>
     <string name="error_not_found">Resource not found</string>
     <string name="error_network">Network error, check your connection</string>
+    <string name="error_unexpected_response">Unexpected response from the panel — it may be running an unsupported version</string>
     <string name="error_generic">Something went wrong</string>
     <string name="error_fill_all_fields">Please fill in all fields</string>
     <string name="error_request_failed_code">Request failed (%1$d)</string>

@@ -1,5 +1,6 @@
 package org.freedomwave.data.api.dto
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -107,6 +108,18 @@ data class ReorderNodeItem(
 @Serializable
 data class ReorderNodesRequest(
     @SerialName("nodes") val nodes: List<ReorderNodeItem>,
+)
+
+/**
+ * Body for `POST /api/nodes/{uuid}/actions/restart`. `forceRestart` is required — the panel
+ * rejects an empty body with "Verification failed" — and must be encoded even when false,
+ * which is why it carries @EncodeDefault (the client runs with encodeDefaults = false).
+ */
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+@Serializable
+data class RestartNodeRequest(
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    @SerialName("forceRestart") val forceRestart: Boolean = false,
 )
 
 fun reorderNodesPayload(orderedUuids: List<String>): List<ReorderNodeItem> =

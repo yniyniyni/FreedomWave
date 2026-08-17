@@ -70,6 +70,7 @@
     <string name="error_unauthorized">Сессия истекла, войдите снова</string>
     <string name="error_not_found">Ресурс не найден</string>
     <string name="error_network">Ошибка сети, проверьте подключение</string>
+    <string name="error_unexpected_response">Неожиданный ответ панели — возможно, её версия не поддерживается</string>
     <string name="error_generic">Что-то пошло не так</string>
     <string name="error_fill_all_fields">Заполните все поля</string>
     <string name="error_request_failed_code">Ошибка запроса (%1$d)</string>

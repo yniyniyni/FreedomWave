@@ -25,7 +25,7 @@ data class UserTrafficUiState(
 
 class UserTrafficViewModel(
     private val repo: BandwidthRepository,
-    private val userUuid: String
+    private val userRef: String
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(UserTrafficUiState())
@@ -55,7 +55,7 @@ class UserTrafficViewModel(
         }
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            repo.getUserStats(userUuid, start, end)
+            repo.getUserStats(userRef, start, end)
                 .onSuccess { data -> _state.update { it.copy(isLoading = false, data = data) } }
                 .onFailure { e -> _state.update { it.copy(isLoading = false, error = e.toUiText()) } }
         }

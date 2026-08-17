@@ -10,9 +10,11 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.serialization.JsonConvertException
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpTimeout
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonObject
@@ -97,7 +99,14 @@ fun buildHttpClient(prefs: AppPreferences): HttpClient = HttpClient {
             }
         }
         handleResponseExceptionWithRequest { cause, _ ->
-            if (cause !is ApiError) throw ApiError.NetworkError(cause.message ?: "Network error")
+            when {
+                cause is ApiError -> throw cause
+                // A decode failure means the panel's schema differs from this build's DTOs, not
+                // that the network is down. Separating the two keeps version drift diagnosable.
+                cause is SerializationException || cause is JsonConvertException ->
+                    throw ApiError.UnexpectedResponse(cause.message ?: "Unexpected response")
+                else -> throw ApiError.NetworkError(cause.message ?: "Network error")
+            }
         }
     }
 }

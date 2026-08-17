@@ -14,13 +14,22 @@ data class SubHistoryData(
     @SerialName("records") val records: List<SubRequestRecordDto>
 )
 
+/**
+ * One subscription request. Panel 3.x identifies the user by numeric [userId]; 2.8.x sent
+ * [userUuid]. Both are nullable so one build decodes either — a non-nullable `userUuid` here
+ * is what made the IP addresses section fail against 3.x.
+ */
 @Serializable
 data class SubRequestRecordDto(
-    @SerialName("id")        val id: Int,
-    @SerialName("userUuid")  val userUuid: String,
-    @SerialName("requestAt") val requestAt: String,
-    @SerialName("requestIp") val requestIp: String? = null,
-    @SerialName("userAgent") val userAgent: String? = null
+    @SerialName("id")              val id: Int,
+    @SerialName("userId")          val userId: Int? = null,
+    @SerialName("userUuid")        val userUuid: String? = null,
+    @SerialName("requestAt")       val requestAt: String,
+    @SerialName("requestIp")       val requestIp: String? = null,
+    @SerialName("userAgent")       val userAgent: String? = null,
+    // Added in panel 3.1.0 — which response rule matched, and what it returned.
+    @SerialName("srrResponseType") val srrResponseType: String? = null,
+    @SerialName("srrRuleName")     val srrRuleName: String? = null
 )
 
 /** Response from ipwho.is/{ip} */
