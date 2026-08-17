@@ -5,6 +5,7 @@ import org.freedomwave.data.api.dto.NodeListResponse
 import org.freedomwave.data.api.dto.NodeResponse
 import org.freedomwave.data.api.dto.ReorderNodeItem
 import org.freedomwave.data.api.dto.ReorderNodesRequest
+import org.freedomwave.data.api.dto.RestartNodeRequest
 import org.freedomwave.data.api.dto.UpdateNodeRequest
 import org.freedomwave.data.store.AppPreferences
 import io.ktor.client.HttpClient
@@ -28,11 +29,24 @@ class NodeService(private val client: HttpClient, private val prefs: AppPreferen
     suspend fun disableNode(uuid: String): NodeResponse =
         client.post("${prefs.getServerUrl()}/api/nodes/$uuid/actions/disable").body()
 
-    suspend fun restartNode(uuid: String): NodeResponse =
-        client.post("${prefs.getServerUrl()}/api/nodes/$uuid/actions/restart").body()
+    // Panel 3.x answers these with no body at all — restart is 202 Accepted (the restart is
+    // asynchronous) and reset-traffic is 204 No Content, where 2.8.x returned 200 with the node.
+    // Deserializing an empty body throws, so neither reads one; callers re-read via getNode().
 
-    suspend fun resetTraffic(uuid: String): NodeResponse =
-        client.post("${prefs.getServerUrl()}/api/nodes/$uuid/actions/reset-traffic").body()
+    /**
+     * `forceRestart` is a **required** body field on both 2.8.x and 3.x — posting without a body
+     * fails Zod validation with a 400, which the panel reports as "Verification failed". Sending
+     * false requests a graceful restart, matching the panel's own default.
+     */
+    suspend fun restartNode(uuid: String) {
+        client.post("${prefs.getServerUrl()}/api/nodes/$uuid/actions/restart") {
+            setBody(RestartNodeRequest(forceRestart = false))
+        }
+    }
+
+    suspend fun resetTraffic(uuid: String) {
+        client.post("${prefs.getServerUrl()}/api/nodes/$uuid/actions/reset-traffic")
+    }
 
     suspend fun createNode(body: CreateNodeRequest): NodeResponse =
         client.post("${prefs.getServerUrl()}/api/nodes") { setBody(body) }.body()

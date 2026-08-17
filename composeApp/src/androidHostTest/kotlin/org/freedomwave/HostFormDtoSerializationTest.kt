@@ -35,7 +35,10 @@ class HostFormDtoSerializationTest {
         assertFalse(out.contains("\"path\""), "unset path must be omitted")
         assertFalse(out.contains("\"vlessRouteId\""), "unset vlessRouteId must be omitted")
         assertFalse(out.contains("\"xrayJsonTemplateUuid\""), "unset xrayJsonTemplateUuid must be omitted")
-        assertFalse(out.contains("\"tag\""), "unset tag must be omitted")
+        assertFalse(out.contains("\"tags\""), "unset tags must be omitted")
+        assertFalse(out.contains("pinnedPeerCertSha256"), "unset pinnedPeerCertSha256 must be omitted")
+        assertFalse(out.contains("verifyPeerCertByName"), "unset verifyPeerCertByName must be omitted")
+        assertFalse(out.contains("mihomoIpVersion"), "unset mihomoIpVersion must be omitted")
     }
 
     @Test
@@ -50,12 +53,17 @@ class HostFormDtoSerializationTest {
             )
         )
         assertTrue(out.contains("\"isHidden\":false"), "isHidden=false must be sent")
-        assertTrue(out.contains("\"allowInsecure\":false"), "allowInsecure=false must be sent")
         assertTrue(out.contains("\"shuffleHost\":false"), "shuffleHost=false must be sent")
         assertTrue(out.contains("\"securityLayer\":\"DEFAULT\""), "securityLayer must be sent")
         assertTrue(out.contains("\"nodes\":[]"), "nodes=[] must be sent")
+        // Always sent, so clearing the last tag actually removes it server-side rather than
+        // being omitted and leaving the old tags in place.
+        assertTrue(out.contains("\"tags\":[]"), "tags=[] must be sent")
         assertFalse(out.contains("\"path\""), "unset path must be omitted")
-        assertFalse(out.contains("\"tag\""), "unset tag must be omitted")
+        // Unlike the toggles, the cert fields stay omitted when unset so an untouched host
+        // keeps whatever it already had.
+        assertFalse(out.contains("pinnedPeerCertSha256"), "unset pinnedPeerCertSha256 must be omitted")
+        assertFalse(out.contains("verifyPeerCertByName"), "unset verifyPeerCertByName must be omitted")
     }
 
     @Test

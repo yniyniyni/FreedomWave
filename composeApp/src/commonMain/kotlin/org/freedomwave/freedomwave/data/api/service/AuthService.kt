@@ -1,6 +1,7 @@
 package org.freedomwave.data.api.service
 
 import org.freedomwave.data.api.ApiError
+import org.freedomwave.data.api.PanelVersion
 import org.freedomwave.data.api.dto.RecapResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -15,7 +16,14 @@ import io.ktor.http.HttpHeaders
  */
 class AuthService(private val client: HttpClient) {
 
-    suspend fun verifyConnection(serverUrl: String, apiKey: String) {
+    /**
+     * Verifies the URL/key pair and returns the panel's version.
+     *
+     * The recap payload carries `version` on both 2.8.x and 3.x, so the check that proves the
+     * key works also tells us which user-route contract to speak. Callers persist the result;
+     * see [PanelVersion].
+     */
+    suspend fun verifyConnection(serverUrl: String, apiKey: String): PanelVersion {
         val response = try {
             client.get("$serverUrl/api/system/stats/recap") {
                 header(HttpHeaders.Authorization, "Bearer $apiKey")
@@ -28,11 +36,11 @@ class AuthService(private val client: HttpClient) {
             throw ApiError.NetworkError(e.message ?: "Network error")
         }
 
-        when (response.status.value) {
+        return when (response.status.value) {
             in 200..299 ->
                 // Deserialize so a 200 carrying reverse-proxy HTML can't pass as success.
                 try {
-                    response.body<RecapResponse>()
+                    PanelVersion.parse(response.body<RecapResponse>().response.version)
                 } catch (e: Exception) {
                     throw ApiError.ServerError("")
                 }

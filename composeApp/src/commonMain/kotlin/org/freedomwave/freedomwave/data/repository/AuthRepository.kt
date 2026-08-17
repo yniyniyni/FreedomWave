@@ -28,8 +28,11 @@ class AuthRepository(
 
         // Verify BEFORE persisting: a bad URL/key must not flip isLoggedIn or flash MainScreen,
         // and a failed "Change key" must leave the existing session untouched.
-        authService.verifyConnection(url, key)
+        val version = authService.verifyConnection(url, key)
 
+        // Version first: isLoggedIn flips on the api key, so anything observing it must not be
+        // able to issue a user request before we know which route contract to speak.
+        prefs.savePanelVersion(version)
         prefs.saveApiKey(url, key)
         // Drop any cached (old) token so the next real request loads the key we just saved.
         clearBearerTokenCache()

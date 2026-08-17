@@ -4,6 +4,12 @@ import org.freedomwave.data.api.dto.NodeDto
 
 enum class NodeStatus { ONLINE, OFFLINE, DISABLED, CONNECTING }
 
+/**
+ * An address assigned to a node and what the panel uses it for (INBOUND, OUTBOUND, MANAGEMENT,
+ * TRANSIT, MONITORING, RESERVE, BLOCKED, FLAGGED, DEPRECATED, UNKNOWN). Panel 3.x only.
+ */
+data class NodeIp(val ip: String, val status: String)
+
 data class Node(
     val uuid: String,
     val name: String,
@@ -12,6 +18,8 @@ data class Node(
     val status: NodeStatus,
     val countryCode: String,
     val tags: List<String>,
+    /** Addresses the panel has assigned to this node. Empty on 2.8.x, which did not send them. */
+    val ips: List<NodeIp>,
     val trafficUsedBytes: Long,
     val trafficLimitBytes: Long?,
     val cpus: Int?,
@@ -75,6 +83,7 @@ data class Node(
             },
             countryCode       = dto.countryCode,
             tags              = dto.tags,
+            ips               = dto.ips.map { NodeIp(it.ip, it.status) },
             trafficUsedBytes  = dto.trafficUsedBytes ?: 0L,
             trafficLimitBytes = dto.trafficLimitBytes,
             cpus              = dto.system?.info?.cpus,

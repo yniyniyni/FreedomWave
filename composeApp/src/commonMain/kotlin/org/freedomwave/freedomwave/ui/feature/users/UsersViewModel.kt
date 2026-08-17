@@ -125,20 +125,20 @@ class UsersViewModel(
         else it.copy(sortField = field, sortAscending = true)
     }
 
-    fun enableUser(uuid: String)         = action(uuid) { userRepository.enableUser(uuid) }
-    fun disableUser(uuid: String)        = action(uuid) { userRepository.disableUser(uuid) }
-    fun resetTraffic(uuid: String)       = action(uuid) { userRepository.resetTraffic(uuid) }
-    fun revokeSubscription(uuid: String) = action(uuid) { userRepository.revokeSubscription(uuid) }
+    fun enableUser(userRef: String)         = action(userRef) { userRepository.enableUser(userRef) }
+    fun disableUser(userRef: String)        = action(userRef) { userRepository.disableUser(userRef) }
+    fun resetTraffic(userRef: String)       = action(userRef) { userRepository.resetTraffic(userRef) }
+    fun revokeSubscription(userRef: String) = action(userRef) { userRepository.revokeSubscription(userRef) }
 
     /** Apply an updated User returned by the detail VM's quick-edit calls into the shared list. */
     fun applyUserUpdate(updated: User) {
-        _state.update { it.copy(users = it.users.map { u -> if (u.uuid == updated.uuid) updated else u }) }
+        _state.update { it.copy(users = it.users.map { u -> if (u.id == updated.id) updated else u }) }
     }
 
-    fun deleteUser(uuid: String) {
+    fun deleteUser(userRef: String) {
         viewModelScope.launch {
-            userRepository.deleteUser(uuid)
-                .onSuccess { _state.update { it.copy(users = it.users.filterNot { u -> u.uuid == uuid }) } }
+            userRepository.deleteUser(userRef)
+                .onSuccess { _state.update { it.copy(users = it.users.filterNot { u -> u.userRef == userRef }) } }
                 .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
         }
     }
@@ -278,7 +278,6 @@ class UsersViewModel(
                     if (s.formStatusEnabled == wasEnabled) null
                     else if (s.formStatusEnabled) "ACTIVE" else "DISABLED"
                 val req = UpdateUserRequest(
-                    uuid                 = s.editingUser.uuid,
                     status               = statusForUpdate,
                     trafficLimitBytes    = trafficLimitBytes,
                     trafficLimitStrategy = s.formStrategy,
@@ -289,11 +288,11 @@ class UsersViewModel(
                     hwidDeviceLimit      = hwid,
                     activeInternalSquads = squads,
                 )
-                userRepository.updateUser(req)
+                userRepository.updateUser(s.editingUser.userRef, req)
                     .onSuccess { updated ->
                         _state.update { it.copy(
                             formIsLoading = false,
-                            users = it.users.map { u -> if (u.uuid == updated.uuid) updated else u },
+                            users = it.users.map { u -> if (u.id == updated.id) updated else u },
                         ) }
                         onSuccess()
                     }
@@ -302,11 +301,11 @@ class UsersViewModel(
         }
     }
 
-    private fun action(uuid: String, block: suspend () -> Result<User>) {
+    private fun action(userRef: String, block: suspend () -> Result<User>) {
         viewModelScope.launch {
             block()
                 .onSuccess { updated ->
-                    _state.update { it.copy(users = it.users.map { u -> if (u.uuid == uuid) updated else u }) }
+                    _state.update { it.copy(users = it.users.map { u -> if (u.userRef == userRef) updated else u }) }
                 }
                 .onFailure { e -> _state.update { it.copy(actionError = e.toUiText()) } }
         }

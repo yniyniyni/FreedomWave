@@ -14,7 +14,8 @@ enum class UserStatus(val apiValue: String) {
 }
 
 data class User(
-    val uuid: String,
+    /** Null on panel 3.x, which removed user uuids. Prefer [userRef] for identity. */
+    val uuid: String?,
     val id: Int,
     val shortUuid: String,
     val username: String,
@@ -37,6 +38,18 @@ data class User(
     val lastConnectedNodeUuid: String?,
     val createdAt: String
 ) {
+    /**
+     * The identifier this user's panel expects back — the path segment for every user route
+     * and the target of an update body.
+     *
+     * Derived from the payload rather than from a stored panel version, so it is always
+     * consistent with the server that actually answered: 2.8.x sends a uuid and keys routes by
+     * it, 3.x sends no uuid and keys routes by `id`. A consequence worth relying on: a 3.x ref
+     * always parses as an Int and a uuid never does, which is how the repository decides
+     * whether an update body carries `id` or `uuid`.
+     */
+    val userRef: String get() = uuid ?: id.toString()
+
     val isActive: Boolean   get() = status == UserStatus.ACTIVE
     val isDisabled: Boolean get() = status == UserStatus.DISABLED
 

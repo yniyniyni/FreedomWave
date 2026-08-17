@@ -38,7 +38,7 @@ data class HostFormUiState(
     val remark: String = "",
     val address: String = "",
     val port: String = "",
-    val tag: String = "",
+    val tags: String = "",
     val sni: String = "",
     val host: String = "",
     val path: String = "",
@@ -57,7 +57,9 @@ data class HostFormUiState(
     val isHidden: Boolean = false,
     val overrideSniFromAddress: Boolean = false,
     val keepSniBlank: Boolean = false,
-    val allowInsecure: Boolean = false,
+    val pinnedPeerCertSha256: String = "",
+    val verifyPeerCertByName: String = "",
+    val mihomoIpVersion: String? = null,
     val shuffleHost: Boolean = false,
     val mihomoX25519: Boolean = false,
 
@@ -74,7 +76,7 @@ data class HostFormUiState(
         get() = if (port.isNotBlank() && portOrNull(port) == null) UiText.Res(Res.string.hosts_form_port_error) else null
 
     val tagError: UiText?
-        get() = if (tag.isNotBlank() && !tagValid(tag)) UiText.Res(Res.string.hosts_form_tag_error) else null
+        get() = if (tags.isNotBlank() && !tagsValid(tags)) UiText.Res(Res.string.hosts_form_tag_error) else null
 
     val vlessRouteIdError: UiText?
         get() = if (vlessRouteId.isNotBlank() && !vlessRouteIdValid(vlessRouteId)) UiText.Res(Res.string.hosts_form_vless_route_error) else null
@@ -87,7 +89,7 @@ data class HostFormUiState(
 
     val canSave: Boolean
         get() = remarkValid(remark) && addressValid(address) && portOrNull(port) != null &&
-            tagValid(tag) && vlessRouteIdValid(vlessRouteId) &&
+            tagsValid(tags) && vlessRouteIdValid(vlessRouteId) &&
             serverDescriptionValid(serverDescription) &&
             selectedProfileUuid != null && selectedInboundUuid != null && !isSaving
 }
@@ -120,7 +122,7 @@ class HostFormViewModel(
                             remark = h.remark,
                             address = h.address,
                             port = h.port.toString(),
-                            tag = h.tag ?: "",
+                            tags = formatHostTags(h.tags),
                             sni = h.sni ?: "",
                             host = h.host ?: "",
                             path = h.path ?: "",
@@ -135,7 +137,9 @@ class HostFormViewModel(
                             isHidden = h.isHidden,
                             overrideSniFromAddress = h.overrideSniFromAddress,
                             keepSniBlank = h.keepSniBlank,
-                            allowInsecure = h.allowInsecure,
+                            pinnedPeerCertSha256 = h.pinnedPeerCertSha256 ?: "",
+                            verifyPeerCertByName = h.verifyPeerCertByName ?: "",
+                            mihomoIpVersion = h.mihomoIpVersion,
                             shuffleHost = h.shuffleHost,
                             mihomoX25519 = h.mihomoX25519,
                             selectedNodeUuids = h.nodes.toSet(),
@@ -154,7 +158,7 @@ class HostFormViewModel(
     fun onRemark(v: String)            = _state.update { it.copy(remark = v, actionError = null) }
     fun onAddress(v: String)           = _state.update { it.copy(address = v, actionError = null) }
     fun onPort(v: String)              = _state.update { it.copy(port = v.filter { c -> c.isDigit() }) }
-    fun onTag(v: String)               = _state.update { it.copy(tag = v) }
+    fun onTags(v: String)              = _state.update { it.copy(tags = v) }
     fun onSni(v: String)               = _state.update { it.copy(sni = v) }
     fun onHost(v: String)              = _state.update { it.copy(host = v) }
     fun onPath(v: String)              = _state.update { it.copy(path = v) }
@@ -165,7 +169,9 @@ class HostFormViewModel(
     fun setHidden(v: Boolean)              = _state.update { it.copy(isHidden = v) }
     fun setOverrideSni(v: Boolean)         = _state.update { it.copy(overrideSniFromAddress = v) }
     fun setKeepSniBlank(v: Boolean)        = _state.update { it.copy(keepSniBlank = v) }
-    fun setAllowInsecure(v: Boolean)       = _state.update { it.copy(allowInsecure = v) }
+    fun onPinnedPeerCertSha256(v: String)  = _state.update { it.copy(pinnedPeerCertSha256 = v) }
+    fun onVerifyPeerCertByName(v: String)  = _state.update { it.copy(verifyPeerCertByName = v) }
+    fun setMihomoIpVersion(v: String?)     = _state.update { it.copy(mihomoIpVersion = v) }
     fun setShuffleHost(v: Boolean)         = _state.update { it.copy(shuffleHost = v) }
     fun setMihomo(v: Boolean)              = _state.update { it.copy(mihomoX25519 = v) }
 
@@ -199,12 +205,14 @@ class HostFormViewModel(
             fingerprint = s.fingerprint,
             securityLayer = s.securityLayer,
             serverDescription = serverDescriptionOrNull(s.serverDescription),
-            tag = parseHostTag(s.tag),
+            tags = parseHostTags(s.tags),
             isDisabled = s.isDisabled,
             isHidden = s.isHidden,
             overrideSniFromAddress = s.overrideSniFromAddress,
             keepSniBlank = s.keepSniBlank,
-            allowInsecure = s.allowInsecure,
+            pinnedPeerCertSha256 = s.pinnedPeerCertSha256,
+            verifyPeerCertByName = s.verifyPeerCertByName,
+            mihomoIpVersion = s.mihomoIpVersion,
             vlessRouteId = vlessRouteIdOrNull(s.vlessRouteId),
             shuffleHost = s.shuffleHost,
             mihomoX25519 = s.mihomoX25519,

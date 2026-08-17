@@ -23,8 +23,8 @@ class UserService(private val client: HttpClient, private val prefs: AppPreferen
             parameter("size", size)
         }.body()
 
-    suspend fun getUser(uuid: String): UserResponse =
-        client.get("${prefs.getServerUrl()}/api/users/$uuid").body()
+    suspend fun getUser(userRef: String): UserResponse =
+        client.get("${prefs.getServerUrl()}/api/users/$userRef").body()
 
     suspend fun createUser(request: CreateUserRequest): UserResponse =
         client.post("${prefs.getServerUrl()}/api/users") { setBody(request) }.body()
@@ -32,19 +32,21 @@ class UserService(private val client: HttpClient, private val prefs: AppPreferen
     suspend fun updateUser(request: UpdateUserRequest): UserResponse =
         client.patch("${prefs.getServerUrl()}/api/users") { setBody(request) }.body()
 
-    suspend fun deleteUser(uuid: String) {
-        client.delete("${prefs.getServerUrl()}/api/users/$uuid")
+    suspend fun deleteUser(userRef: String) {
+        client.delete("${prefs.getServerUrl()}/api/users/$userRef")
     }
 
-    suspend fun enableUser(uuid: String): UserResponse =
-        client.post("${prefs.getServerUrl()}/api/users/$uuid/actions/enable").body()
+    suspend fun enableUser(userRef: String): UserResponse =
+        client.post("${prefs.getServerUrl()}/api/users/$userRef/actions/enable").body()
 
-    suspend fun disableUser(uuid: String): UserResponse =
-        client.post("${prefs.getServerUrl()}/api/users/$uuid/actions/disable").body()
+    suspend fun disableUser(userRef: String): UserResponse =
+        client.post("${prefs.getServerUrl()}/api/users/$userRef/actions/disable").body()
 
-    suspend fun resetTraffic(uuid: String): UserResponse =
-        client.post("${prefs.getServerUrl()}/api/users/$uuid/actions/reset-traffic").body()
+    suspend fun resetTraffic(userRef: String): UserResponse =
+        client.post("${prefs.getServerUrl()}/api/users/$userRef/actions/reset-traffic").body()
 
-    suspend fun revokeSubscription(uuid: String): UserResponse =
-        client.post("${prefs.getServerUrl()}/api/users/$uuid/actions/revoke-subscription").body()
+    // `revoke`, not `revoke-subscription`: the route was renamed in panel 2.8.0, so the old
+    // path 404s on every currently supported version. Still 200 with the user on 2.8.x and 3.x.
+    suspend fun revokeSubscription(userRef: String): UserResponse =
+        client.post("${prefs.getServerUrl()}/api/users/$userRef/actions/revoke").body()
 }

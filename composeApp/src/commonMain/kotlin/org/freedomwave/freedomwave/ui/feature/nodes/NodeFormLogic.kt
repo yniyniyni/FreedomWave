@@ -94,8 +94,13 @@ fun buildUpdateRequest(uuid: String, input: NodeFormInput): UpdateNodeRequest = 
     configProfile = input.body(),
 )
 
-/** docker-compose.yml for a Remnawave node with the panel-issued SECRET_KEY. */
-fun buildNodeCompose(pubKey: String, port: Int?): String {
+/**
+ * docker-compose.yml for a Remnawave node with the panel-issued SECRET_KEY.
+ *
+ * The env var is `SECRET_KEY` — `SSL_CERT` appears nowhere in the node or panel on either 2.8.x
+ * or 3.x, so the snippet this used to emit produced a node that could not authenticate.
+ */
+fun buildNodeCompose(nodeSecretKey: String, port: Int?): String {
     val appPort = port ?: 2222
     return """
         services:
@@ -107,6 +112,6 @@ fun buildNodeCompose(pubKey: String, port: Int?): String {
             network_mode: host
             environment:
               - APP_PORT=$appPort
-              - SSL_CERT=$pubKey
+              - SECRET_KEY=$nodeSecretKey
     """.trimIndent()
 }

@@ -3,7 +3,7 @@ package org.freedomwave
 import org.freedomwave.ui.feature.hosts.HostFormInput
 import org.freedomwave.ui.feature.hosts.buildCreateRequest
 import org.freedomwave.ui.feature.hosts.buildUpdateRequest
-import org.freedomwave.ui.feature.hosts.parseHostTag
+import org.freedomwave.ui.feature.hosts.parseHostTags
 import org.freedomwave.ui.feature.hosts.portOrNull
 import org.freedomwave.ui.feature.hosts.remarkValid
 import org.freedomwave.ui.feature.hosts.serverDescriptionOrNull
@@ -74,19 +74,7 @@ class HostFormLogicTest {
         assertNull(vlessRouteIdOrNull("70000"))
     }
 
-    // parseHostTag
-
-    @Test fun `parseHostTag uppercases valid tag`() {
-        assertEquals("MY:TAG_1", parseHostTag("my:tag_1"))
-    }
-
-    @Test fun `parseHostTag rejects tag with spaces and special chars`() {
-        assertNull(parseHostTag("bad tag!"))
-    }
-
-    @Test fun `parseHostTag rejects empty string`() {
-        assertNull(parseHostTag(""))
-    }
+    // Tag parsing now lives in HostTagsTest — the panel takes a tags array, not one tag.
 
     // serverDescriptionOrNull
 
@@ -106,7 +94,7 @@ class HostFormLogicTest {
 
     private fun sampleInput(
         alpn: String? = "h2",
-        tag: String? = "OK",
+        tag: String = "OK",
         port: Int = 443,
         isHidden: Boolean = false,
         shuffleHost: Boolean = false,
@@ -123,12 +111,14 @@ class HostFormLogicTest {
         fingerprint = null,
         securityLayer = "TLS",
         serverDescription = null,
-        tag = tag,
+        tags = parseHostTags(tag),
         isDisabled = false,
         isHidden = isHidden,
         overrideSniFromAddress = false,
         keepSniBlank = false,
-        allowInsecure = false,
+        pinnedPeerCertSha256 = null,
+        verifyPeerCertByName = null,
+        mihomoIpVersion = null,
         vlessRouteId = null,
         shuffleHost = shuffleHost,
         mihomoX25519 = false,
@@ -143,7 +133,7 @@ class HostFormLogicTest {
         assertEquals(443, req.port)
         assertEquals("h2", req.alpn)
         assertEquals("cp-uuid", req.inbound.configProfileUuid)
-        assertEquals("OK", req.tag)
+        assertEquals(listOf("OK"), req.tags)
     }
 
     // buildUpdateRequest

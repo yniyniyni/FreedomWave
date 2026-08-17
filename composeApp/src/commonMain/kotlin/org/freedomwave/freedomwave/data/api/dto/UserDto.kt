@@ -21,7 +21,9 @@ data class UserResponse(
 
 @Serializable
 data class UserDto(
-    @SerialName("uuid")                     val uuid: String,
+    // Absent on panel 3.x, which deleted user uuids and keys everything by `id`. Present on
+    // 2.8.x. `id` is sent by both, so it is the only field guaranteed to identify a user.
+    @SerialName("uuid")                     val uuid: String? = null,
     @SerialName("id")                       val id: Int,
     @SerialName("shortUuid")                val shortUuid: String,
     @SerialName("username")                 val username: String,
@@ -78,9 +80,15 @@ data class CreateUserRequest(
     @SerialName("activeInternalSquads")   val activeInternalSquads: List<String>? = null,
 )
 
+/**
+ * Body for `PATCH /api/users`. The target is named by [id] on panel 3.x and by [uuid] on 2.8.x —
+ * exactly one of the two, which `bindUserRef` in the repository layer fills in. Callers build
+ * this with only the fields they are changing and let the repository bind the identifier.
+ */
 @Serializable
 data class UpdateUserRequest(
-    @SerialName("uuid")                   val uuid: String,
+    @SerialName("uuid")                   val uuid: String? = null,
+    @SerialName("id")                     val id: Int? = null,
     @SerialName("status")                 val status: String? = null,
     @SerialName("trafficLimitBytes")      val trafficLimitBytes: Long? = null,
     @SerialName("trafficLimitStrategy")   val trafficLimitStrategy: String? = null,

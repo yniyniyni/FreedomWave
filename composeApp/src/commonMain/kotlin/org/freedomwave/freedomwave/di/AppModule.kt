@@ -115,15 +115,15 @@ val viewModelModule = module {
     viewModel { InfraBillingViewModel(get()) }
     viewModel { (uuid: String) -> InternalSquadEditViewModel(uuid, get(), get(), get()) }
     viewModel { (uuid: String) -> ExternalSquadEditViewModel(uuid, get(), get(), get(), get()) }
-    viewModel { (userUuid: String) ->
+    viewModel { (userRef: String) ->
         UserDetailViewModel(
-            userUuid             = userUuid,
+            userRef              = userRef,
             userRepository       = get(),
             hwidRepository       = get(),
             subHistoryRepository = get(),
         )
     }
-    viewModel { (userUuid: String) -> UserTrafficViewModel(get(), userUuid) }
+    viewModel { (userRef: String) -> UserTrafficViewModel(get(), userRef) }
 }
 
 fun allModules() = listOf(prefsModule, networkModule, repositoryModule, viewModelModule)

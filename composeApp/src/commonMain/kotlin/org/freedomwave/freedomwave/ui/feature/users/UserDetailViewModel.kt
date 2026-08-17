@@ -52,7 +52,7 @@ data class UserDetailUiState(
 )
 
 class UserDetailViewModel(
-    private val userUuid: String,
+    private val userRef: String,
     private val userRepository: UserRepository,
     private val hwidRepository: HwidRepository,
     private val subHistoryRepository: SubHistoryRepository,
@@ -74,7 +74,7 @@ class UserDetailViewModel(
     private fun loadDevices() {
         viewModelScope.launch {
             _state.update { it.copy(devicesLoading = true, devicesError = null) }
-            hwidRepository.getDevices(userUuid)
+            hwidRepository.getDevices(userRef)
                 .onSuccess { list -> _state.update { it.copy(devicesLoading = false, devices = list) } }
                 .onFailure { e   -> _state.update { it.copy(devicesLoading = false, devicesError = e.toUiText()) } }
         }
@@ -83,7 +83,7 @@ class UserDetailViewModel(
     private fun loadIpRows() {
         viewModelScope.launch {
             _state.update { it.copy(ipLoading = true, ipError = null) }
-            subHistoryRepository.getIpRows(userUuid)
+            subHistoryRepository.getIpRows(userRef)
                 .onSuccess { rows -> _state.update { it.copy(ipLoading = false, ipRows = rows) } }
                 .onFailure { e   -> _state.update { it.copy(ipLoading = false, ipError = e.toUiText()) } }
         }
@@ -96,7 +96,7 @@ class UserDetailViewModel(
 
     fun revokeSubscription(onUpdated: (User) -> Unit) {
         viewModelScope.launch {
-            userRepository.revokeSubscription(userUuid)
+            userRepository.revokeSubscription(userRef)
                 .onSuccess { updated ->
                     _state.update { it.copy(actionSuccess = UiText.Res(Res.string.users_subscription_revoked)) }
                     onUpdated(updated)
@@ -129,7 +129,7 @@ class UserDetailViewModel(
         val bytes = (gb * 1024.0 * 1024.0 * 1024.0).toLong()
         _state.update { it.copy(showSetLimitDialog = false) }
         viewModelScope.launch {
-            userRepository.updateUser(UpdateUserRequest(uuid = userUuid, trafficLimitBytes = bytes))
+            userRepository.updateUser(userRef, UpdateUserRequest(trafficLimitBytes = bytes))
                 .onSuccess { updated ->
                     _state.update { it.copy(actionSuccess = UiText.Res(Res.string.users_traffic_limit_updated)) }
                     onUpdated(updated)
@@ -151,7 +151,7 @@ class UserDetailViewModel(
         _state.update { it.copy(showSetExpiryDialog = false) }
         val expireAt = Instant.fromEpochMilliseconds(millis).toString()
         viewModelScope.launch {
-            userRepository.updateUser(UpdateUserRequest(uuid = userUuid, expireAt = expireAt))
+            userRepository.updateUser(userRef, UpdateUserRequest(expireAt = expireAt))
                 .onSuccess { updated ->
                     _state.update { it.copy(actionSuccess = UiText.Res(Res.string.users_expiry_updated)) }
                     onUpdated(updated)
@@ -185,7 +185,7 @@ class UserDetailViewModel(
 
     private fun setDeviceLimit(newLimit: Int, onUpdated: (User) -> Unit) {
         viewModelScope.launch {
-            userRepository.updateUser(UpdateUserRequest(uuid = userUuid, hwidDeviceLimit = newLimit))
+            userRepository.updateUser(userRef, UpdateUserRequest(hwidDeviceLimit = newLimit))
                 .onSuccess { updated ->
                     _state.update { it.copy(actionSuccess = UiText.Res(Res.string.users_device_limit_set, newLimit)) }
                     onUpdated(updated)

@@ -32,11 +32,19 @@ data class InboundDto(
 )
 
 @Serializable
-data class PubKeyResponse(
-    @SerialName("response") val response: PubKeyData,
+data class KeygenResponse(
+    @SerialName("response") val response: KeygenData,
 )
 
+/**
+ * `GET /api/keygen`. Both panel versions return the same value — the encoded payload that goes
+ * into a node's `SECRET_KEY` — but 3.0.0 renamed the field from `pubKey` to `secretKey`. Both
+ * are accepted so one build works against either; read [nodeSecretKey] rather than either field.
+ */
 @Serializable
-data class PubKeyData(
-    @SerialName("pubKey") val pubKey: String,
-)
+data class KeygenData(
+    @SerialName("pubKey")    val pubKey: String? = null,
+    @SerialName("secretKey") val secretKey: String? = null,
+) {
+    val nodeSecretKey: String? get() = secretKey ?: pubKey
+}
