@@ -18,6 +18,7 @@ import org.freedomwave.data.api.service.UserService
 import org.freedomwave.data.repository.AuthRepository
 import org.freedomwave.data.repository.BandwidthRepository
 import org.freedomwave.data.repository.DashboardRepository
+import org.freedomwave.data.repository.MetricsRepository
 import org.freedomwave.data.repository.HostRepository
 import org.freedomwave.data.repository.HwidRepository
 import org.freedomwave.data.repository.InfraBillingRepository
@@ -34,6 +35,7 @@ import org.freedomwave.data.store.AppPreferences
 import org.freedomwave.data.store.SecretStore
 import org.freedomwave.data.store.createDataStore
 import org.freedomwave.ui.feature.bandwidth.BandwidthViewModel
+import org.freedomwave.ui.feature.metrics.MetricsViewModel
 import org.freedomwave.ui.feature.dashboard.DashboardViewModel
 import org.freedomwave.ui.feature.hosts.HostFormViewModel
 import org.freedomwave.ui.feature.hosts.HostsViewModel
@@ -99,6 +101,7 @@ val repositoryModule = module {
     single { SubHistoryRepository(get(), get()) }
     single { TemplateRepository(get(), get()) }
     single { SubPageConfigRepository(get(), get()) }
+    single { MetricsRepository(get(), get()) }
 }
 
 val viewModelModule = module {
@@ -113,6 +116,7 @@ val viewModelModule = module {
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { SquadsViewModel(get()) }
     viewModel { InfraBillingViewModel(get()) }
+    viewModel { MetricsViewModel(get(), get(), get()) }
     viewModel { (uuid: String) -> InternalSquadEditViewModel(uuid, get(), get(), get()) }
     viewModel { (uuid: String) -> ExternalSquadEditViewModel(uuid, get(), get(), get(), get()) }
     viewModel { (userRef: String) ->

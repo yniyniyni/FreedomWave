@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -22,7 +23,9 @@ import org.freedomwave.ui.l10n.localizedBytes
 data class ChartSeries(
     val name: String,
     val color: String,
-    val data: List<Double>
+    val data: List<Double>,
+    /** Theme color to draw with instead of the panel-supplied hex [color]. */
+    val tint: Color? = null,
 )
 
 @Composable
@@ -31,7 +34,9 @@ fun BandwidthChart(
     series: List<ChartSeries>,
     modifier: Modifier = Modifier
         .fillMaxWidth()
-        .height(200.dp)
+        .height(200.dp),
+    /** Shade the area under each line with a fading gradient of its color. */
+    fillArea: Boolean = false,
 ) {
     if (categories.isEmpty() || series.all { it.data.isEmpty() }) return
 
@@ -74,7 +79,7 @@ fun BandwidthChart(
         // Series lines
         series.forEach { s ->
             if (s.data.isEmpty()) return@forEach
-            val lineColor = parseHexColor(s.color)
+            val lineColor = s.tint ?: parseHexColor(s.color)
             val path = Path()
             var firstPoint = true
             s.data.forEachIndexed { idx, v ->
@@ -83,6 +88,20 @@ fun BandwidthChart(
                 val y = chartH * (1f - (v / maxVal).toFloat())
                 if (firstPoint) { path.moveTo(x, y); firstPoint = false }
                 else path.lineTo(x, y)
+            }
+            if (fillArea) {
+                val lastX = leftPad + (minOf(s.data.size, n) - 1) * xStep
+                val area = Path().apply {
+                    addPath(path)
+                    lineTo(lastX, chartH)
+                    lineTo(leftPad, chartH)
+                    close()
+                }
+                drawPath(area, Brush.verticalGradient(
+                    listOf(lineColor.copy(alpha = 0.28f), lineColor.copy(alpha = 0f)),
+                    startY = 0f,
+                    endY   = chartH,
+                ))
             }
             drawPath(path, lineColor, style = Stroke(
                 width     = 2.dp.toPx(),

@@ -1,6 +1,7 @@
 package org.freedomwave.data.api.service
 
 import org.freedomwave.data.api.dto.BandwidthStatsResponse
+import org.freedomwave.data.api.dto.NodesMetricsResponse
 import org.freedomwave.data.api.dto.RecapResponse
 import org.freedomwave.data.api.dto.SystemStatsResponse
 import org.freedomwave.data.store.AppPreferences
@@ -20,4 +21,7 @@ class DashboardService(private val client: HttpClient, private val prefs: AppPre
         client.get("${prefs.getServerUrl()}/api/system/stats/bandwidth") {
             if (tz != null) parameter("tz", tz)
         }.body()
+
+    suspend fun getNodesMetrics(): NodesMetricsResponse =
+        client.get("${prefs.getServerUrl()}/api/system/nodes/metrics").body()
 }

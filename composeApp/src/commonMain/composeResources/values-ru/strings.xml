@@ -552,4 +552,24 @@
         <item quantity="many">%1$d инбаундов</item>
         <item quantity="other">%1$d инбаунда</item>
     </plurals>
+    <!-- metrics -->
+    <string name="metrics_title">Метрики</string>
+    <string name="metrics_realtime">Трафик в реальном времени</string>
+    <string name="metrics_realtime_empty">Ни одна нода онлайн не передаёт статистику интерфейса</string>
+    <string name="metrics_rate">%1$s/с</string>
+    <string name="metrics_rx">Вход</string>
+    <string name="metrics_tx">Выход</string>
+    <string name="metrics_traffic">Трафик (%1$s)</string>
+    <string name="metrics_traffic_total">Всего</string>
+    <string name="metrics_no_traffic">За этот период трафика нет</string>
+    <string name="metrics_top_nodes">Топ нод</string>
+    <string name="metrics_node_metrics">Метрики нод</string>
+    <string name="metrics_inbounds">Инбаунды</string>
+    <string name="metrics_outbounds">Аутбаунды</string>
+    <string name="metrics_no_tags">Нет данных</string>
+    <string name="metrics_cpu_cores">%1$d CPU</string>
+    <string name="metrics_upload">Отдача</string>
+    <string name="metrics_download">Загрузка</string>
+    <string name="metrics_users_online">Пользователи онлайн</string>
+
 </resources>

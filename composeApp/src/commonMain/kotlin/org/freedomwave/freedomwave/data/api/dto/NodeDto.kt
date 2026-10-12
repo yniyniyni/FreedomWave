@@ -82,7 +82,18 @@ data class NodeSystemStatsDto(
     @SerialName("memoryFree") val memoryFree: Long,
     @SerialName("memoryUsed") val memoryUsed: Long,
     @SerialName("uptime")     val uptime: Double,
-    @SerialName("loadAvg")    val loadAvg: List<Double> = emptyList()
+    @SerialName("loadAvg")    val loadAvg: List<Double> = emptyList(),
+    /** Primary network interface counters. Panel 3.x only; null when the node reports none. */
+    @SerialName("interface")  val networkInterface: NodeNetworkInterfaceDto? = null
+)
+
+@Serializable
+data class NodeNetworkInterfaceDto(
+    @SerialName("interface")     val name: String,
+    @SerialName("rxBytesPerSec") val rxBytesPerSec: Double,
+    @SerialName("txBytesPerSec") val txBytesPerSec: Double,
+    @SerialName("rxTotal")       val rxTotal: Double,
+    @SerialName("txTotal")       val txTotal: Double
 )
 
 @Serializable

@@ -42,6 +42,7 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.Groups
+import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Shield
@@ -108,11 +109,13 @@ import freedomwave.composeapp.generated.resources.settings_theme_light
 import freedomwave.composeapp.generated.resources.settings_theme_system
 import freedomwave.composeapp.generated.resources.settings_title
 import freedomwave.composeapp.generated.resources.settings_version
+import freedomwave.composeapp.generated.resources.metrics_title
 import freedomwave.composeapp.generated.resources.squads_title
 import freedomwave.composeapp.generated.resources.infra_title
 import org.freedomwave.ui.auth.rememberBiometricAuthenticator
 import org.freedomwave.ui.components.FwTopBar
 import org.freedomwave.ui.feature.infrabilling.InfraBillingScreen
+import org.freedomwave.ui.feature.metrics.MetricsScreen
 import org.freedomwave.ui.feature.squads.SquadsScreen
 import org.freedomwave.ui.navigation.BackGestureEffect
 import org.freedomwave.ui.l10n.AppLanguage
@@ -197,6 +200,11 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             return@AnimatedContent
         }
 
+        if (navEntry == SettingsNav.Metrics) {
+            MetricsScreen(onBack = { stack = stack.dropLast(1) })
+            return@AnimatedContent
+        }
+
         if (navEntry == SettingsNav.InfraBilling) {
             InfraBillingScreen(onBack = { stack = stack.dropLast(1) })
             return@AnimatedContent
@@ -230,6 +238,28 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(percent = 50),
                         ) { Text(stringResource(Res.string.settings_change_key)) }
+                    }
+                }
+            }
+
+            item {
+                FwDetailCard {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { stack = stack + SettingsNav.Metrics },
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        FwSectionIcon(Icons.Rounded.Insights, MaterialTheme.colorScheme.primary)
+                        Text(
+                            stringResource(Res.string.metrics_title),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Icon(
+                            Icons.Rounded.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
@@ -440,6 +470,7 @@ private sealed interface SettingsNav {
     data object Licenses : SettingsNav
     data object Squads : SettingsNav
     data object InfraBilling : SettingsNav
+    data object Metrics : SettingsNav
 
     val depth: Int get() = if (this is Settings) 0 else 1
     val key: String get() = when (this) {
@@ -447,6 +478,7 @@ private sealed interface SettingsNav {
         Licenses -> "licenses"
         Squads -> "squads"
         InfraBilling -> "infra_billing"
+        Metrics -> "metrics"
     }
 }
 

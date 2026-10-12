@@ -1,6 +1,7 @@
 package org.freedomwave.data.repository
 
 import org.freedomwave.data.api.dto.NodeDto
+import org.freedomwave.data.api.dto.NodeNetworkInterfaceDto
 import org.freedomwave.data.api.dto.NodeSystemDto
 import org.freedomwave.data.api.dto.NodeSystemInfoDto
 import org.freedomwave.data.api.dto.NodeSystemStatsDto
@@ -18,6 +19,7 @@ class NodeMappingTest {
         memoryUsed: Long = 500,
         memoryTotal: Long = 1000,
         withSystem: Boolean = true,
+        networkInterface: NodeNetworkInterfaceDto? = null,
     ) = NodeDto(
         uuid = "u1",
         name = "node-1",
@@ -47,7 +49,7 @@ class NodeMappingTest {
             ),
             stats = NodeSystemStatsDto(
                 memoryFree = memoryTotal - memoryUsed, memoryUsed = memoryUsed,
-                uptime = 1000.0, loadAvg = loadAvg,
+                uptime = 1000.0, loadAvg = loadAvg, networkInterface = networkInterface,
             ),
         ) else null,
     )
@@ -85,5 +87,19 @@ class NodeMappingTest {
     fun `memoryUsedPercent computes from used over total`() {
         val node = Node.from(dto(memoryUsed = 500, memoryTotal = 1000))
         assertEquals(50f, node.memoryUsedPercent)
+    }
+
+    @Test
+    fun `maps interface throughput to live rates`() {
+        val node = Node.from(dto(networkInterface = NodeNetworkInterfaceDto("eth0", 58_375.5, 60_600.0, 1.0, 2.0)))
+        assertEquals(58_375L, node.rxBytesPerSec)
+        assertEquals(60_600L, node.txBytesPerSec)
+    }
+
+    @Test
+    fun `live rates are null without an interface`() {
+        val node = Node.from(dto())
+        assertNull(node.rxBytesPerSec)
+        assertNull(node.txBytesPerSec)
     }
 }
