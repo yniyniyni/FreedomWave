@@ -38,6 +38,7 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.ShowChart
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,6 +50,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -118,15 +120,18 @@ import kotlin.math.roundToInt
 /** How often the realtime card re-reads node interface rates while the screen is visible. */
 private const val LIVE_POLL_MS = 5_000L
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MetricsScreen(vm: MetricsViewModel = koinViewModel(), onBack: () -> Unit) {
     val state by vm.state.collectAsState()
 
     // Poll only while this screen is composed — leaving it cancels the loop.
+    // Refresh immediately on (re)entry — the ViewModel outlives the screen, so its live data may be
+    // minutes old — then keep polling until the screen leaves composition.
     LaunchedEffect(Unit) {
         while (true) {
-            delay(LIVE_POLL_MS)
             vm.refreshLive()
+            delay(LIVE_POLL_MS)
         }
     }
 
@@ -163,13 +168,24 @@ fun MetricsScreen(vm: MetricsViewModel = koinViewModel(), onBack: () -> Unit) {
                     TextButton(onClick = vm::load) { Text(stringResource(Res.string.common_retry)) }
                 }
 
-            else -> MetricsContent(state, vm::setRange, Modifier.padding(padding))
+            else -> PullToRefreshBox(
+                isRefreshing = state.isLoading,
+                onRefresh    = vm::load,
+                modifier     = Modifier.fillMaxSize().padding(padding),
+            ) {
+                MetricsContent(state, vm::setRange, vm::retryBandwidth, Modifier.fillMaxSize())
+            }
         }
     }
 }
 
 @Composable
-private fun MetricsContent(state: MetricsUiState, onRangeChange: (TimeRange) -> Unit, modifier: Modifier) {
+private fun MetricsContent(
+    state: MetricsUiState,
+    onRangeChange: (TimeRange) -> Unit,
+    onRetryBandwidth: () -> Unit,
+    modifier: Modifier,
+) {
     val nodesByUuid = remember(state.nodes) { state.nodes.associateBy { it.uuid } }
     LazyColumn(
         modifier = modifier,
@@ -178,7 +194,7 @@ private fun MetricsContent(state: MetricsUiState, onRangeChange: (TimeRange) -> 
     ) {
         item(key = "range") { RangeSelector(state.selectedRange, onRangeChange) }
         item(key = "realtime") { RealtimeCard(state.nodes, state.liveUpdatedAt) }
-        item(key = "traffic") { TrafficCard(state) }
+        item(key = "traffic") { TrafficCard(state, onRetryBandwidth) }
 
         val topNodes = state.bandwidth?.topNodes.orEmpty().filter { it.total > 0 }
         if (topNodes.isNotEmpty()) {
@@ -325,7 +341,7 @@ private fun RateRow(icon: ImageVector, label: String, bytesPerSec: Long, tint: C
 // ── Traffic chart ───────────────────────────────────────────────────────────
 
 @Composable
-private fun TrafficCard(state: MetricsUiState) {
+private fun TrafficCard(state: MetricsUiState, onRetry: () -> Unit) {
     val data = state.bandwidth
     val total = data?.sparklineData?.sum() ?: 0.0
     val tint = MaterialTheme.colorScheme.primary
@@ -336,10 +352,21 @@ private fun TrafficCard(state: MetricsUiState) {
             MaterialTheme.colorScheme.tertiary,
         )
         when {
-            state.isBandwidthLoading && data == null ->
+            state.bandwidthError != null && data == null ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        state.bandwidthError.resolve(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = onRetry) { Text(stringResource(Res.string.common_retry)) }
+                }
+
+            data == null ->
                 Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { WaveLoader() }
 
-            data == null || total <= 0.0 ->
+            total <= 0.0 ->
                 Text(
                     stringResource(Res.string.metrics_no_traffic),
                     style = MaterialTheme.typography.bodySmall,

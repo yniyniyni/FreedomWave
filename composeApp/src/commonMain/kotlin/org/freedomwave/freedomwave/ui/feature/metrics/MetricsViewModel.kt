@@ -24,7 +24,9 @@ data class MetricsUiState(
     val isLoading: Boolean            = false,
     val isBandwidthLoading: Boolean   = false,
     val selectedRange: TimeRange      = TimeRange.DAYS_7,
+    /** Stats for [selectedRange]; null while that range is loading or after it failed. */
     val bandwidth: BandwidthNodesData? = null,
+    val bandwidthError: UiText?       = null,
     val nodes: List<Node>             = emptyList(),
     val nodeMetrics: List<NodeMetrics> = emptyList(),
     /** When [nodes] (and so the live interface rates) were last fetched. */
@@ -67,8 +69,13 @@ class MetricsViewModel(
 
     fun setRange(range: TimeRange) {
         if (range == _state.value.selectedRange) return
-        _state.update { it.copy(selectedRange = range) }
+        // Drop the previous range's data so the card can't show it under the new range's title.
+        _state.update { it.copy(selectedRange = range, bandwidth = null, bandwidthError = null) }
         viewModelScope.launch { loadBandwidth(range) }
+    }
+
+    fun retryBandwidth() {
+        viewModelScope.launch { loadBandwidth(_state.value.selectedRange) }
     }
 
     /**
@@ -77,6 +84,7 @@ class MetricsViewModel(
      * last values (the "updated … ago" label shows the staleness).
      */
     fun refreshLive() {
+        if (_state.value.isLoading) return // a full load is already fetching nodes
         viewModelScope.launch {
             nodeRepo.getNodes().onSuccess { nodes ->
                 _state.update { it.copy(nodes = nodes, liveUpdatedAt = Clock.System.now()) }
@@ -85,7 +93,7 @@ class MetricsViewModel(
     }
 
     private suspend fun loadBandwidth(range: TimeRange) {
-        _state.update { it.copy(isBandwidthLoading = true) }
+        _state.update { it.copy(isBandwidthLoading = true, bandwidthError = null) }
         val (start, end) = range.toDateRange()
         bandwidthRepo.getNodesStats(start, end)
             .onSuccess { data ->
@@ -96,7 +104,7 @@ class MetricsViewModel(
             }
             .onFailure { e ->
                 if (_state.value.selectedRange == range) {
-                    _state.update { it.copy(isBandwidthLoading = false, error = e.toUiText()) }
+                    _state.update { it.copy(isBandwidthLoading = false, bandwidthError = e.toUiText()) }
                 }
             }
     }

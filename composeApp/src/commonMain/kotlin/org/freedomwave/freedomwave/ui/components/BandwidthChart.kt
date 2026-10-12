@@ -120,7 +120,9 @@ fun BandwidthChart(
                 drawText(
                     measured,
                     topLeft = Offset(
-                        x = x - measured.size.width.toFloat() / 2f,
+                        // Centre on the point, but keep the first/last labels inside the canvas.
+                        x = (x - measured.size.width.toFloat() / 2f)
+                            .coerceIn(0f, size.width - measured.size.width.toFloat()),
                         y = chartH + 4.dp.toPx()
                     )
                 )
