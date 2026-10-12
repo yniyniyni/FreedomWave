@@ -31,6 +31,9 @@ data class Node(
     val loadAvg5: Float?,
     val loadAvg15: Float?,
     val hostname: String?,
+    /** Live interface throughput in bytes/s (panel 3.x); null when the node reports no interface. */
+    val rxBytesPerSec: Long?,
+    val txBytesPerSec: Long?,
     val cpuModel: String?,
     val arch: String?,
     val platform: String?,
@@ -95,6 +98,8 @@ data class Node(
             loadAvg5          = dto.system?.stats?.loadAvg?.getOrNull(1)?.toFloat(),
             loadAvg15         = dto.system?.stats?.loadAvg?.getOrNull(2)?.toFloat(),
             hostname          = dto.system?.info?.hostname,
+            rxBytesPerSec     = dto.system?.stats?.networkInterface?.rxBytesPerSec?.toLong(),
+            txBytesPerSec     = dto.system?.stats?.networkInterface?.txBytesPerSec?.toLong(),
             cpuModel          = dto.system?.info?.cpuModel,
             arch              = dto.system?.info?.arch,
             platform          = dto.system?.info?.platform,

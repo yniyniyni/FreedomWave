@@ -559,6 +559,26 @@
         <item quantity="other">%1$d inbounds</item>
     </plurals>
 
+    <!-- metrics -->
+    <string name="metrics_title">Metrics</string>
+    <string name="metrics_realtime">Realtime Bandwidth</string>
+    <string name="metrics_realtime_empty">No online node reports interface stats</string>
+    <string name="metrics_rate">%1$s/s</string>
+    <string name="metrics_rx">In</string>
+    <string name="metrics_tx">Out</string>
+    <string name="metrics_traffic">Traffic (%1$s)</string>
+    <string name="metrics_traffic_total">Total</string>
+    <string name="metrics_no_traffic">No traffic recorded in this period</string>
+    <string name="metrics_top_nodes">Top Nodes</string>
+    <string name="metrics_node_metrics">Node Metrics</string>
+    <string name="metrics_inbounds">Inbounds</string>
+    <string name="metrics_outbounds">Outbounds</string>
+    <string name="metrics_no_tags">No data</string>
+    <string name="metrics_cpu_cores">%1$d CPU</string>
+    <string name="metrics_upload">Upload</string>
+    <string name="metrics_download">Download</string>
+    <string name="metrics_users_online">Online users</string>
+
     <!-- language endonyms: never translated, identical in every locale (locale-invariant: keep out of values-* files) -->
     <string name="language_english">English</string>
     <string name="language_russian">Русский</string>

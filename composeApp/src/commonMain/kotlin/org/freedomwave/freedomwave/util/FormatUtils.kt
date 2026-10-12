@@ -98,6 +98,28 @@ fun byteValue(bytes: Long): ByteValue {
     return ByteValue(bytes / unit.factor, unit)
 }
 
+/**
+ * Parses a panel-formatted size such as `"45.62 GiB"`, `"512 B"` or `"0"` back into bytes.
+ * Accepts binary (KiB/MiB/…) and decimal-looking (KB/MB/…) suffixes, both treated as 1024-based
+ * to match [ByteUnit]. Returns null for anything unrecognised.
+ */
+fun parseHumanBytes(text: String): Long? {
+    val match = Regex("""^\s*([0-9]+(?:\.[0-9]+)?)\s*([KMGTP]?)(i?B)?\s*$""", RegexOption.IGNORE_CASE)
+        .matchEntire(text) ?: return null
+    val number = match.groupValues[1].toDoubleOrNull() ?: return null
+    val power = when (match.groupValues[2].uppercase()) {
+        ""  -> 0
+        "K" -> 1
+        "M" -> 2
+        "G" -> 3
+        "T" -> 4
+        else -> 5
+    }
+    var bytes = number
+    repeat(power) { bytes *= 1024.0 }
+    return bytes.roundToLong()
+}
+
 data class UptimeParts(val days: Long, val hours: Long, val minutes: Long)
 
 fun uptimeParts(seconds: Long): UptimeParts =
